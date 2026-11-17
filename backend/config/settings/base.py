@@ -146,7 +146,9 @@ REST_FRAMEWORK = {
         "user": "300/min",
         "login": "10/min",
         "register": "5/hour",
-        "password_reset": "5/hour",
+        "password_reset": "20/hour",
+        "password_reset_email": "5/hour",
+        "email_verification": "5/hour",
     },
     "EXCEPTION_HANDLER": "apps.common.errors.exception_handler",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
@@ -166,6 +168,24 @@ SIMPLE_JWT = {
 
 # HMAC key for session IP hashes. Rotating it makes old hashes unlinkable, which is acceptable.
 IP_HASH_KEY = os.getenv("IP_HASH_KEY", SECRET_KEY)
+
+# Token lifetimes from SECURITY.md. Verification is 24 hours; reset is 1 hour.
+EMAIL_VERIFICATION_TTL = timedelta(hours=24)
+PASSWORD_RESET_TTL = timedelta(hours=1)
+
+# Links in emails point at the SPA, never at the API host.
+FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:5173")
+DEFAULT_FROM_EMAIL = os.getenv(
+    "DEFAULT_FROM_EMAIL", "XakuFinance <no-reply@xakufinance.local>"
+)
+EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
+EMAIL_PORT = int(os.getenv("EMAIL_PORT", "25"))
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", False)
+
+# Google sign-in is optional. An empty client id disables the endpoint with a clear error.
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "XakuFinance API",

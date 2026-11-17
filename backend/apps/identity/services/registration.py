@@ -68,7 +68,8 @@ def _clean_display_name(display_name: str) -> str:
     return cleaned
 
 
-def _check_password(password: str) -> None:
+def validate_password_strength(password: str, *, user: User | None = None) -> None:
+    """Shared policy for registration, reset, and future password changes."""
     if len(password) < MIN_PASSWORD_LENGTH:
         raise WeakPassword(
             f"Password must be at least {MIN_PASSWORD_LENGTH} characters.",
@@ -80,7 +81,7 @@ def _check_password(password: str) -> None:
             field="password",
         )
     try:
-        validate_password(password)
+        validate_password(password, user=user)
     except DjangoValidationError as exc:
         raise WeakPassword(" ".join(exc.messages), field="password") from exc
 
@@ -103,32 +104,38 @@ def _resolve_currency(code: str) -> Currency:
 
 
 @transaction.atomic
-def register_user(
+def provision_account(
     *,
     email: str,
-    password: str,
+    password: str | None,
     display_name: str,
     timezone: str = "UTC",
     reporting_currency: str = "USD",
+    is_email_verified: bool = False,
 ) -> User:
-    """Create the account aggregate atomically.
+    """Create the user aggregate: user, profile, workspace, and dashboard layout.
 
-    Any failure leaves no partial user, profile, or workspace behind.
+    Shared by password registration and Google sign-in. Callers are responsible for deciding
+    whether the email is allowed to become an account (for example Google's explicit-link rule).
     """
     normalized_email = _clean_email(email)
     clean_name = _clean_display_name(display_name)
-    _check_password(password)
+    if password is not None:
+        validate_password_strength(password)
     clean_timezone = _resolve_timezone(timezone)
     currency = _resolve_currency(reporting_currency)
 
     if User.objects.filter(email=normalized_email).exists():
         raise EmailTaken("An account already exists for this email.", field="email")
 
+    now = django_timezone.now()
     try:
         user = User.objects.create_user(
             email=normalized_email,
             password=password,
-            password_changed_at=django_timezone.now(),
+            password_changed_at=now if password is not None else None,
+            is_email_verified=is_email_verified,
+            email_verified_at=now if is_email_verified else None,
         )
     except IntegrityError as exc:
         # A concurrent registration won the lower(email) unique index.
@@ -143,6 +150,26 @@ def register_user(
     )
     ensure_workspace(user)
     DashboardLayout.objects.create(user=user, widgets=DEFAULT_WIDGETS)
-
-    # Default categories and tags are seeded in Task 11/13 with the category model.
     return user
+
+
+@transaction.atomic
+def register_user(
+    *,
+    email: str,
+    password: str,
+    display_name: str,
+    timezone: str = "UTC",
+    reporting_currency: str = "USD",
+) -> User:
+    """Create the account aggregate atomically.
+
+    Any failure leaves no partial user, profile, or workspace behind.
+    """
+    return provision_account(
+        email=email,
+        password=password,
+        display_name=display_name,
+        timezone=timezone,
+        reporting_currency=reporting_currency,
+    )

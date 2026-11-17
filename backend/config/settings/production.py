@@ -14,6 +14,8 @@ if not os.getenv("JWT_SIGNING_KEY"):  # noqa: F405
     raise ImproperlyConfigured("JWT_SIGNING_KEY must be set in production.")
 if not ALLOWED_HOSTS or ALLOWED_HOSTS == ["*"]:  # noqa: F405
     raise ImproperlyConfigured("DJANGO_ALLOWED_HOSTS must list real hosts in production.")
+if FRONTEND_BASE_URL.startswith(("http://localhost", "http://127.0.0.1")):  # noqa: F405
+    raise ImproperlyConfigured("FRONTEND_BASE_URL must be the public SPA origin in production.")
 
 SECURE_SSL_REDIRECT = True
 SECURE_HSTS_SECONDS = 31_536_000

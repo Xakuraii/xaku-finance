@@ -35,6 +35,19 @@ All notable changes to this project are recorded here. Format loosely follows Ke
   - Refresh tokens rotate on every use; replaying an old token revokes the family
   - Refresh cookie is `HttpOnly`, `Secure`, `SameSite=Lax`, scoped to `/api/v1/auth/`
   - Progressive login lockout: 5 failures in 15 minutes, escalating to 1/5/15/60 minutes
+- 2026-11-17 — Email verification, password reset, and Google sign-in (Phase 1, Task 6):
+  - `IdentityToken` stores SHA-256 hashes only; 24-hour verification and 1-hour reset tokens, both
+    single use, with new tokens superseding unused predecessors
+  - `POST /auth/verify-email/`, `/auth/verify-email/resend/`, `/auth/password/forgot/`,
+    `/auth/password/reset/`, and `/auth/google/`
+  - Registration now emails a verification link; password reset revokes every session and never
+    reveals whether an account exists
+  - `SocialIdentity` links Google subjects; existing password accounts require explicit linking and
+    unverified Google emails are refused
+  - Per-email and per-IP throttles on password reset, plus throttles on login, registration, and
+    verification resends
+  - Plain-text email templates in `backend/apps/identity/templates/identity/emails/`; console backend
+    locally, Mailpit service in Compose for SMTP testing
 
 ### Decisions
 - Double-entry ledger with system accounts is the accounting foundation.
@@ -46,12 +59,15 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 - Receipt attachments/OCR, multi-workspace, bank sync, and AI chat are out of V1.
 
 ### Known limitations
-- Registration, login, rotation, and session revocation are implemented. Email verification,
-  password reset, Google sign-in, TOTP 2FA, accounts, transactions, and reports are not; every other
+- Registration, login, rotation, session revocation, email verification, password reset, and Google
+  sign-in are implemented. TOTP 2FA, accounts, transactions, and reports are not; every other
   functional claim in the planning docs remains a requirement, not a shipped fact.
 - The refresh cookie is `HttpOnly`/`Secure`/`SameSite=Lax`, but double-submit CSRF enforcement on
   refresh is not implemented yet. It must land with the frontend auth client before release.
-- Health endpoints, registration, and session flows are the only tested routes.
+- Password change from a signed-in session (`/auth/password/change/`) and explicit Google linking
+  are not implemented yet. Google sign-in refuses to link an existing password account.
+- Health endpoints, registration, session flows, email verification, password reset, and Google
+  sign-in are the tested routes.
 - Estimates in `docs/ROADMAP.md` are ranges, not commitments.
 
 ---

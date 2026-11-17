@@ -121,3 +121,52 @@ class RegisterResponseSerializer(serializers.Serializer):
     access = serializers.CharField(read_only=True)
     access_expires_in = serializers.IntegerField(read_only=True)
     refresh_expires_in = serializers.IntegerField(read_only=True)
+
+
+class VerifyEmailSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=128, trim_whitespace=False)
+
+
+class VerifyEmailResponseSerializer(serializers.Serializer):
+    verified = serializers.BooleanField(read_only=True)
+
+
+class SentResponseSerializer(serializers.Serializer):
+    sent = serializers.BooleanField(read_only=True)
+
+
+class DetailResponseSerializer(serializers.Serializer):
+    detail = serializers.CharField(read_only=True)
+
+
+class PasswordForgotSerializer(serializers.Serializer):
+    email = serializers.EmailField(max_length=254)
+
+    def validate_email(self, value: str) -> str:
+        return value.strip().lower()
+
+
+class PasswordResetSerializer(serializers.Serializer):
+    token = serializers.CharField(max_length=128, trim_whitespace=False)
+    new_password = serializers.CharField(
+        write_only=True,
+        min_length=12,
+        max_length=128,
+        trim_whitespace=False,
+        style={"input_type": "password"},
+    )
+
+
+class PasswordResetResponseSerializer(serializers.Serializer):
+    reset = serializers.BooleanField(read_only=True)
+
+
+class GoogleLoginSerializer(serializers.Serializer):
+    id_token = serializers.CharField(max_length=4096, trim_whitespace=False)
+
+
+class GoogleTokenResponseSerializer(serializers.Serializer):
+    user = UserSummarySerializer(read_only=True)
+    access = serializers.CharField(read_only=True)
+    access_expires_in = serializers.IntegerField(read_only=True)
+    refresh_expires_in = serializers.IntegerField(read_only=True)

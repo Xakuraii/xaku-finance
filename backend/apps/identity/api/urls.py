@@ -1,13 +1,18 @@
 from django.urls import path
 
 from apps.identity.api.views import (
+    GoogleLoginView,
     LoginView,
     LogoutAllView,
     LogoutView,
+    PasswordForgotView,
+    PasswordResetView,
     RefreshView,
     RegisterView,
+    ResendVerificationView,
     SessionDetailView,
     SessionListView,
+    VerifyEmailView,
 )
 
 urlpatterns = [
@@ -18,4 +23,13 @@ urlpatterns = [
     path("logout-all/", LogoutAllView.as_view(), name="logout-all"),
     path("sessions/", SessionListView.as_view(), name="session-list"),
     path("sessions/<uuid:session_id>/", SessionDetailView.as_view(), name="session-detail"),
+    path("verify-email/", VerifyEmailView.as_view(), name="verify-email"),
+    path(
+        "verify-email/resend/",
+        ResendVerificationView.as_view(),
+        name="verify-email-resend",
+    ),
+    path("password/forgot/", PasswordForgotView.as_view(), name="password-forgot"),
+    path("password/reset/", PasswordResetView.as_view(), name="password-reset"),
+    path("google/", GoogleLoginView.as_view(), name="google-login"),
 ]

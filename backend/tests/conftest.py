@@ -3,6 +3,16 @@
 import pytest
 
 
+@pytest.fixture(autouse=True)
+def _clear_throttle_cache():
+    """Throttle counters live in the process-wide cache; every test starts clean."""
+    from django.core.cache import cache
+
+    cache.clear()
+    yield
+    cache.clear()
+
+
 @pytest.fixture
 def api_client():
     from rest_framework.test import APIClient

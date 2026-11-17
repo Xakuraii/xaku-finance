@@ -4,6 +4,48 @@ info:
   version: 1.0.0
   description: Personal finance management API. Amounts are decimal strings.
 paths:
+  /api/v1/auth/google/:
+    post:
+      operationId: auth_google_create
+      description: Exchange a Google ID token for tokens. Existing accounts must be
+        linked.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoogleLoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GoogleLoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GoogleLoginRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleTokenResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/auth/login/:
     post:
       operationId: auth_login_create
@@ -59,6 +101,74 @@ paths:
       - jwtAuth: []
       responses:
         '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/password/forgot/:
+    post:
+      operationId: auth_password_forgot_create
+      description: 'Always 202: the response never reveals whether the account exists.'
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordForgotRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordForgotRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordForgotRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DetailResponse'
+          description: ''
+  /api/v1/auth/password/reset/:
+    post:
+      operationId: auth_password_reset_create
+      description: Set a new password with a single-use token and revoke every session.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PasswordResetRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PasswordResetResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
           content:
             application/json:
               schema:
@@ -155,6 +265,69 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/auth/verify-email/:
+    post:
+      operationId: auth_verify_email_create
+      description: Mark the account verified using a single-use token.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VerifyEmailRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerifyEmailResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/verify-email/resend/:
+    post:
+      operationId: auth_verify_email_resend_create
+      description: Send a fresh verification link to the signed-in user.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /health/live:
     get:
       operationId: health_live_retrieve
@@ -192,6 +365,44 @@ paths:
           description: ''
 components:
   schemas:
+    DetailResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+          readOnly: true
+      required:
+      - detail
+    GoogleLoginRequest:
+      type: object
+      properties:
+        id_token:
+          type: string
+          minLength: 1
+          maxLength: 4096
+      required:
+      - id_token
+    GoogleTokenResponse:
+      type: object
+      properties:
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          readOnly: true
+        access:
+          type: string
+          readOnly: true
+        access_expires_in:
+          type: integer
+          readOnly: true
+        refresh_expires_in:
+          type: integer
+          readOnly: true
+      required:
+      - access
+      - access_expires_in
+      - refresh_expires_in
+      - user
     LoginRequest:
       type: object
       properties:
@@ -208,6 +419,39 @@ components:
       required:
       - email
       - password
+    PasswordForgotRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+      required:
+      - email
+    PasswordResetRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 128
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 12
+          maxLength: 128
+      required:
+      - new_password
+      - token
+    PasswordResetResponse:
+      type: object
+      properties:
+        reset:
+          type: boolean
+          readOnly: true
+      required:
+      - reset
     RegisterRequest:
       type: object
       properties:
@@ -265,6 +509,14 @@ components:
       - refresh_expires_in
       - user
       - workspace
+    SentResponse:
+      type: object
+      properties:
+        sent:
+          type: boolean
+          readOnly: true
+      required:
+      - sent
     Session:
       type: object
       properties:
@@ -336,6 +588,23 @@ components:
       - email
       - id
       - is_email_verified
+    VerifyEmailRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          minLength: 1
+          maxLength: 128
+      required:
+      - token
+    VerifyEmailResponse:
+      type: object
+      properties:
+        verified:
+          type: boolean
+          readOnly: true
+      required:
+      - verified
     WorkspaceSummary:
       type: object
       properties:

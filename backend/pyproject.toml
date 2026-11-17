@@ -22,6 +22,7 @@ dependencies = [
     "pyotp>=2.9",
     "cryptography>=43",
     "google-auth>=2.37",
+    "requests>=2.32",
 ]
 
 [project.optional-dependencies]

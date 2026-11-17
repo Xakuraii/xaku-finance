@@ -5,9 +5,10 @@ Personal finance management for people who want their numbers to be *right*.
 Track your money. Control your spending. Build your savings. Understand your financial future.
 
 > **Status: Phase 1 in progress.** The backend scaffold, money and period primitives, identity
-> models, atomic registration, and rotating refresh sessions exist and are tested. Accounts,
-> transactions, and reports are not implemented yet. Nothing in this repository should be read as a
-> shipped feature until its acceptance criteria are met.
+> models, atomic registration, rotating refresh sessions, email verification, password reset, and
+> Google sign-in exist and are tested. Accounts, transactions, and reports are not implemented yet.
+> Nothing in this repository should be read as a shipped feature until its acceptance criteria are
+> met.
 
 ---
 
@@ -80,13 +81,17 @@ python -m venv .venv
 # Windows: .venv\Scripts\python -m pip install -e ".[dev]"
 python -m pip install -e ".[dev]"
 python manage.py migrate
-python manage.py testserver  # not used; run the test suite instead
 pytest
 ```
 
 On Windows the venv executables live in `.venv\Scripts\`. The database is exposed on host port
 **55432** to avoid colliding with a locally installed PostgreSQL. CI uses PostgreSQL 16; the schema
 targets 16+.
+
+Email uses Django's console backend locally, so verification and reset links are printed to the
+API log. To read them in a browser, start Mailpit (`docker compose up -d mailpit`), set
+`EMAIL_BACKEND`, `EMAIL_HOST`, and `EMAIL_PORT` as shown in `.env.example`, then open
+`http://localhost:56381`.
 
 Backend checks:
 

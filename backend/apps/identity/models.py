@@ -208,3 +208,79 @@ class UserSession(models.Model):
 
     def __str__(self) -> str:
         return f"Session {self.id} for {self.user_id}"
+
+
+class IdentityToken(models.Model):
+    """A hashed, single-use, expiring token for email verification or password reset.
+
+    Only the SHA-256 hash is stored. ``purpose`` keeps the two flows from accepting each other's
+    tokens. See SECURITY.md 2 and DATABASE.md 2.1.
+    """
+
+    PURPOSE_EMAIL_VERIFICATION = "email_verification"
+    PURPOSE_PASSWORD_RESET = "password_reset"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        "identity.User",
+        on_delete=models.CASCADE,
+        related_name="identity_tokens",
+    )
+    token_hash = models.CharField(max_length=64, unique=True)
+    purpose = models.CharField(max_length=24)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    requested_ip_hash = models.CharField(max_length=64, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "identity_token"
+        indexes = [
+            models.Index(
+                fields=["user", "purpose", "expires_at"],
+                name="identity_token_user_purpose_ix",
+            ),
+        ]
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(purpose__in=["email_verification", "password_reset"]),
+                name="identity_token_purpose_ck",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.purpose} token for {self.user_id}"
+
+
+class SocialIdentity(models.Model):
+    """An external identity linked to a local account, currently Google only."""
+
+    PROVIDER_GOOGLE = "google"
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        "identity.User",
+        on_delete=models.CASCADE,
+        related_name="social_identities",
+    )
+    provider = models.CharField(max_length=20)
+    subject = models.CharField(max_length=255)
+    email_at_provider = models.EmailField(max_length=254)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_login_at = models.DateTimeField()
+
+    class Meta:
+        db_table = "social_identity"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["provider", "subject"],
+                name="social_identity_provider_subject_uq",
+            ),
+            models.UniqueConstraint(
+                fields=["user", "provider"],
+                name="social_identity_user_provider_uq",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"{self.provider}:{self.subject}"

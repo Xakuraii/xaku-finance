@@ -114,8 +114,9 @@ social_identity
   user_id uuid nn fk -> identity_user (cascade)
   provider varchar(20) nn                       -- 'google'
   subject varchar(255) nn                       -- provider subject id
-  email_at_provider citext nn
-  created_at, last_login_at timestamptz
+  email_at_provider varchar(254) nn             -- stored lower-case
+  created_at timestamptz nn
+  last_login_at timestamptz nn
   UQ (provider, subject)
   UQ (user_id, provider)
 ```
@@ -150,17 +151,21 @@ recovery_code
 ```
 
 ```
-email_verification_token / password_reset_token
+identity_token
   id uuid pk
   user_id uuid nn fk -> identity_user (cascade)
   token_hash char(64) nn uq                     -- SHA-256 of a 32-byte random token
-  purpose varchar(24) nn
+  purpose varchar(24) nn                        -- email_verification | password_reset
   expires_at timestamptz nn
-  used_at timestamptz null
+  used_at timestamptz null                      -- set on use and when superseded
   requested_ip_hash char(64) null
   created_at timestamptz nn
+  CK purpose in ('email_verification', 'password_reset')
   IX (user_id, purpose, expires_at)
 ```
+
+One table serves both flows and `purpose` prevents a reset link from verifying an email. Issuing a
+new token marks any unused predecessor used, so only the newest link works.
 
 ### 2.2 Workspace
 

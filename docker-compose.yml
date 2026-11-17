@@ -34,6 +34,15 @@ services:
       retries: 10
     restart: unless-stopped
 
+  # Development-only mail catcher. UI: http://localhost:56381
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: xaku-mailpit
+    ports:
+      - "56380:1025"
+      - "56381:8025"
+    restart: unless-stopped
+
 volumes:
   postgres-data:
   redis-data:

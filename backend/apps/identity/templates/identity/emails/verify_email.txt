@@ -1,0 +1,9 @@
+Hi {{ display_name|default:"there" }},
+
+Verify your email address for XakuFinance:
+
+{{ link }}
+
+This link expires in {{ expires_hours }} hours and can be used once.
+
+If you did not create a XakuFinance account, ignore this message. No account activity is needed.
