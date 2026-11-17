@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "xakufinance-backend"
+version = "0.1.0"
+description = "XakuFinance API"
+requires-python = ">=3.12"
+dependencies = [
+    "Django>=5.2,<5.3",
+    "djangorestframework>=3.15",
+    "drf-spectacular>=0.28",
+    "djangorestframework-simplejwt>=5.4",
+    "django-cors-headers>=4.6",
+    "django-filter>=24.3",
+    "psycopg[binary]>=3.2",
+    "dj-database-url>=2.3",
+    "python-dotenv>=1.0",
+    "tzdata>=2025.1",
+    "argon2-cffi>=23.1",
+    "pyotp>=2.9",
+    "cryptography>=43",
+    "google-auth>=2.37",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3",
+    "pytest-django>=4.9",
+    "pytest-cov>=6.0",
+    "factory-boy>=3.3",
+    "hypothesis>=6.120",
+    "freezegun>=1.5",
+    "ruff>=0.8",
+    "mypy>=1.13",
+]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.test"
+python_files = ["test_*.py"]
+testpaths = ["tests"]
+addopts = "-ra --strict-markers"
+markers = [
+    "slow: long-running tests",
+    "performance: volume or latency tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv", "migrations"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "DJ"]
+ignore = ["DJ001"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+ignore_missing_imports = true
+disallow_untyped_defs = true
+check_untyped_defs = true
+exclude = ["migrations", ".venv"]
+
+[[tool.mypy.overrides]]
+module = ["apps.*.migrations.*"]
+ignore_errors = true

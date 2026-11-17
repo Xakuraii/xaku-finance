@@ -15,6 +15,13 @@ All notable changes to this project are recorded here. Format loosely follows Ke
   - `docs/adr/0001`–`0006`
   - `.agent/` operating context, standards, workflows, and checklists
   - Phase 1 implementation plan in `docs/superpowers/plans/`
+- 2026-11-17 — Backend scaffold (Phase 1, Task 1):
+  - Django 5.2 project with split settings (`base`, `local`, `test`, `production`)
+  - `GET /health/live` and `GET /health/ready`, request-id middleware, stable error envelope
+  - `pyproject.toml` with pytest, ruff, and mypy configuration
+  - `docker-compose.yml` (PostgreSQL 16 on host port 55432, Redis on 56379), `Makefile`,
+    CI workflow, `.env.example`, `.gitignore`, `.dockerignore`
+  - Generated and validated `docs/openapi.yaml`
 
 ### Decisions
 - Double-entry ledger with system accounts is the accounting foundation.
@@ -26,9 +33,10 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 - Receipt attachments/OCR, multi-workspace, bank sync, and AI chat are out of V1.
 
 ### Known limitations
-- No application code exists yet. Every functional claim in the planning docs is a requirement, not a
-  shipped fact.
-- No test results exist yet, because there is nothing to test.
+- Only the backend scaffold exists. Registration, accounts, transactions, and reports are not
+  implemented yet; every functional claim in the planning docs remains a requirement, not a shipped
+  fact.
+- Health endpoints and the schema endpoint are the only tested routes.
 - Estimates in `docs/ROADMAP.md` are ranges, not commitments.
 
 ---

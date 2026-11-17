@@ -1,6 +1,6 @@
 # Repository Structure — XakuFinance
 
-**Status:** planned. Directories do not exist yet.
+**Status:** backend scaffold exists (Phase 1, Task 1). Frontend and application domains are planned.
 
 ```
 XakuFinance/

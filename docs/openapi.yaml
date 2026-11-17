@@ -1,0 +1,42 @@
+openapi: 3.0.3
+info:
+  title: XakuFinance API
+  version: 1.0.0
+  description: Personal finance management API. Amounts are decimal strings.
+paths:
+  /health/live:
+    get:
+      operationId: health_live_retrieve
+      tags:
+      - health
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+          description: ''
+  /health/ready:
+    get:
+      operationId: health_ready_retrieve
+      tags:
+      - health
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '503':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+components: {}
