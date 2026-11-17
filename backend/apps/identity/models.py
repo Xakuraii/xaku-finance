@@ -65,6 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_email_verified = models.BooleanField(default=False)
     email_verified_at = models.DateTimeField(null=True, blank=True)
     failed_login_count = models.PositiveIntegerField(default=0)
+    last_failed_login_at = models.DateTimeField(null=True, blank=True)
     locked_until = models.DateTimeField(null=True, blank=True)
     password_changed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -173,3 +174,37 @@ class DashboardLayout(models.Model):
 
     def __str__(self) -> str:
         return f"Layout for {self.user_id}"
+
+
+class UserSession(models.Model):
+    """A refresh-token lineage. Rotation updates ``refresh_jti``; reuse revokes the family."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        "identity.User",
+        on_delete=models.CASCADE,
+        related_name="sessions",
+    )
+    refresh_jti = models.UUIDField(unique=True)
+    family_id = models.UUIDField(db_index=True)
+    user_agent = models.CharField(max_length=400, blank=True, default="")
+    #: HMAC-SHA256 of the client IP. The raw address is never stored.
+    ip_hash = models.CharField(max_length=64, null=True, blank=True)
+    approx_location = models.CharField(max_length=120, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    last_used_at = models.DateTimeField()
+    expires_at = models.DateTimeField()
+    revoked_at = models.DateTimeField(null=True, blank=True)
+    revoked_reason = models.CharField(max_length=40, blank=True, default="")
+
+    class Meta:
+        db_table = "user_session"
+        indexes = [
+            models.Index(
+                fields=["user", "revoked_at", "-last_used_at"],
+                name="user_session_active_ix",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"Session {self.id} for {self.user_id}"

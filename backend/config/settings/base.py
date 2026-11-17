@@ -164,6 +164,9 @@ SIMPLE_JWT = {
     "TOKEN_TYPE_CLAIM": "typ",
 }
 
+# HMAC key for session IP hashes. Rotating it makes old hashes unlinkable, which is acceptable.
+IP_HASH_KEY = os.getenv("IP_HASH_KEY", SECRET_KEY)
+
 SPECTACULAR_SETTINGS = {
     "TITLE": "XakuFinance API",
     "DESCRIPTION": "Personal finance management API. Amounts are decimal strings.",

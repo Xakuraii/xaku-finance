@@ -65,6 +65,7 @@ identity_user
   is_email_verified bool nn default false
   email_verified_at timestamptz null
   failed_login_count int nn default 0
+  last_failed_login_at timestamptz null          -- resets the 15-minute failure window
   locked_until timestamptz null
   last_login timestamptz null                  -- Django field; API exposes last_login_at
   password_changed_at timestamptz null
@@ -102,9 +103,9 @@ user_session
   last_used_at timestamptz nn
   expires_at timestamptz nn
   revoked_at timestamptz null
-  revoked_reason varchar(40) null
+  revoked_reason varchar(40) nn default ''     -- user_logout|logout_all|user_revoked|refresh_reuse
   IX (user_id, revoked_at, last_used_at desc)
-  IX (refresh_jti)
+  IX (refresh_jti) UQ
 ```
 
 ```

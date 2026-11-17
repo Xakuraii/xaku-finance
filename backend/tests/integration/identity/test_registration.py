@@ -111,6 +111,8 @@ def test_registration_api_returns_user_and_workspace(api_client) -> None:
     assert body["user"]["is_email_verified"] is False
     assert body["workspace"]["reporting_currency"] == "USD"
     assert body["workspace"]["timezone"] == "Asia/Phnom_Penh"
+    assert body["access"]
+    assert "refresh" in response.cookies
     assert "password" not in body["user"]
 
 

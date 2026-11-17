@@ -4,10 +4,10 @@ Personal finance management for people who want their numbers to be *right*.
 
 Track your money. Control your spending. Build your savings. Understand your financial future.
 
-> **Status: planning complete, implementation not started.** This repository currently contains the
-> approved planning package (requirements, architecture, schema, accounting rules, API contracts,
-> security model, roadmap, and the Phase 1 implementation plan). No application code exists yet.
-> Nothing in this repository should be read as a shipped feature.
+> **Status: Phase 1 in progress.** The backend scaffold, money and period primitives, identity
+> models, atomic registration, and rotating refresh sessions exist and are tested. Accounts,
+> transactions, and reports are not implemented yet. Nothing in this repository should be read as a
+> shipped feature until its acceptance criteria are met.
 
 ---
 
@@ -68,29 +68,37 @@ Rationale and rejected alternatives: `docs/adr/`.
 Phase 1 implementation plan:
 [`docs/superpowers/plans/2026-11-17-phase-1-foundation.md`](docs/superpowers/plans/2026-11-17-phase-1-foundation.md)
 
-## Planned local setup
+## Local setup
 
-These commands describe the intended developer experience; they will only work once Phase 1 lands.
+Phase 1 backend work is runnable now. The frontend is not built yet.
 
 ```bash
 cp .env.example .env
-docker compose up --build
-# API      http://localhost:8000/api/v1/
-# API docs http://localhost:8000/api/docs/
-# Web      http://localhost:5173
+docker compose up -d postgres redis
+cd backend
+python -m venv .venv
+# Windows: .venv\Scripts\python -m pip install -e ".[dev]"
+python -m pip install -e ".[dev]"
+python manage.py migrate
+python manage.py testserver  # not used; run the test suite instead
+pytest
 ```
 
-Backend checks, run inside the `api` container:
+On Windows the venv executables live in `.venv\Scripts\`. The database is exposed on host port
+**55432** to avoid colliding with a locally installed PostgreSQL. CI uses PostgreSQL 16; the schema
+targets 16+.
+
+Backend checks:
 
 ```bash
-python manage.py migrate
-python manage.py seed_currencies
-python manage.py check --deploy
+cd backend
+python -m ruff check .
+python -m mypy apps
 pytest
-python manage.py spectacular --file docs/openapi.yaml --validate
+python manage.py spectacular --file ../docs/openapi.yaml --validate
 ```
 
-Frontend checks:
+Frontend checks (once the SPA lands):
 
 ```bash
 cd frontend

@@ -28,6 +28,13 @@ All notable changes to this project are recorded here. Format loosely follows Ke
   - Atomic `register_user` service and `POST /api/v1/auth/register/`
   - One workspace per user enforced by a unique `owner`; profile and workspace created in the same
     transaction
+- 2026-11-17 — Rotating refresh sessions and revocation (Phase 1, Task 5):
+  - `UserSession` ledger of refresh lineages with hashed IPs and device metadata
+  - `POST /auth/login/`, `/auth/refresh/`, `/auth/logout/`, `/auth/logout-all/`,
+    `GET /auth/sessions/`, and `DELETE /auth/sessions/{id}/`
+  - Refresh tokens rotate on every use; replaying an old token revokes the family
+  - Refresh cookie is `HttpOnly`, `Secure`, `SameSite=Lax`, scoped to `/api/v1/auth/`
+  - Progressive login lockout: 5 failures in 15 minutes, escalating to 1/5/15/60 minutes
 
 ### Decisions
 - Double-entry ledger with system accounts is the accounting foundation.
@@ -39,10 +46,12 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 - Receipt attachments/OCR, multi-workspace, bank sync, and AI chat are out of V1.
 
 ### Known limitations
-- Registration, identity models, profile, and workspace provisioning are implemented. Login, token
-  issuing, accounts, transactions, and reports are not; every other functional claim in the planning
-  docs remains a requirement, not a shipped fact.
-- Health endpoints and registration are the only tested routes.
+- Registration, login, rotation, and session revocation are implemented. Email verification,
+  password reset, Google sign-in, TOTP 2FA, accounts, transactions, and reports are not; every other
+  functional claim in the planning docs remains a requirement, not a shipped fact.
+- The refresh cookie is `HttpOnly`/`Secure`/`SameSite=Lax`, but double-submit CSRF enforcement on
+  refresh is not implemented yet. It must land with the frontend auth client before release.
+- Health endpoints, registration, and session flows are the only tested routes.
 - Estimates in `docs/ROADMAP.md` are ranges, not commitments.
 
 ---
