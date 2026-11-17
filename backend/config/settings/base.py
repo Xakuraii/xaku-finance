@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "apps.common",
+    "apps.identity",
+    "apps.workspaces",
 ]
 
 MIDDLEWARE = [
@@ -90,9 +92,8 @@ DATABASES = {
 # Fail fast when the database is unreachable instead of blocking a request for minutes.
 DATABASES["default"].setdefault("OPTIONS", {})["connect_timeout"] = 5
 
-# The custom user model lands with apps.identity in Task 4. It must be set before the
-# first migration; until then Django uses its default user so checks and tests run.
-# AUTH_USER_MODEL = "identity.User"
+# The custom user model must be set before the first migration; it is now the only user model.
+AUTH_USER_MODEL = "identity.User"
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},

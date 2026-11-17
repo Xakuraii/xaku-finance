@@ -22,6 +22,12 @@ All notable changes to this project are recorded here. Format loosely follows Ke
   - `docker-compose.yml` (PostgreSQL 16 on host port 55432, Redis on 56379), `Makefile`,
     CI workflow, `.env.example`, `.gitignore`, `.dockerignore`
   - Generated and validated `docs/openapi.yaml`
+- 2026-11-17 — Identity, currency reference data, and registration (Phase 1, Task 4):
+  - `User` (email login, Argon2id), `UserProfile`, `DashboardLayout`, `Workspace` models
+  - `ref_currency` with USD and KHR seeded by data migration
+  - Atomic `register_user` service and `POST /api/v1/auth/register/`
+  - One workspace per user enforced by a unique `owner`; profile and workspace created in the same
+    transaction
 
 ### Decisions
 - Double-entry ledger with system accounts is the accounting foundation.
@@ -33,10 +39,10 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 - Receipt attachments/OCR, multi-workspace, bank sync, and AI chat are out of V1.
 
 ### Known limitations
-- Only the backend scaffold exists. Registration, accounts, transactions, and reports are not
-  implemented yet; every functional claim in the planning docs remains a requirement, not a shipped
-  fact.
-- Health endpoints and the schema endpoint are the only tested routes.
+- Registration, identity models, profile, and workspace provisioning are implemented. Login, token
+  issuing, accounts, transactions, and reports are not; every other functional claim in the planning
+  docs remains a requirement, not a shipped fact.
+- Health endpoints and registration are the only tested routes.
 - Estimates in `docs/ROADMAP.md` are ranges, not commitments.
 
 ---

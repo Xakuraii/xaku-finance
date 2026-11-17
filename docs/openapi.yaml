@@ -4,6 +4,33 @@ info:
   version: 1.0.0
   description: Personal finance management API. Amounts are decimal strings.
 paths:
+  /api/v1/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Create a user, profile, and workspace atomically.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+          description: ''
   /health/live:
     get:
       operationId: health_live_retrieve
@@ -39,4 +66,98 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
-components: {}
+components:
+  schemas:
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        password:
+          type: string
+          writeOnly: true
+          minLength: 12
+          maxLength: 128
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        timezone:
+          type: string
+          minLength: 1
+          default: UTC
+          maxLength: 64
+        reporting_currency:
+          type: string
+          minLength: 1
+          default: USD
+          maxLength: 3
+      required:
+      - display_name
+      - email
+      - password
+    RegisterResponse:
+      type: object
+      properties:
+        user:
+          allOf:
+          - $ref: '#/components/schemas/UserSummary'
+          readOnly: true
+        workspace:
+          allOf:
+          - $ref: '#/components/schemas/WorkspaceSummary'
+          readOnly: true
+      required:
+      - user
+      - workspace
+    UserSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        is_email_verified:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - id
+      - is_email_verified
+    WorkspaceSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        reporting_currency:
+          type: string
+          readOnly: true
+        timezone:
+          type: string
+          readOnly: true
+        week_start:
+          type: integer
+          readOnly: true
+      required:
+      - id
+      - name
+      - reporting_currency
+      - timezone
+      - week_start

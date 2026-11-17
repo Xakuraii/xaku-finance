@@ -58,7 +58,7 @@ All FKs are `PROTECT` unless marked `cascade`.
 ```
 identity_user
   id uuid pk
-  email citext nn uq
+  email varchar(254) nn uq                     -- stored lower-case; lower(email) unique index
   password varchar(128) nn                     -- Argon2id encoded hash
   is_active bool nn default true
   is_staff bool nn default false
@@ -66,7 +66,7 @@ identity_user
   email_verified_at timestamptz null
   failed_login_count int nn default 0
   locked_until timestamptz null
-  last_login_at timestamptz null
+  last_login timestamptz null                  -- Django field; API exposes last_login_at
   password_changed_at timestamptz null
   created_at timestamptz nn
   updated_at timestamptz nn

@@ -1,7 +1,7 @@
 """Root URL configuration."""
 
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.common.views import health_live, health_ready
@@ -9,6 +9,7 @@ from apps.common.views import health_live, health_ready
 urlpatterns = [
     path("health/live", health_live, name="health-live"),
     path("health/ready", health_ready, name="health-ready"),
+    path("api/v1/auth/", include("apps.identity.api.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
