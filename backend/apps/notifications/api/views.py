@@ -73,6 +73,7 @@ class NotificationReadView(APIView):
     """Mark an individual notification as read."""
 
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ReadActionResponseSerializer
 
     @extend_schema(
         responses={200: ReadActionResponseSerializer},
@@ -90,6 +91,7 @@ class NotificationReadAllView(APIView):
     """Mark all unread notifications for the user as read."""
 
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = ReadAllResponseSerializer
 
     @extend_schema(
         responses={200: ReadAllResponseSerializer},
@@ -104,6 +106,7 @@ class NotificationUnreadCountView(APIView):
     """Get the current count of unread notifications for the authenticated user."""
 
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UnreadCountResponseSerializer
 
     @extend_schema(
         responses={200: UnreadCountResponseSerializer},
@@ -165,6 +168,7 @@ class EvaluateNotificationsTriggerView(APIView):
     """Trigger background evaluation of budget, bill, and savings notifications."""
 
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EvaluateResponseSerializer
 
     @extend_schema(
         responses={200: EvaluateResponseSerializer},

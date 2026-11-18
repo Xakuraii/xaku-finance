@@ -107,7 +107,7 @@ class WorkspaceSettingsUpdateSerializer(serializers.Serializer[Any]):
     week_start = serializers.IntegerField(min_value=1, max_value=7, required=False)
 
 
-class WorkspaceSummarySerializer(serializers.Serializer[Any]):
+class WorkspaceDiagnosticSummarySerializer(serializers.Serializer[Any]):
     id = serializers.UUIDField()
     name = serializers.CharField()
     reporting_currency = serializers.CharField()

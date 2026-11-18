@@ -78,7 +78,8 @@ def assemble_dashboard(
     """Assemble the aggregated dashboard payload according to user's layout and active period."""
     today = as_of or timezone.localdate()
     target_currency = currency_code or str(workspace.reporting_currency_id)
-    curr_obj = Currency.objects.get(code=target_currency)
+    curr_map = {c.code: c for c in Currency.objects.all()}
+    curr_obj = curr_map.get(target_currency) or Currency.objects.get(code=target_currency)
     target_minor_unit = curr_obj.minor_unit
 
     # 1. Resolve Period Boundaries
@@ -124,7 +125,7 @@ def assemble_dashboard(
         rates_used: list[dict[str, Any]] = []
 
         for c_code, minor_amt in sorted(balances_by_curr.items()):
-            c_obj = Currency.objects.get(code=c_code)
+            c_obj = curr_map.get(c_code) or Currency.objects.get(code=c_code)
             native_money = Money(minor_amt, c_code, c_obj.minor_unit)
             balances_list.append({
                 "currency": c_code,
@@ -239,7 +240,7 @@ def assemble_dashboard(
                 )
                 spent_minor = direct_spent + split_spent
                 b_curr_code = b.currency_id
-                b_curr = Currency.objects.get(code=b_curr_code)
+                b_curr = curr_map.get(b_curr_code) or Currency.objects.get(code=b_curr_code)
                 spent_money = Money(spent_minor, b_curr_code, b_curr.minor_unit)
                 base_money = Money(b.base_amount_minor, b_curr_code, b_curr.minor_unit)
                 remaining_minor = max(0, b.base_amount_minor - spent_minor)
@@ -280,7 +281,7 @@ def assemble_dashboard(
 
             g_items: list[dict[str, Any]] = []
             for g in active_goals:
-                g_curr = Currency.objects.get(code=g.currency_code)
+                g_curr = curr_map.get(g.currency_code) or Currency.objects.get(code=g.currency_code)
                 target_m = Money(g.target_amount_minor, g.currency_code, g_curr.minor_unit)
                 total_contrib_minor = (
                     SavingsContribution.objects.filter(goal=g).aggregate(

@@ -103,7 +103,7 @@ def create_notification(
     title: str,
     body: str,
     dedupe_key: str,
-    severity: str = NotificationSeverity.INFO,
+    severity: str = str(NotificationSeverity.INFO),
     data: dict[str, Any] | None = None,
 ) -> tuple[Notification | None, bool]:
     """Create a deduplicated notification and queue appropriate channel deliveries."""

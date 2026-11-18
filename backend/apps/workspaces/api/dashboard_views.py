@@ -118,6 +118,7 @@ class DashboardLayoutResetView(APIView):
     """Reset user's dashboard layout to canonical defaults."""
 
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = DashboardLayoutSerializer
 
     @extend_schema(
         responses={200: DashboardLayoutSerializer},

@@ -7,13 +7,8 @@ import {
   Check,
   Save,
   AlertCircle,
-  Shield,
   Lock,
   Layers,
-  Calendar,
-  DollarSign,
-  Clock,
-  Globe,
 } from "lucide-react";
 import {
   getMe,

@@ -23,9 +23,9 @@ from apps.transactions.models import Transaction
 from apps.workspaces.api.serializers import (
     MeResponseSerializer,
     MeUpdateSerializer,
+    WorkspaceDiagnosticSummarySerializer,
     WorkspaceSettingsSerializer,
     WorkspaceSettingsUpdateSerializer,
-    WorkspaceSummarySerializer,
 )
 
 
@@ -237,9 +237,10 @@ class WorkspaceSummaryView(APIView):
     """Retrieve workspace diagnostic summary and record counts."""
 
     permission_classes = [permissions.IsAuthenticated]
+    serializer_class = WorkspaceDiagnosticSummarySerializer
 
     @extend_schema(
-        responses={200: WorkspaceSummarySerializer},
+        responses={200: WorkspaceDiagnosticSummarySerializer},
         summary="Get workspace statistics and diagnostic summary",
     )
     def get(self, request: Request) -> Response:
@@ -272,4 +273,4 @@ class WorkspaceSummaryView(APIView):
             ),
             "created_at": ws.created_at,
         }
-        return Response(WorkspaceSummarySerializer(data).data, status=status.HTTP_200_OK)
+        return Response(WorkspaceDiagnosticSummarySerializer(data).data, status=status.HTTP_200_OK)
