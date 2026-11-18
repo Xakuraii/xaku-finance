@@ -4,6 +4,7 @@ import {
   NetWorthHistoryResponse,
   NetWorthResponse,
   RecurringObligation,
+  ReportResponse,
   SafeToSpendResponse,
   TagAnalyticsResponse,
 } from "../types";
@@ -100,4 +101,45 @@ export async function createRecurringObligation(
 
 export async function deleteRecurringObligation(id: string): Promise<void> {
   return api.delete(`/api/v1/recurring-obligations/${id}/`);
+}
+
+export async function fetchIncomeReport(params?: {
+  start?: string;
+  end?: string;
+  currency?: string;
+}): Promise<ReportResponse> {
+  const qp = new URLSearchParams();
+  if (params?.start) qp.append("start", params.start);
+  if (params?.end) qp.append("end", params.end);
+  if (params?.currency) qp.append("currency", params.currency);
+  const qs = qp.toString();
+  return api.get<ReportResponse>(qs ? `/api/v1/reports/income/?${qs}` : "/api/v1/reports/income/");
+}
+
+export async function fetchCashFlowReport(params?: {
+  start?: string;
+  end?: string;
+  currency?: string;
+}): Promise<ReportResponse> {
+  const qp = new URLSearchParams();
+  if (params?.start) qp.append("start", params.start);
+  if (params?.end) qp.append("end", params.end);
+  if (params?.currency) qp.append("currency", params.currency);
+  const qs = qp.toString();
+  return api.get<ReportResponse>(qs ? `/api/v1/reports/cashflow/?${qs}` : "/api/v1/reports/cashflow/");
+}
+
+export async function fetchCategoryReport(params?: {
+  start?: string;
+  end?: string;
+  currency?: string;
+}): Promise<ReportResponse> {
+  const qp = new URLSearchParams();
+  if (params?.start) qp.append("start", params.start);
+  if (params?.end) qp.append("end", params.end);
+  if (params?.currency) qp.append("currency", params.currency);
+  const qs = qp.toString();
+  return api.get<ReportResponse>(
+    qs ? `/api/v1/reports/categories/?${qs}` : "/api/v1/reports/categories/"
+  );
 }

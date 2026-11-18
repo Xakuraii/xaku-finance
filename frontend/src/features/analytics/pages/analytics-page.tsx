@@ -4,12 +4,22 @@ import { NetWorthCard } from "../components/net-worth-card";
 import { NetWorthChart } from "../components/net-worth-chart";
 import { SafeToSpendCard } from "../components/safe-to-spend-card";
 import { DailyAllowanceCard } from "../components/daily-allowance-card";
+import { ReportsView } from "../components/reports-view";
 import { useAuth } from "@/features/auth/auth-context";
-import { Calendar, BarChart3, Landmark, PieChart, Sparkles } from "lucide-react";
+import {
+  Calendar,
+  BarChart3,
+  Landmark,
+  PieChart,
+  Sparkles,
+  FileSpreadsheet,
+} from "lucide-react";
 
 export const AnalyticsPage: React.FC = () => {
   const { workspace } = useAuth();
-  const [activeTab, setActiveTab] = useState<"net_worth" | "pacing" | "spending">("net_worth");
+  const [activeTab, setActiveTab] = useState<
+    "net_worth" | "pacing" | "reports" | "spending"
+  >("net_worth");
   const [period, setPeriod] = useState<"30d" | "this_month" | "all">("30d");
 
   // Calculate dates
@@ -37,7 +47,7 @@ export const AnalyticsPage: React.FC = () => {
             Financial Intelligence
           </h1>
           <p className="text-xs text-muted mt-1">
-            Historical net worth, Safe-to-Spend pacing, and spending breakdowns.
+            Historical net worth, Safe-to-Spend pacing, financial statements, and spending analytics.
           </p>
         </div>
 
@@ -69,6 +79,18 @@ export const AnalyticsPage: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab("reports")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+              activeTab === "reports"
+                ? "bg-gold text-black font-semibold"
+                : "text-muted hover:text-main"
+            }`}
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            Reports
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("spending")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
               activeTab === "spending"
@@ -95,6 +117,8 @@ export const AnalyticsPage: React.FC = () => {
           <DailyAllowanceCard currency={currency} />
         </div>
       )}
+
+      {activeTab === "reports" && <ReportsView currency={currency} />}
 
       {activeTab === "spending" && (
         <div className="space-y-6">

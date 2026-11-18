@@ -177,3 +177,31 @@ export interface RecurringObligation {
   created_at: string;
   updated_at: string;
 }
+
+// ==========================================
+// Financial Report Types
+// ==========================================
+
+export interface ReportReconciliation {
+  ledger_income: string;
+  reported_income: string;
+  difference: string;
+  ledger_expense: string;
+  reported_expense: string;
+  checked_at: string;
+}
+
+export interface ReportResponse {
+  period: {
+    start: string;
+    end: string;
+  };
+  currency: string;
+  totals: Record<string, string>;
+  series: Array<Record<string, string>>;
+  table: Array<Record<string, any>>;
+  rate_policy: string;
+  rates_used: Array<Record<string, string>>;
+  generated_from: string;
+  reconciliation: ReportReconciliation;
+}
