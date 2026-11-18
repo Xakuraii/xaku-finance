@@ -215,6 +215,7 @@ periods immutable.
 ## Phase 3 — Financial planning
 
 **Objective:** savings goals, debts, and the emergency fund, all tied to real money.
+**Status:** complete on 2026-11-18. All acceptance criteria verified. Report in `docs/PHASE_3_REPORT.md`.
 
 ### Milestone 3.1 — Savings goals and earmarks
 
