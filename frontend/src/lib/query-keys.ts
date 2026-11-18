@@ -14,4 +14,9 @@ export const queryKeys = {
     detail: (id: string) => ["transactions", "detail", id] as const,
     audit: (id: string) => ["transactions", "audit", id] as const,
   },
+  transfers: {
+    all: ["transfers"] as const,
+    list: (params?: Record<string, unknown>) => ["transfers", "list", params] as const,
+    detail: (id: string) => ["transfers", "detail", id] as const,
+  },
 };

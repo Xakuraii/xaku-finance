@@ -1058,6 +1058,124 @@ paths:
               schema:
                 $ref: '#/components/schemas/Transaction'
           description: ''
+  /api/v1/transfers/:
+    get:
+      operationId: transfers_list
+      description: ViewSet for managing internal account transfers.
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - transfers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransferList'
+          description: ''
+    post:
+      operationId: transfers_create
+      description: ViewSet for managing internal account transfers.
+      tags:
+      - transfers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+          description: ''
+  /api/v1/transfers/{id}/:
+    get:
+      operationId: transfers_retrieve
+      description: ViewSet for managing internal account transfers.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transfer.
+        required: true
+      tags:
+      - transfers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+          description: ''
+  /api/v1/transfers/{id}/archive/:
+    post:
+      operationId: transfers_archive_create
+      description: ViewSet for managing internal account transfers.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transfer.
+        required: true
+      tags:
+      - transfers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transfer'
+          description: ''
   /health/live:
     get:
       operationId: health_live_retrieve
@@ -1181,6 +1299,41 @@ components:
       - nature
       - opened_on
       - updated_at
+    AccountBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        currency:
+          type: string
+        account_type:
+          $ref: '#/components/schemas/AccountTypeEnum'
+      required:
+      - account_type
+      - currency
+      - id
+      - name
+    AccountBriefRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        currency:
+          type: string
+          minLength: 1
+        account_type:
+          $ref: '#/components/schemas/AccountTypeEnum'
+      required:
+      - account_type
+      - currency
+      - name
     AccountRequest:
       type: object
       description: Full account representation including dynamic ledger balance.
@@ -1208,6 +1361,34 @@ components:
         * `credit_card` - Credit Card
         * `investment` - Investment
         * `other` - Other
+    CategoryBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+      required:
+      - id
+      - kind
+      - name
+    CategoryBriefRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+      required:
+      - kind
+      - name
     DetailResponse:
       type: object
       properties:
@@ -1246,6 +1427,14 @@ components:
       - access_expires_in
       - refresh_expires_in
       - user
+    KindEnum:
+      enum:
+      - expense
+      - income
+      type: string
+      description: |-
+        * `expense` - Expense
+        * `income` - Income
     LoginRequest:
       type: object
       properties:
@@ -1340,6 +1529,25 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Transaction'
+    PaginatedTransferList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transfer'
     PasswordForgotRequest:
       type: object
       properties:
@@ -1729,6 +1937,161 @@ components:
       required:
       - currency
       - type
+    Transfer:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        transaction_id:
+          type: string
+          format: uuid
+        source_account:
+          allOf:
+          - $ref: '#/components/schemas/AccountBrief'
+          readOnly: true
+        destination_account:
+          allOf:
+          - $ref: '#/components/schemas/AccountBrief'
+          readOnly: true
+        amount:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+        currency:
+          type: string
+        destination_amount:
+          type: string
+          readOnly: true
+        destination_amount_minor:
+          type: integer
+        destination_currency:
+          type: string
+        rate:
+          type: string
+        reference_rate:
+          type: string
+          nullable: true
+        transfer_fee:
+          type: string
+          readOnly: true
+        transfer_fee_minor:
+          type: integer
+        transfer_fee_category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryBrief'
+          readOnly: true
+        conversion_fee:
+          type: string
+          readOnly: true
+        conversion_fee_minor:
+          type: integer
+        conversion_fee_category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryBrief'
+          readOnly: true
+        conversion:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+        occurred_on:
+          type: string
+          format: date
+        notes:
+          type: string
+          nullable: true
+        status:
+          type: string
+        is_archived:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - amount
+      - amount_minor
+      - conversion
+      - conversion_fee
+      - conversion_fee_category
+      - conversion_fee_minor
+      - created_at
+      - currency
+      - destination_account
+      - destination_amount
+      - destination_amount_minor
+      - destination_currency
+      - id
+      - is_archived
+      - occurred_on
+      - rate
+      - reference_rate
+      - source_account
+      - status
+      - transaction_id
+      - transfer_fee
+      - transfer_fee_category
+      - transfer_fee_minor
+    TransferRequest:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        transaction_id:
+          type: string
+          format: uuid
+        amount_minor:
+          type: integer
+        currency:
+          type: string
+          minLength: 1
+        destination_amount_minor:
+          type: integer
+        destination_currency:
+          type: string
+          minLength: 1
+        rate:
+          type: string
+          minLength: 1
+        reference_rate:
+          type: string
+          nullable: true
+          minLength: 1
+        transfer_fee_minor:
+          type: integer
+        conversion_fee_minor:
+          type: integer
+        occurred_on:
+          type: string
+          format: date
+        notes:
+          type: string
+          nullable: true
+        status:
+          type: string
+          minLength: 1
+        is_archived:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - amount_minor
+      - conversion_fee_minor
+      - created_at
+      - currency
+      - destination_amount_minor
+      - destination_currency
+      - id
+      - is_archived
+      - occurred_on
+      - rate
+      - reference_rate
+      - status
+      - transaction_id
+      - transfer_fee_minor
     TwoFactorCodeRequest:
       type: object
       properties:

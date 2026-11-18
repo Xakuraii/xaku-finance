@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Archive, RotateCcw, ShieldCheck, Wallet } from "lucide-react";
+import { Plus, Archive, RotateCcw, ShieldCheck, Wallet, ArrowRightLeft } from "lucide-react";
 import { getAccounts, restoreAccount } from "../api";
 import { Account } from "../types";
 import { CreateAccountDialog } from "./create-account-dialog";
 import { ArchiveAccountDialog } from "./archive-account-dialog";
+import { TransferDialog } from "@/features/transfers/components/transfer-dialog";
 import { MoneyDisplay } from "@/components/money";
 import { formatAccountType } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
@@ -13,6 +14,7 @@ export const StatementSheet: React.FC = () => {
   const queryClient = useQueryClient();
   const [includeArchived, setIncludeArchived] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isTransferOpen, setIsTransferOpen] = useState(false);
   const [accountToArchive, setAccountToArchive] = useState<Account | null>(null);
 
   const { data: accounts = [], isLoading } = useQuery({
@@ -58,6 +60,14 @@ export const StatementSheet: React.FC = () => {
             />
             Show Archived
           </label>
+
+          <button
+            onClick={() => setIsTransferOpen(true)}
+            className="flex items-center gap-2 rounded border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] px-3.5 py-2 text-xs font-medium text-main cursor-pointer shadow-xs transition-colors"
+          >
+            <ArrowRightLeft className="w-4 h-4 text-gold" />
+            Transfer
+          </button>
 
           <button
             onClick={() => setIsCreateOpen(true)}
@@ -196,6 +206,12 @@ export const StatementSheet: React.FC = () => {
       <CreateAccountDialog
         isOpen={isCreateOpen}
         onClose={() => setIsCreateOpen(false)}
+      />
+
+      <TransferDialog
+        open={isTransferOpen}
+        onOpenChange={setIsTransferOpen}
+        accounts={accounts}
       />
 
       <ArchiveAccountDialog

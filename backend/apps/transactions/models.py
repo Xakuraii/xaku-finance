@@ -281,3 +281,67 @@ class OpeningBalance(WorkspaceScopedModel):
 
     def __str__(self) -> str:
         return f"OpeningBalance for {self.account_id} as of {self.as_of}"
+
+
+class Transfer(WorkspaceScopedModel):
+    transaction = models.OneToOneField(
+        Transaction,
+        on_delete=models.CASCADE,
+        related_name="transfer_detail",
+    )
+    source_account = models.ForeignKey(
+        "accounts.Account",
+        on_delete=models.PROTECT,
+        related_name="transfers_out",
+    )
+    destination_account = models.ForeignKey(
+        "accounts.Account",
+        on_delete=models.PROTECT,
+        related_name="transfers_in",
+    )
+    source_amount_minor = models.BigIntegerField()
+    destination_amount_minor = models.BigIntegerField()
+    rate = models.DecimalField(max_digits=20, decimal_places=10)
+    reference_rate = models.DecimalField(max_digits=20, decimal_places=10, null=True, blank=True)
+    conversion_fee_minor = models.BigIntegerField(default=0)
+    conversion_fee_category = models.ForeignKey(
+        "categories.Category",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    transfer_fee_minor = models.BigIntegerField(default=0)
+    transfer_fee_category = models.ForeignKey(
+        "categories.Category",
+        null=True,
+        blank=True,
+        on_delete=models.PROTECT,
+        related_name="+",
+    )
+    notes = models.TextField(null=True, blank=True)
+
+    class Meta:
+        db_table = "transfer"
+        constraints = [
+            CheckConstraint(
+                condition=~Q(source_account=models.F("destination_account")),
+                name="transfer_diff_accounts",
+            ),
+            CheckConstraint(
+                condition=Q(source_amount_minor__gt=0)
+                & Q(destination_amount_minor__gt=0)
+                & Q(rate__gt=0),
+                name="transfer_positive_amounts",
+            ),
+            CheckConstraint(
+                condition=Q(conversion_fee_minor__gte=0) & Q(transfer_fee_minor__gte=0),
+                name="transfer_non_negative_fees",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return (
+            f"Transfer {self.transaction_id}: "
+            f"{self.source_account_id} -> {self.destination_account_id}"
+        )
