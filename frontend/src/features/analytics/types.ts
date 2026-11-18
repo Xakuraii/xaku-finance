@@ -91,3 +91,89 @@ export interface NetWorthHistoryResponse {
     net_worth: string;
   }>;
 }
+
+// ==========================================
+// Safe-to-Spend & Daily Allowance Types
+// ==========================================
+
+export interface SafeToSpendHorizon {
+  start: string;
+  end: string;
+  label: string;
+}
+
+export interface SafeToSpendComponents {
+  spendable_balance: string;
+  pending_outflows: string;
+  reserved_bills: string;
+  planned_savings: string;
+}
+
+export interface SafeToSpendAccount {
+  id: string;
+  name: string;
+  included: boolean;
+  balance: string;
+  reason: string;
+}
+
+export interface SafeToSpendExcludedAccount {
+  id: string;
+  name: string;
+  reason: string;
+}
+
+export interface SafeToSpendResponse {
+  currency: string;
+  display: string;
+  raw: string;
+  is_negative: boolean;
+  horizon: SafeToSpendHorizon;
+  components: SafeToSpendComponents;
+  accounts: SafeToSpendAccount[];
+  excluded_accounts: SafeToSpendExcludedAccount[];
+  notes: string[];
+}
+
+export interface DailyAllowanceBudgetItem {
+  id: string;
+  name: string;
+  remaining: string;
+  flexible?: boolean;
+  reason?: string;
+}
+
+export interface DailyAllowanceResponse {
+  currency: string;
+  period: {
+    start: string;
+    end: string;
+    timezone: string;
+  };
+  remaining_days: number;
+  flexible_remaining: string;
+  allowance: string;
+  state: "ok" | "over_budget" | "period_ended";
+  explanation: string;
+  budgets: DailyAllowanceBudgetItem[];
+  excluded: DailyAllowanceBudgetItem[];
+}
+
+export interface RecurringObligation {
+  id: string;
+  name: string;
+  kind: "bill" | "subscription" | "reserved" | "savings_plan";
+  amount_minor: number;
+  amount: string;
+  currency_code: string;
+  account?: string | null;
+  category?: string | null;
+  cadence: "weekly" | "monthly" | "quarterly" | "yearly" | "one_off";
+  next_due_date: string;
+  is_reserved: boolean;
+  auto_post: boolean;
+  is_active: boolean;
+  notes?: string | null;
+  created_at: string;
+  updated_at: string;
+}

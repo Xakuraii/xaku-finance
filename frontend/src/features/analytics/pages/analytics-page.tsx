@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import { SpendingByTagCard } from "../components/spending-by-tag-card";
 import { NetWorthCard } from "../components/net-worth-card";
 import { NetWorthChart } from "../components/net-worth-chart";
+import { SafeToSpendCard } from "../components/safe-to-spend-card";
+import { DailyAllowanceCard } from "../components/daily-allowance-card";
 import { useAuth } from "@/features/auth/auth-context";
-import { Calendar, BarChart3, Landmark, PieChart } from "lucide-react";
+import { Calendar, BarChart3, Landmark, PieChart, Sparkles } from "lucide-react";
 
 export const AnalyticsPage: React.FC = () => {
   const { workspace } = useAuth();
-  const [activeTab, setActiveTab] = useState<"net_worth" | "spending">("net_worth");
+  const [activeTab, setActiveTab] = useState<"net_worth" | "pacing" | "spending">("net_worth");
   const [period, setPeriod] = useState<"30d" | "this_month" | "all">("30d");
 
   // Calculate dates
@@ -35,12 +37,12 @@ export const AnalyticsPage: React.FC = () => {
             Financial Intelligence
           </h1>
           <p className="text-xs text-muted mt-1">
-            Historical net worth, asset/liability breakdowns, and spending analytics.
+            Historical net worth, Safe-to-Spend pacing, and spending breakdowns.
           </p>
         </div>
 
         {/* Section Tabs */}
-        <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs">
+        <div className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs">
           <button
             type="button"
             onClick={() => setActiveTab("net_worth")}
@@ -55,6 +57,18 @@ export const AnalyticsPage: React.FC = () => {
           </button>
           <button
             type="button"
+            onClick={() => setActiveTab("pacing")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+              activeTab === "pacing"
+                ? "bg-gold text-black font-semibold"
+                : "text-muted hover:text-main"
+            }`}
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            Safe-to-Spend
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("spending")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
               activeTab === "spending"
@@ -63,17 +77,26 @@ export const AnalyticsPage: React.FC = () => {
             }`}
           >
             <PieChart className="w-3.5 h-3.5" />
-            Spending Breakdown
+            Spending
           </button>
         </div>
       </div>
 
-      {activeTab === "net_worth" ? (
+      {activeTab === "net_worth" && (
         <div className="space-y-6">
           <NetWorthCard currency={currency} />
           <NetWorthChart currency={currency} />
         </div>
-      ) : (
+      )}
+
+      {activeTab === "pacing" && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <SafeToSpendCard currency={currency} />
+          <DailyAllowanceCard currency={currency} />
+        </div>
+      )}
+
+      {activeTab === "spending" && (
         <div className="space-y-6">
           <div className="flex justify-end">
             <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs">
