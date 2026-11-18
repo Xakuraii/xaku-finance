@@ -15,8 +15,8 @@ from rest_framework.views import APIView
 
 from apps.analytics.api.serializers import ReportResponseSerializer
 from apps.analytics.reports import (
-    get_category_report,
     get_cash_flow_statement,
+    get_category_report,
     get_income_expense_report,
 )
 

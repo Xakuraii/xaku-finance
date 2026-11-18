@@ -1,7 +1,6 @@
 """API integration tests for Net Worth endpoints."""
 
 from datetime import date
-from decimal import Decimal
 
 import pytest
 from rest_framework.test import APIClient
@@ -10,7 +9,6 @@ from apps.accounts.models import AccountType
 from apps.accounts.services import create_account
 from apps.debts.services import create_liability
 from apps.identity.services.registration import register_user
-from apps.ledger.models import ExchangeRate, ExchangeRateSource
 from apps.transactions.services.opening import create_opening_balance
 
 

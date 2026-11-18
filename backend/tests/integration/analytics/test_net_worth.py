@@ -1,6 +1,6 @@
 """Integration tests for Net Worth calculation, FX conversion, and snapshot caching."""
 
-from datetime import date, timedelta
+from datetime import date
 from decimal import Decimal
 
 import pytest

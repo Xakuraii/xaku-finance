@@ -9,14 +9,10 @@ from typing import Any
 from django.db.models import Sum
 from django.utils import timezone
 
-from apps.accounts.models import Account
-from apps.analytics.net_worth import get_exchange_rate
-from apps.categories.models import Category
 from apps.common.models import Currency
-from apps.common.money import Money, convert
+from apps.common.money import Money
 from apps.ledger.models import (
     JournalEntryStatus,
-    LedgerAccount,
     LedgerAccountKind,
     Posting,
 )
@@ -43,7 +39,9 @@ class ReportReconciliation:
         return {
             "ledger_income": self.ledger_income,
             "reported_income": self.reported_income,
-            "difference": self.income_difference if self.income_difference != "0.00" else self.expense_difference,
+            "difference": self.income_difference
+            if self.income_difference != "0.00"
+            else self.expense_difference,
             "ledger_expense": self.ledger_expense,
             "reported_expense": self.reported_expense,
             "checked_at": self.checked_at,
@@ -56,7 +54,10 @@ def compute_ledger_reconciliation(
     end_date: date,
     target_currency: str,
 ) -> ReportReconciliation:
-    """Compute exact posting sums for income and expense ledger accounts and compare to transaction figures."""
+    """
+    Compute exact posting sums for income and expense ledger accounts and
+    compare to transaction figures.
+    """
     curr_obj = Currency.objects.get(code=target_currency)
     m_unit = curr_obj.minor_unit
 
@@ -281,13 +282,15 @@ def get_category_report(
     for cid, val in cat_map.items():
         amt_minor = val["amount_minor"]
         pct = (amt_minor / total_spending_minor * 100.0) if total_spending_minor > 0 else 0.0
-        table.append({
-            "category_id": cid,
-            "category_name": val["name"],
-            "amount": Money(amt_minor, target_currency, m_unit).serialize(),
-            "amount_minor": amt_minor,
-            "percentage": round(pct, 2),
-        })
+        table.append(
+            {
+                "category_id": cid,
+                "category_name": val["name"],
+                "amount": Money(amt_minor, target_currency, m_unit).serialize(),
+                "amount_minor": amt_minor,
+                "percentage": round(pct, 2),
+            }
+        )
 
     # Sort descending by amount
     table.sort(key=lambda x: x["amount_minor"], reverse=True)
@@ -349,9 +352,18 @@ def get_cash_flow_statement(
     net_cash_flow_minor = inflows_minor - outflows_minor
 
     table = [
-        {"item": "Operating Inflows", "amount": Money(inflows_minor, target_currency, m_unit).serialize()},
-        {"item": "Operating Outflows", "amount": f"-{Money(outflows_minor, target_currency, m_unit).serialize()}"},
-        {"item": "Net Cash Flow", "amount": Money(net_cash_flow_minor, target_currency, m_unit).serialize()},
+        {
+            "item": "Operating Inflows",
+            "amount": Money(inflows_minor, target_currency, m_unit).serialize(),
+        },
+        {
+            "item": "Operating Outflows",
+            "amount": f"-{Money(outflows_minor, target_currency, m_unit).serialize()}",
+        },
+        {
+            "item": "Net Cash Flow",
+            "amount": Money(net_cash_flow_minor, target_currency, m_unit).serialize(),
+        },
     ]
 
     return {

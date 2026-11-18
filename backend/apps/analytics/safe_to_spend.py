@@ -54,7 +54,10 @@ def calculate_safe_to_spend(
     currency_code: str | None = None,
     as_of: date | None = None,
 ) -> SafeToSpendResult:
-    """Calculate the spendable liquid allowance available after reserved obligations and pending outflows."""
+    """
+    Calculate the spendable liquid allowance available after reserved obligations
+    and pending outflows.
+    """
     today = as_of or timezone.localdate()
     target_currency = currency_code or str(workspace.reporting_currency_id)
 
@@ -117,19 +120,23 @@ def calculate_safe_to_spend(
             )
 
             spendable_balance_minor += converted.amount_minor
-            included_accounts.append({
-                "id": str(acc.id),
-                "name": acc.name,
-                "included": True,
-                "balance": converted.serialize(),
-                "reason": "spendable",
-            })
+            included_accounts.append(
+                {
+                    "id": str(acc.id),
+                    "name": acc.name,
+                    "included": True,
+                    "balance": converted.serialize(),
+                    "reason": "spendable",
+                }
+            )
         else:
-            excluded_accounts.append({
-                "id": str(acc.id),
-                "name": acc.name,
-                "reason": "not_spendable",
-            })
+            excluded_accounts.append(
+                {
+                    "id": str(acc.id),
+                    "name": acc.name,
+                    "reason": "not_spendable",
+                }
+            )
 
     # 3. Pending Outflows
     pending_txs = Transaction.objects.filter(

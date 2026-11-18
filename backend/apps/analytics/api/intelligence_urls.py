@@ -14,7 +14,9 @@ from apps.analytics.api.views import (
 app_name = "intelligence"
 
 router = DefaultRouter()
-router.register("recurring-obligations", RecurringObligationViewSet, basename="recurring-obligation")
+router.register(
+    "recurring-obligations", RecurringObligationViewSet, basename="recurring-obligation"
+)
 
 urlpatterns = [
     path("safe-to-spend/", SafeToSpendView.as_view(), name="safe-to-spend"),

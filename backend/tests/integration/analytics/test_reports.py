@@ -55,18 +55,10 @@ def reports_setup(db):
         actor=user,
     )
 
-    cat_salary = Category.objects.create(
-        workspace=ws, name="Salary", kind=CategoryKind.INCOME
-    )
-    cat_groc = Category.objects.create(
-        workspace=ws, name="Groceries", kind=CategoryKind.EXPENSE
-    )
-    cat_dine = Category.objects.create(
-        workspace=ws, name="Dining", kind=CategoryKind.EXPENSE
-    )
-    cat_util = Category.objects.create(
-        workspace=ws, name="Utilities", kind=CategoryKind.EXPENSE
-    )
+    cat_salary = Category.objects.create(workspace=ws, name="Salary", kind=CategoryKind.INCOME)
+    cat_groc = Category.objects.create(workspace=ws, name="Groceries", kind=CategoryKind.EXPENSE)
+    cat_dine = Category.objects.create(workspace=ws, name="Dining", kind=CategoryKind.EXPENSE)
+    cat_util = Category.objects.create(workspace=ws, name="Utilities", kind=CategoryKind.EXPENSE)
 
     client = APIClient()
     client.force_authenticate(user=user)

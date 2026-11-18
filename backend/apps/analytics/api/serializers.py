@@ -8,12 +8,9 @@ from typing import Any
 from rest_framework import serializers
 
 from apps.analytics.models import (
-    ObligationCadence,
-    ObligationKind,
     RecurringObligation,
 )
 from apps.common.money import Money
-
 
 # ==========================================
 # Emergency Fund Serializers

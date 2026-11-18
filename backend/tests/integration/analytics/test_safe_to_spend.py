@@ -1,7 +1,6 @@
 """Integration tests for Safe-to-Spend and Daily Spending Allowance calculation engines."""
 
 from datetime import date, timedelta
-from decimal import Decimal
 
 import pytest
 
@@ -75,7 +74,6 @@ def test_safe_to_spend_full_itemization(sts_setup):
     ws = sts_setup["workspace"]
     user = sts_setup["user"]
     checking = sts_setup["checking"]
-    savings = sts_setup["savings"]
     today = sts_setup["today"]
 
     cat = Category.objects.create(workspace=ws, name="Utilities", kind=CategoryKind.EXPENSE)
@@ -177,15 +175,13 @@ def test_safe_to_spend_negative_flooring(sts_setup):
 
 def test_daily_allowance_calculation(sts_setup):
     ws = sts_setup["workspace"]
-    user = sts_setup["user"]
-    checking = sts_setup["checking"]
     today = sts_setup["today"]  # Nov 15 (16 days remaining in Nov: 15..30 inclusive)
 
     cat_groc = Category.objects.create(workspace=ws, name="Groceries", kind=CategoryKind.EXPENSE)
     cat_rent = Category.objects.create(workspace=ws, name="Rent", kind=CategoryKind.EXPENSE)
 
     # Budget 1: Groceries $480 flexible
-    b_groc = create_budget(
+    create_budget(
         workspace=ws,
         name="Groceries Budget",
         category_id=cat_groc.id,
@@ -197,7 +193,7 @@ def test_daily_allowance_calculation(sts_setup):
     )
 
     # Budget 2: Rent $1,200 non-flexible
-    b_rent = create_budget(
+    create_budget(
         workspace=ws,
         name="Rent Budget",
         category_id=cat_rent.id,
@@ -230,7 +226,7 @@ def test_daily_allowance_over_budget(sts_setup):
 
     cat_dine = Category.objects.create(workspace=ws, name="Dining Out", kind=CategoryKind.EXPENSE)
 
-    b_dine = create_budget(
+    create_budget(
         workspace=ws,
         name="Dining Budget",
         category_id=cat_dine.id,

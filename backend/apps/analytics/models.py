@@ -160,4 +160,7 @@ class RecurringObligation(WorkspaceScopedModel):
         ]
 
     def __str__(self) -> str:
-        return f"{self.name} ({self.kind}): {self.amount_minor} {self.currency_code} due {self.next_due_date}"
+        return (
+            f"{self.name} ({self.kind}): {self.amount_minor} "
+            f"{self.currency_code} due {self.next_due_date}"
+        )

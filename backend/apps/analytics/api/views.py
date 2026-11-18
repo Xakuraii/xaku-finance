@@ -5,6 +5,7 @@ from __future__ import annotations
 from datetime import datetime, timedelta
 from typing import Any
 
+from django.db.models import QuerySet
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions, viewsets
@@ -137,7 +138,9 @@ class NetWorthView(APIView):
             try:
                 as_of_date = datetime.strptime(as_of_param, "%Y-%m-%d").date()
             except ValueError as exc:
-                raise ValidationError({"as_of": "Invalid date format. Expected YYYY-MM-DD."}) from exc
+                raise ValidationError(
+                    {"as_of": "Invalid date format. Expected YYYY-MM-DD."}
+                ) from exc
 
         calc = get_or_create_snapshot(ws, as_of=as_of_date, currency_code=currency_param)
         return Response(calc.to_dict())
@@ -175,7 +178,9 @@ class NetWorthHistoryView(APIView):
             try:
                 from_date = datetime.strptime(from_param, "%Y-%m-%d").date()
             except ValueError as exc:
-                raise ValidationError({"from": "Invalid date format. Expected YYYY-MM-DD."}) from exc
+                raise ValidationError(
+                    {"from": "Invalid date format. Expected YYYY-MM-DD."}
+                ) from exc
 
         if from_date > to_date:
             raise ValidationError({"from": "'from' date cannot be after 'to' date."})
@@ -207,9 +212,7 @@ class SafeToSpendView(APIView):
         horizon_type = request.query_params.get("horizon", "period_end")
         horizon_days_param = request.query_params.get("horizon_days")
         horizon_days = (
-            int(horizon_days_param)
-            if horizon_days_param and horizon_days_param.isdigit()
-            else None
+            int(horizon_days_param) if horizon_days_param and horizon_days_param.isdigit() else None
         )
         currency_param = request.query_params.get("currency")
 
@@ -253,7 +256,7 @@ class RecurringObligationViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = RecurringObligationSerializer
 
-    def get_queryset(self):
+    def get_queryset(self) -> QuerySet[RecurringObligation]:
         ws = getattr(self.request.user, "workspace", None)
         if not ws:
             return RecurringObligation.objects.none()

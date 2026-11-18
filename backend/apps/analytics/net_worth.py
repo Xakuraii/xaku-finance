@@ -1,10 +1,10 @@
-"""Net Worth analytics engine: ledger-backed as-of balances, FX conversions, and snapshot caching."""
+"""Net Worth analytics engine: ledger-backed as-of balances and snapshot caching."""
 
 from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import date, timedelta
 from decimal import Decimal
 from typing import Any
@@ -12,7 +12,7 @@ from typing import Any
 from django.db.models import Sum
 from django.utils import timezone
 
-from apps.accounts.models import Account, AccountNature
+from apps.accounts.models import Account
 from apps.analytics.models import NetWorthSnapshot
 from apps.common.models import Currency
 from apps.common.money import Money, convert
@@ -199,8 +199,7 @@ def calculate_net_worth(
         for acc in Account.objects.filter(workspace_id=workspace.id).select_related("currency")
     }
     user_liabilities = {
-        liab.id: liab
-        for liab in Liability.objects.filter(workspace_id=workspace.id)
+        liab.id: liab for liab in Liability.objects.filter(workspace_id=workspace.id)
     }
 
     asset_items: list[dict[str, Any]] = []
@@ -225,11 +224,13 @@ def calculate_net_worth(
         else:
             rate_val, rate_date = rate_info
             if acc_curr != target_currency:
-                rates_used.append({
-                    "pair": f"{acc_curr}/{target_currency}",
-                    "rate": str(rate_val),
-                    "date": rate_date.isoformat(),
-                })
+                rates_used.append(
+                    {
+                        "pair": f"{acc_curr}/{target_currency}",
+                        "rate": str(rate_val),
+                        "date": rate_date.isoformat(),
+                    }
+                )
 
         native_money = Money(abs(balance_minor), acc_curr, acc_minor_unit)
         converted_money = convert(native_money, rate_val, target_currency, target_minor_unit)
@@ -237,7 +238,9 @@ def calculate_net_worth(
         # Asset accounts (Debit normal: positive balance is asset)
         if la.kind == LedgerAccountKind.ASSET:
             account_id = str(la.owner_id) if la.owner_type == "account" and la.owner_id else None
-            account_name = user_accounts[la.owner_id].name if la.owner_id in user_accounts else la.name
+            account_name = (
+                user_accounts[la.owner_id].name if la.owner_id in user_accounts else la.name
+            )
 
             item = {
                 "account_id": account_id,
@@ -245,7 +248,9 @@ def calculate_net_worth(
                 "kind": "asset",
                 "currency": acc_curr,
                 "native_amount": Money(balance_minor, acc_curr, acc_minor_unit).serialize(),
-                "amount": converted_money.serialize() if balance_minor > 0 else f"-{converted_money.serialize()}",
+                "amount": converted_money.serialize()
+                if balance_minor > 0
+                else f"-{converted_money.serialize()}",
             }
             asset_items.append(item)
             if balance_minor > 0:
@@ -255,7 +260,9 @@ def calculate_net_worth(
 
         # Liability accounts (Credit normal: negative balance is outstanding debt)
         elif la.kind == LedgerAccountKind.LIABILITY:
-            liability_id = str(la.owner_id) if la.owner_type == "liability" and la.owner_id else None
+            liability_id = (
+                str(la.owner_id) if la.owner_type == "liability" and la.owner_id else None
+            )
             account_id = str(la.owner_id) if la.owner_type == "account" and la.owner_id else None
 
             if la.owner_type == "liability" and la.owner_id in user_liabilities:
@@ -288,7 +295,9 @@ def calculate_net_worth(
 
     # Guarantee non-negative assets and liabilities for database integrity
     final_assets_minor = max(0, sum_assets_minor)
-    final_liabilities_minor = sum_liabilities_minor + (abs(sum_assets_minor) if sum_assets_minor < 0 else 0)
+    final_liabilities_minor = sum_liabilities_minor + (
+        abs(sum_assets_minor) if sum_assets_minor < 0 else 0
+    )
     final_net_worth_minor = final_assets_minor - final_liabilities_minor
 
     assets_str = Money(final_assets_minor, target_currency, target_minor_unit).serialize()
@@ -369,7 +378,9 @@ def get_or_create_snapshot(
     if snapshot and snapshot.ledger_seq == workspace.ledger_seq:
         curr_obj = Currency.objects.get(code=target_currency)
         assets_str = Money(snapshot.assets_minor, target_currency, curr_obj.minor_unit).serialize()
-        liabilities_str = Money(snapshot.liabilities_minor, target_currency, curr_obj.minor_unit).serialize()
+        liabilities_str = Money(
+            snapshot.liabilities_minor, target_currency, curr_obj.minor_unit
+        ).serialize()
         nw_str = Money(snapshot.net_worth_minor, target_currency, curr_obj.minor_unit).serialize()
         fx_str = Money(snapshot.fx_effect_minor, target_currency, curr_obj.minor_unit).serialize()
 
@@ -445,8 +456,6 @@ def get_net_worth_history(
 ) -> dict[str, Any]:
     """Return historical net worth series and table across a date interval."""
     target_currency = currency_code or str(workspace.reporting_currency_id)
-    curr_obj = Currency.objects.get(code=target_currency)
-    m_unit = curr_obj.minor_unit
 
     # Generate dates according to granularity
     dates: list[date] = []
@@ -492,12 +501,14 @@ def get_net_worth_history(
             "stale": stale,
         }
         series.append(pt)
-        table.append({
-            "date": d.isoformat(),
-            "assets": calc.assets,
-            "liabilities": calc.liabilities,
-            "net_worth": calc.net_worth,
-        })
+        table.append(
+            {
+                "date": d.isoformat(),
+                "assets": calc.assets,
+                "liabilities": calc.liabilities,
+                "net_worth": calc.net_worth,
+            }
+        )
 
     return {
         "currency": target_currency,

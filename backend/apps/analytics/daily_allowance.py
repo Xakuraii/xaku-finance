@@ -119,23 +119,27 @@ def calculate_daily_allowance(
         rem_str = Money(rem_minor, b_curr, b.currency.minor_unit).serialize()
 
         if b.is_flexible:
-            flexible_budgets.append({
-                "id": str(b.id),
-                "name": b.name,
-                "remaining": rem_str,
-                "flexible": True,
-            })
+            flexible_budgets.append(
+                {
+                    "id": str(b.id),
+                    "name": b.name,
+                    "remaining": rem_str,
+                    "flexible": True,
+                }
+            )
             if rem_minor < 0:
                 over_budget_categories.append(b.name)
             else:
                 total_flexible_remaining_minor += rem_minor
         else:
-            excluded_budgets.append({
-                "id": str(b.id),
-                "name": b.name,
-                "remaining": rem_str,
-                "reason": "not_flexible",
-            })
+            excluded_budgets.append(
+                {
+                    "id": str(b.id),
+                    "name": b.name,
+                    "remaining": rem_str,
+                    "reason": "not_flexible",
+                }
+            )
 
     flex_str = Money(
         max(0, total_flexible_remaining_minor),
