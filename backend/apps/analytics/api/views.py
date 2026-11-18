@@ -1,9 +1,11 @@
-"""API views for Emergency Fund status, configuration, and projections."""
+"""API views for Emergency Fund, Net Worth, Safe-to-Spend, Daily Allowance, and Reports."""
 
 from __future__ import annotations
 
+from datetime import datetime, timedelta
 from typing import Any
 
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import permissions
 from rest_framework.exceptions import ValidationError
@@ -16,11 +18,17 @@ from apps.analytics.api.serializers import (
     EmergencyFundProjectionRequestSerializer,
     EmergencyFundProjectionSerializer,
     EmergencyFundStatusSerializer,
+    NetWorthHistoryResponseSerializer,
+    NetWorthResponseSerializer,
 )
 from apps.analytics.emergency_fund import (
     get_emergency_fund_projection,
     get_emergency_fund_status,
     update_emergency_fund_config,
+)
+from apps.analytics.net_worth import (
+    get_net_worth_history,
+    get_or_create_snapshot,
 )
 
 
@@ -99,3 +107,78 @@ class EmergencyFundProjectionView(APIView):
             raise ValidationError({"detail": str(exc)}) from exc
 
         return Response(EmergencyFundProjectionSerializer(projection).data)
+
+
+class NetWorthView(APIView):
+    """Retrieve net worth headline, change, breakdown, and FX effect as of a given date."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get net worth as of date",
+        responses={200: NetWorthResponseSerializer},
+    )
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        ws = getattr(request.user, "workspace", None)
+        if not ws:
+            raise ValidationError("Authenticated user does not belong to a workspace.")
+
+        as_of_param = request.query_params.get("as_of")
+        currency_param = request.query_params.get("currency")
+
+        as_of_date = None
+        if as_of_param:
+            try:
+                as_of_date = datetime.strptime(as_of_param, "%Y-%m-%d").date()
+            except ValueError as exc:
+                raise ValidationError({"as_of": "Invalid date format. Expected YYYY-MM-DD."}) from exc
+
+        calc = get_or_create_snapshot(ws, as_of=as_of_date, currency_code=currency_param)
+        return Response(calc.to_dict())
+
+
+class NetWorthHistoryView(APIView):
+    """Retrieve historical net worth time-series and accessible data table."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get net worth history",
+        responses={200: NetWorthHistoryResponseSerializer},
+    )
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        ws = getattr(request.user, "workspace", None)
+        if not ws:
+            raise ValidationError("Authenticated user does not belong to a workspace.")
+
+        from_param = request.query_params.get("from")
+        to_param = request.query_params.get("to")
+        granularity = request.query_params.get("granularity", "month")
+        currency_param = request.query_params.get("currency")
+
+        today = timezone.localdate()
+        to_date = today
+        if to_param:
+            try:
+                to_date = datetime.strptime(to_param, "%Y-%m-%d").date()
+            except ValueError as exc:
+                raise ValidationError({"to": "Invalid date format. Expected YYYY-MM-DD."}) from exc
+
+        from_date = to_date - timedelta(days=180)
+        if from_param:
+            try:
+                from_date = datetime.strptime(from_param, "%Y-%m-%d").date()
+            except ValueError as exc:
+                raise ValidationError({"from": "Invalid date format. Expected YYYY-MM-DD."}) from exc
+
+        if from_date > to_date:
+            raise ValidationError({"from": "'from' date cannot be after 'to' date."})
+
+        history = get_net_worth_history(
+            ws,
+            from_date=from_date,
+            to_date=to_date,
+            granularity=granularity,
+            currency_code=currency_param,
+        )
+        return Response(history)
