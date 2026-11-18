@@ -6,6 +6,15 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 ## [Unreleased]
 
 ### Added
+- 2026-11-18 — Phase 2 Core Financial Management:
+  - Internal account transfers with same-currency and cross-currency FX clearing legs (`Transfer` model, `create_transfer`, `archive_transfer`, `/api/v1/transfers/`, and `TransferDialog`).
+  - 2-level category hierarchy with kind matching and active transaction reassignment guard (`Category.parent`, `CategorySerializer`, `/api/v1/categories/`).
+  - Tag & spending necessity analytics breakdown (`GET /api/v1/tags/analytics/`, `SpendingByTagCard`).
+  - Budget management & positive-only rollover engine (`Budget`, `BudgetPeriod`, `BudgetRollover`, `calculate_budget_period_spending`, `close_budget_period`, `/api/v1/budgets/`, `BudgetCard`, `BudgetList`).
+  - Multi-step CSV import engine with column mapping and duplicate scoring review (`ImportJob`, `ImportRecord`, `DuplicateCandidate`, `stage_csv_import`, `detect_duplicates`, `commit_import_job`, `/api/v1/imports/`, `ImportWizardDialog`).
+  - Query count budgets: transfers list in 1 query; categories tree in 4 queries; tags analytics in 4 queries.
+  - Test coverage expanded to 204 backend pytest tests (100%) and 20 frontend Vitest tests (100%) with 0 ledger drift.
+
 - 2026-11-17 — Planning package established:
   - `README.md`, `GLOSSARY.md`, `.AGENT.md`
   - `docs/SRS.md`, `docs/FEATURE_MATRIX.md`, `docs/ARCHITECTURE.md`, `docs/DATABASE.md`,
@@ -121,6 +130,15 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 ```
 ## [Phase X.Y] — YYYY-MM-DD
 ### Added
+- 2026-11-18 — Phase 2 Core Financial Management:
+  - Internal account transfers with same-currency and cross-currency FX clearing legs (`Transfer` model, `create_transfer`, `archive_transfer`, `/api/v1/transfers/`, and `TransferDialog`).
+  - 2-level category hierarchy with kind matching and active transaction reassignment guard (`Category.parent`, `CategorySerializer`, `/api/v1/categories/`).
+  - Tag & spending necessity analytics breakdown (`GET /api/v1/tags/analytics/`, `SpendingByTagCard`).
+  - Budget management & positive-only rollover engine (`Budget`, `BudgetPeriod`, `BudgetRollover`, `calculate_budget_period_spending`, `close_budget_period`, `/api/v1/budgets/`, `BudgetCard`, `BudgetList`).
+  - Multi-step CSV import engine with column mapping and duplicate scoring review (`ImportJob`, `ImportRecord`, `DuplicateCandidate`, `stage_csv_import`, `detect_duplicates`, `commit_import_job`, `/api/v1/imports/`, `ImportWizardDialog`).
+  - Query count budgets: transfers list in 1 query; categories tree in 4 queries; tags analytics in 4 queries.
+  - Test coverage expanded to 204 backend pytest tests (100%) and 20 frontend Vitest tests (100%) with 0 ledger drift.
+
 - <user-visible capability> (<requirement IDs>)
 ### Changed
 - <behavior change and why>
