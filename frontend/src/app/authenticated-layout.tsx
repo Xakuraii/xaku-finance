@@ -116,6 +116,20 @@ export const AuthenticatedLayout: React.FC = () => {
               </NavLink>
 
               <NavLink
+                to="/app/debts"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "text-gold bg-gold/10 font-semibold border border-gold/20"
+                      : "text-muted hover:text-main hover:bg-[var(--surface-raised)]"
+                  }`
+                }
+              >
+                <CreditCard className="w-3.5 h-3.5" />
+                Debts
+              </NavLink>
+
+              <NavLink
                 to="/app/analytics"
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -213,6 +227,17 @@ export const AuthenticatedLayout: React.FC = () => {
           >
             <Target className="w-3.5 h-3.5" />
             Savings
+          </NavLink>
+          <NavLink
+            to="/app/debts"
+            className={({ isActive }) =>
+              `flex items-center gap-1 px-2.5 py-1 rounded font-medium ${
+                isActive ? "text-gold font-semibold" : "text-muted"
+              }`
+            }
+          >
+            <CreditCard className="w-3.5 h-3.5" />
+            Debts
           </NavLink>
           <NavLink
             to="/app/analytics"

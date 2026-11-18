@@ -8,6 +8,7 @@ import { TransactionsPage } from "@/features/transactions/pages/transactions-pag
 import { BudgetsPage } from "@/features/budgets/pages/budgets-page";
 import { AnalyticsPage } from "@/features/analytics/pages/analytics-page";
 import { SavingsPage } from "@/features/savings/pages/savings-page";
+import { DebtsPage } from "@/features/debts/pages/debts-page";
 
 export const router = createBrowserRouter([
   {
@@ -47,6 +48,10 @@ export const router = createBrowserRouter([
         element: <SavingsPage />,
       },
       {
+        path: "debts",
+        element: <DebtsPage />,
+      },
+      {
         path: "analytics",
         element: <AnalyticsPage />,
       },
@@ -68,6 +73,10 @@ export const router = createBrowserRouter([
   {
     path: "/savings",
     element: <Navigate to="/app/savings" replace />,
+  },
+  {
+    path: "/debts",
+    element: <Navigate to="/app/debts" replace />,
   },
   {
     path: "/analytics",
