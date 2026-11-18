@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "apps.ledger",
     "apps.categories",
     "apps.tags",
+    "apps.transactions",
 ]
 
 MIDDLEWARE = [

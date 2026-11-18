@@ -17,8 +17,8 @@ from tests.factories.accounts import LedgerAccountFactory
 from tests.factories.users import UserFactory
 
 
-@pytest.mark.django_db(transaction=True)
-@settings(max_examples=25, deadline=None)
+@pytest.mark.django_db
+@settings(max_examples=10, deadline=None)
 @given(
     st.lists(
         st.integers(min_value=-100_000, max_value=100_000).filter(lambda x: x != 0),

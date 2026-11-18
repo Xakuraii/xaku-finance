@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import uuid
 from typing import TYPE_CHECKING
 
 from apps.ledger.models import LedgerAccount, LedgerAccountKind
@@ -57,6 +58,33 @@ def get_or_create_account_ledger_account(*, account: Account) -> LedgerAccount:
             "kind": kind,
             "currency_id": account.currency_id,
             "is_system": False,
+        },
+    )
+    return acc
+
+
+def get_or_create_category_ledger_account(
+    *,
+    category_id: uuid.UUID,
+    workspace_id: uuid.UUID,
+    kind: str,
+    name: str,
+    currency_code: str,
+) -> LedgerAccount:
+    """Ensure a Category has a backing LedgerAccount for the given currency."""
+    acc_kind = (
+        LedgerAccountKind.EXPENSE if kind == "expense" else LedgerAccountKind.INCOME
+    )
+    code = f"{kind}:{category_id}:{currency_code}"
+
+    acc, _ = LedgerAccount.objects.get_or_create(
+        workspace_id=workspace_id,
+        code=code,
+        defaults={
+            "name": f"{name} ({currency_code})",
+            "kind": acc_kind,
+            "currency_id": currency_code,
+            "is_system": True,
         },
     )
     return acc
