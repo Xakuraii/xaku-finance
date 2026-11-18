@@ -6,6 +6,11 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 ## [Unreleased]
 
 ### Added
+- 2026-11-18 — Phase 3 Financial Planning:
+  - Savings Goals & Earmarks: Multi-strategy savings (`linked_account` and `earmark`), row-locked allocation capacity constraints ($\sum \text{allocated} \le \text{account available balance}$), 4 contribution kinds (`transfer_in`, `earmark`, `adjustment`, `withdrawal`), goal archiving with automatic earmark release, timeline projections, REST API at `/api/v1/savings-goals/`, and interactive UI (`SavingsGoalCard`, `CreateGoalDialog`, `ContributeDialog`).
+  - Debts & Liabilities: Dedicated 1:1 `LedgerAccount` per liability, double-entry disbursement (asset debit, liability credit), split repayments (principal debit to liability, interest/fee debits to expense, credit to asset), strictly ledger-derived outstanding balance (`-SUM(postings)`), accrued interest recording, payoff amortization projections, REST API at `/api/v1/debts/`, and interactive UI (`DebtCard`, `CreateDebtDialog`, `RepaymentDialog`, `DebtProjectionCard`).
+  - Emergency Fund Planner: Essential spending analytics over 90-day lookback, manual override baseline with source disclosure (`computed` vs `override`), coverage targets (3/6/12 months), designated source linking (account or goal), earmark conflict detection when backing accounts are earmarked to other goals, REST API at `/api/v1/emergency-fund/`, and interactive UI (`EmergencyFundCard`, `EmergencyConfigDialog`, `EmergencyProjectionCard`).
+  - Performance & Verification: Query budgets verified ($O(1)$ queries for savings, debts, and emergency fund), zero ledger drift verified via `check_ledger --fail-on-drift` across all workspaces, OpenAPI 3.1 validation clean, test suite expanded to 237 backend pytest tests (100% pass) and 30 frontend vitest tests (100% pass), and production frontend build verified.
 - 2026-11-18 — Phase 2 Core Financial Management:
   - Internal account transfers with same-currency and cross-currency FX clearing legs (`Transfer` model, `create_transfer`, `archive_transfer`, `/api/v1/transfers/`, and `TransferDialog`).
   - 2-level category hierarchy with kind matching and active transaction reassignment guard (`Category.parent`, `CategorySerializer`, `/api/v1/categories/`).

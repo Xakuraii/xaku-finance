@@ -1222,6 +1222,419 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
           description: ''
+  /api/v1/debts/:
+    get:
+      operationId: debts_list
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - debts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Liability'
+          description: ''
+    post:
+      operationId: debts_create
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      tags:
+      - debts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+  /api/v1/debts/{id}/:
+    get:
+      operationId: debts_retrieve
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+    patch:
+      operationId: debts_partial_update
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedLiabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedLiabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedLiabilityRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+    delete:
+      operationId: debts_destroy
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/debts/{id}/archive/:
+    post:
+      operationId: debts_archive_create
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+  /api/v1/debts/{id}/interest/:
+    get:
+      operationId: debts_interest_retrieve
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+    post:
+      operationId: debts_interest_create
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+  /api/v1/debts/{id}/projection/:
+    get:
+      operationId: debts_projection_retrieve
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+  /api/v1/debts/{id}/repayments/:
+    get:
+      operationId: debts_repayments_retrieve
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+    post:
+      operationId: debts_repayments_create
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+  /api/v1/debts/{id}/restore/:
+    post:
+      operationId: debts_restore_create
+      description: ViewSet for managing liabilities, repayments, accrued interest,
+        and payoff projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this liability.
+        required: true
+      tags:
+      - debts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LiabilityRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Liability'
+          description: ''
+  /api/v1/emergency-fund/:
+    get:
+      operationId: emergency_fund_retrieve
+      description: Retrieve and update emergency fund configuration and coverage status.
+      summary: Get emergency fund status
+      tags:
+      - emergency-fund
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyFundStatus'
+          description: ''
+    patch:
+      operationId: emergency_fund_partial_update
+      description: Retrieve and update emergency fund configuration and coverage status.
+      summary: Update emergency fund configuration
+      tags:
+      - emergency-fund
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEmergencyFundConfigUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEmergencyFundConfigUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEmergencyFundConfigUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyFundStatus'
+          description: ''
+  /api/v1/emergency-fund/projection/:
+    post:
+      operationId: emergency_fund_projection_create
+      description: Calculate timeline and completion date given regular monthly contributions.
+      summary: Project emergency fund timeline
+      tags:
+      - emergency-fund
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmergencyFundProjectionRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EmergencyFundProjectionRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EmergencyFundProjectionRequestRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmergencyFundProjection'
+          description: ''
   /api/v1/imports/:
     get:
       operationId: imports_list
@@ -1393,6 +1806,290 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImportJob'
+          description: ''
+  /api/v1/savings-goals/:
+    get:
+      operationId: savings_goals_list
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - savings-goals
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+    post:
+      operationId: savings_goals_create
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      tags:
+      - savings-goals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+  /api/v1/savings-goals/{id}/:
+    get:
+      operationId: savings_goals_retrieve
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+    patch:
+      operationId: savings_goals_partial_update
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSavingsGoalRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSavingsGoalRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSavingsGoalRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+    delete:
+      operationId: savings_goals_destroy
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/savings-goals/{id}/archive/:
+    post:
+      operationId: savings_goals_archive_create
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+  /api/v1/savings-goals/{id}/contributions/:
+    get:
+      operationId: savings_goals_contributions_retrieve
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+    post:
+      operationId: savings_goals_contributions_create
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+  /api/v1/savings-goals/{id}/projection/:
+    get:
+      operationId: savings_goals_projection_retrieve
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
+          description: ''
+  /api/v1/savings-goals/{id}/restore/:
+    post:
+      operationId: savings_goals_restore_create
+      description: ViewSet for managing savings goals, earmarks, contributions, and
+        projections.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this savings goal.
+        required: true
+      tags:
+      - savings-goals
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavingsGoalRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoal'
           description: ''
   /api/v1/tags/:
     get:
@@ -2584,6 +3281,123 @@ components:
       required:
       - candidate_id
       - decision
+    EmergencyFundProjection:
+      type: object
+      properties:
+        target_amount_minor:
+          type: integer
+        current_savings_minor:
+          type: integer
+        remaining_target_minor:
+          type: integer
+        monthly_contribution_minor:
+          type: integer
+        currency:
+          type: string
+        months_to_target:
+          type: number
+          format: double
+          nullable: true
+        days_to_target:
+          type: integer
+          nullable: true
+        projected_completion_date:
+          type: string
+          nullable: true
+      required:
+      - currency
+      - current_savings_minor
+      - days_to_target
+      - monthly_contribution_minor
+      - months_to_target
+      - projected_completion_date
+      - remaining_target_minor
+      - target_amount_minor
+    EmergencyFundProjectionRequestRequest:
+      type: object
+      properties:
+        monthly_contribution:
+          type: string
+          minLength: 1
+      required:
+      - monthly_contribution
+    EmergencyFundStatus:
+      type: object
+      properties:
+        target_months:
+          type: integer
+        designated_account_id:
+          type: string
+          nullable: true
+        designated_account_name:
+          type: string
+          nullable: true
+        designated_goal_id:
+          type: string
+          nullable: true
+        designated_goal_name:
+          type: string
+          nullable: true
+        is_override:
+          type: boolean
+        monthly_essential_expense:
+          type: string
+        monthly_essential_expense_minor:
+          type: integer
+        computed_monthly_expense:
+          type: string
+        computed_monthly_expense_minor:
+          type: integer
+        override_monthly_expense:
+          type: string
+          nullable: true
+        target_amount:
+          type: string
+        target_amount_minor:
+          type: integer
+        current_savings:
+          type: string
+        current_savings_minor:
+          type: integer
+        remaining_target:
+          type: string
+        remaining_target_minor:
+          type: integer
+        progress_percent:
+          type: number
+          format: double
+        currency:
+          type: string
+        has_earmark_conflict:
+          type: boolean
+        conflict_details:
+          type: string
+          nullable: true
+        lookback_days:
+          type: integer
+      required:
+      - computed_monthly_expense
+      - computed_monthly_expense_minor
+      - conflict_details
+      - currency
+      - current_savings
+      - current_savings_minor
+      - designated_account_id
+      - designated_account_name
+      - designated_goal_id
+      - designated_goal_name
+      - has_earmark_conflict
+      - is_override
+      - lookback_days
+      - monthly_essential_expense
+      - monthly_essential_expense_minor
+      - override_monthly_expense
+      - progress_percent
+      - remaining_target
+      - remaining_target_minor
+      - target_amount
+      - target_amount_minor
+      - target_months
     GoogleLoginRequest:
       type: object
       properties:
@@ -2773,6 +3587,16 @@ components:
         * `duplicate_potential` - Duplicate Potential
         * `skipped` - Skipped
         * `imported` - Imported
+    InterestTypeEnum:
+      enum:
+      - none
+      - simple
+      - compound
+      type: string
+      description: |-
+        * `none` - None
+        * `simple` - Simple
+        * `compound` - Compound
     KindEnum:
       enum:
       - expense
@@ -2781,6 +3605,178 @@ components:
       description: |-
         * `expense` - Expense
         * `income` - Income
+    Liability:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        liability_type:
+          $ref: '#/components/schemas/LiabilityTypeEnum'
+        currency:
+          type: string
+          readOnly: true
+        original_principal:
+          type: string
+          readOnly: true
+        original_principal_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        outstanding_principal:
+          type: string
+          readOnly: true
+        outstanding_principal_minor:
+          type: integer
+          readOnly: true
+        paid_principal:
+          type: string
+          readOnly: true
+        paid_principal_minor:
+          type: integer
+          readOnly: true
+        progress_percent:
+          type: number
+          format: double
+          readOnly: true
+        interest_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,4})?$
+          nullable: true
+        interest_type:
+          $ref: '#/components/schemas/InterestTypeEnum'
+        lender:
+          type: string
+          nullable: true
+          maxLength: 120
+        due_day:
+          type: integer
+          maximum: 32767
+          minimum: -32768
+          nullable: true
+        next_due_date:
+          type: string
+          format: date
+          nullable: true
+        linked_account_id:
+          type: string
+          format: uuid
+          nullable: true
+          readOnly: true
+        linked_account_name:
+          type: string
+          readOnly: true
+        ledger_account_id:
+          type: string
+          format: uuid
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/LiabilityStatusEnum'
+        is_archived:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - currency
+      - id
+      - ledger_account_id
+      - linked_account_id
+      - linked_account_name
+      - name
+      - original_principal
+      - original_principal_minor
+      - outstanding_principal
+      - outstanding_principal_minor
+      - paid_principal
+      - paid_principal_minor
+      - progress_percent
+      - updated_at
+    LiabilityRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        liability_type:
+          $ref: '#/components/schemas/LiabilityTypeEnum'
+        original_principal_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        interest_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,4})?$
+          nullable: true
+        interest_type:
+          $ref: '#/components/schemas/InterestTypeEnum'
+        lender:
+          type: string
+          nullable: true
+          maxLength: 120
+        due_day:
+          type: integer
+          maximum: 32767
+          minimum: -32768
+          nullable: true
+        next_due_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/LiabilityStatusEnum'
+        is_archived:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+      required:
+      - name
+      - original_principal_minor
+    LiabilityStatusEnum:
+      enum:
+      - active
+      - paid_off
+      - archived
+      type: string
+      description: |-
+        * `active` - Active
+        * `paid_off` - Paid Off
+        * `archived` - Archived
+    LiabilityTypeEnum:
+      enum:
+      - personal_loan
+      - student_loan
+      - credit_card
+      - mortgage
+      - family_loan
+      - other
+      type: string
+      description: |-
+        * `personal_loan` - Personal Loan
+        * `student_loan` - Student Loan
+        * `credit_card` - Credit Card
+        * `mortgage` - Mortgage
+        * `family_loan` - Family Loan
+        * `other` - Other
     LoginRequest:
       type: object
       properties:
@@ -3020,6 +4016,94 @@ components:
           minimum: -2147483648
         is_archived:
           type: boolean
+    PatchedEmergencyFundConfigUpdateRequest:
+      type: object
+      properties:
+        target_months:
+          type: integer
+          minimum: 1
+        designated_account_id:
+          type: string
+          nullable: true
+        designated_goal_id:
+          type: string
+          nullable: true
+        monthly_expense_override:
+          type: string
+          nullable: true
+        clear_override:
+          type: boolean
+          default: false
+    PatchedLiabilityRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        liability_type:
+          $ref: '#/components/schemas/LiabilityTypeEnum'
+        original_principal_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        interest_rate:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,4})?$
+          nullable: true
+        interest_type:
+          $ref: '#/components/schemas/InterestTypeEnum'
+        lender:
+          type: string
+          nullable: true
+          maxLength: 120
+        due_day:
+          type: integer
+          maximum: 32767
+          minimum: -32768
+          nullable: true
+        next_due_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/LiabilityStatusEnum'
+        is_archived:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+    PatchedSavingsGoalRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        target_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        target_date:
+          type: string
+          format: date
+          nullable: true
+        strategy:
+          $ref: '#/components/schemas/StrategyEnum'
+        status:
+          $ref: '#/components/schemas/SavingsGoalStatusEnum'
+        notes:
+          type: string
+          nullable: true
+        is_archived:
+          type: boolean
+        achieved_at:
+          type: string
+          format: date-time
+          nullable: true
     PatchedTagRequest:
       type: object
       properties:
@@ -3136,6 +4220,190 @@ components:
       - refresh_expires_in
       - user
       - workspace
+    SavingsAllocation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        account_id:
+          type: string
+          format: uuid
+          readOnly: true
+        account_name:
+          type: string
+          readOnly: true
+        allocated_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        allocated_amount:
+          type: string
+          readOnly: true
+        currency_code:
+          type: string
+          maxLength: 3
+      required:
+      - account_id
+      - account_name
+      - allocated_amount
+      - currency_code
+      - id
+    SavingsAllocationRequest:
+      type: object
+      properties:
+        allocated_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        currency_code:
+          type: string
+          minLength: 1
+          maxLength: 3
+      required:
+      - currency_code
+    SavingsGoal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        target_amount:
+          type: string
+          readOnly: true
+        target_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        currency:
+          type: string
+          readOnly: true
+        target_date:
+          type: string
+          format: date
+          nullable: true
+        linked_account_id:
+          type: string
+          format: uuid
+          nullable: true
+          readOnly: true
+        linked_account_name:
+          type: string
+          readOnly: true
+        strategy:
+          $ref: '#/components/schemas/StrategyEnum'
+        status:
+          $ref: '#/components/schemas/SavingsGoalStatusEnum'
+        notes:
+          type: string
+          nullable: true
+        is_archived:
+          type: boolean
+        achieved_at:
+          type: string
+          format: date-time
+          nullable: true
+        current_amount:
+          type: string
+          readOnly: true
+        current_amount_minor:
+          type: integer
+          readOnly: true
+        progress_percent:
+          type: number
+          format: double
+          readOnly: true
+        is_overfunded:
+          type: boolean
+          readOnly: true
+        overfunded_amount_minor:
+          type: integer
+          readOnly: true
+        unallocated_capacity:
+          type: integer
+          readOnly: true
+        allocations:
+          type: array
+          items:
+            $ref: '#/components/schemas/SavingsAllocation'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - allocations
+      - created_at
+      - currency
+      - current_amount
+      - current_amount_minor
+      - id
+      - is_overfunded
+      - linked_account_id
+      - linked_account_name
+      - name
+      - overfunded_amount_minor
+      - progress_percent
+      - target_amount
+      - target_amount_minor
+      - unallocated_capacity
+      - updated_at
+    SavingsGoalRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        target_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        target_date:
+          type: string
+          format: date
+          nullable: true
+        strategy:
+          $ref: '#/components/schemas/StrategyEnum'
+        status:
+          $ref: '#/components/schemas/SavingsGoalStatusEnum'
+        notes:
+          type: string
+          nullable: true
+        is_archived:
+          type: boolean
+        achieved_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - name
+      - target_amount_minor
+    SavingsGoalStatusEnum:
+      enum:
+      - active
+      - achieved
+      - paused
+      - archived
+      type: string
+      description: |-
+        * `active` - Active
+        * `achieved` - Achieved
+        * `paused` - Paused
+        * `archived` - Archived
     SentResponse:
       type: object
       properties:
@@ -3228,6 +4496,14 @@ components:
           maxLength: 240
       required:
       - amount_minor
+    StrategyEnum:
+      enum:
+      - linked_account
+      - earmark
+      type: string
+      description: |-
+        * `linked_account` - Linked Account
+        * `earmark` - Earmark
     Tag:
       type: object
       properties:

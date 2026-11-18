@@ -99,10 +99,7 @@ class Command(BaseCommand):
                 Account.objects.filter(workspace=ws, account_type="checking").first()
                 or Account.objects.filter(workspace=ws).first()
             )
-            cash = (
-                Account.objects.filter(workspace=ws, account_type="cash").first()
-                or checking
-            )
+            cash = Account.objects.filter(workspace=ws, account_type="cash").first() or checking
 
         categories_data = [
             ("Groceries", CategoryKind.EXPENSE),

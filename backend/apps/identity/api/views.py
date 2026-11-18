@@ -170,9 +170,7 @@ class LoginView(APIView):
             "user": user,
             "workspace": ws,
         }
-        response = Response(
-            TokenResponseSerializer(payload).data, status=status.HTTP_200_OK
-        )
+        response = Response(TokenResponseSerializer(payload).data, status=status.HTTP_200_OK)
         set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
         return response
 
@@ -204,9 +202,7 @@ class RefreshView(APIView):
             "user": user,
             "workspace": ws,
         }
-        response = Response(
-            TokenResponseSerializer(payload).data, status=status.HTTP_200_OK
-        )
+        response = Response(TokenResponseSerializer(payload).data, status=status.HTTP_200_OK)
         set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
         return response
 

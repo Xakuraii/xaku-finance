@@ -7,6 +7,9 @@ import { StatementSheet } from "@/features/accounts/components/statement-sheet";
 import { TransactionsPage } from "@/features/transactions/pages/transactions-page";
 import { BudgetsPage } from "@/features/budgets/pages/budgets-page";
 import { AnalyticsPage } from "@/features/analytics/pages/analytics-page";
+import { SavingsPage } from "@/features/savings/pages/savings-page";
+import { DebtsPage } from "@/features/debts/pages/debts-page";
+import { EmergencyFundPage } from "@/features/emergency-fund/pages/emergency-fund-page";
 
 export const router = createBrowserRouter([
   {
@@ -42,6 +45,18 @@ export const router = createBrowserRouter([
         element: <BudgetsPage />,
       },
       {
+        path: "savings",
+        element: <SavingsPage />,
+      },
+      {
+        path: "debts",
+        element: <DebtsPage />,
+      },
+      {
+        path: "emergency-fund",
+        element: <EmergencyFundPage />,
+      },
+      {
         path: "analytics",
         element: <AnalyticsPage />,
       },
@@ -59,6 +74,18 @@ export const router = createBrowserRouter([
   {
     path: "/budgets",
     element: <Navigate to="/app/budgets" replace />,
+  },
+  {
+    path: "/savings",
+    element: <Navigate to="/app/savings" replace />,
+  },
+  {
+    path: "/debts",
+    element: <Navigate to="/app/debts" replace />,
+  },
+  {
+    path: "/emergency-fund",
+    element: <Navigate to="/app/emergency-fund" replace />,
   },
   {
     path: "/analytics",
