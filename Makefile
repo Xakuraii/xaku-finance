@@ -17,7 +17,7 @@ help:
 	@echo "lint           run ruff"
 	@echo "fmt            format with ruff"
 	@echo "typecheck      run mypy"
-	@echo "schema         regenerate docs/openapi.yaml and validate"
+	@echo "schema         regenerate docs/api/openapi.yaml and validate"
 	@echo "check          lint + typecheck + test"
 	@echo "run            start the development server"
 
@@ -49,7 +49,7 @@ typecheck:
 	cd backend && $(PYTHON) -m mypy apps
 
 schema:
-	cd backend && $(MANAGE) spectacular --file ../docs/openapi.yaml --validate
+	cd backend && $(MANAGE) spectacular --file ../docs/api/openapi.yaml --validate
 
 check: lint typecheck test
 

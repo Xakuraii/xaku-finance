@@ -30,7 +30,7 @@ A change is done when all of the following are true. If one is not, say which an
 
 - [ ] Migration reviewed, forward and backward run cleanly.
 - [ ] Constraints/indexes support the new queries.
-- [ ] `docs/DATABASE.md` updated in the same commit.
+- [ ] `docs/architecture/DATABASE.md` updated in the same commit.
 
 ## Tests
 
@@ -42,7 +42,7 @@ A change is done when all of the following are true. If one is not, say which an
 ## Contracts and docs
 
 - [ ] OpenAPI regenerated and validated; client regenerated.
-- [ ] `docs/API_SPECIFICATION.md` updated if the contract moved.
+- [ ] `docs/api/API_SPECIFICATION.md` updated if the contract moved.
 - [ ] `docs/CHANGELOG.md` updated with limitations.
 - [ ] ADR added if a decision would surprise a future reader.
 

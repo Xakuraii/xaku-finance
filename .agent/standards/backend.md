@@ -48,7 +48,7 @@ Rules:
 - DRF ViewSets with explicit `serializer_class`, `permission_classes`, `throttle_classes`.
 - All money as strings in and out; include `amount_minor` in responses.
 - Cursor pagination for lists; bounded aggregates for reports.
-- Error envelope per `docs/API_SPECIFICATION.md`; stable codes; no internals.
+- Error envelope per `docs/api/API_SPECIFICATION.md`; stable codes; no internals.
 - drf-spectacular annotations on every endpoint; CI validates the schema.
 - Cross-workspace ids return 404.
 

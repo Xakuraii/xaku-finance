@@ -2,7 +2,7 @@
 
 ## Pre-release (one week before)
 
-- [ ] All mandatory acceptance criteria in `docs/ACCEPTANCE_CRITERIA.md` checked with evidence.
+- [ ] All mandatory acceptance criteria in `docs/specifications/ACCEPTANCE_CRITERIA.md` checked with evidence.
 - [ ] `check_ledger --fail-on-drift` green on the 50k fixture and on staging.
 - [ ] Restore drill executed from the latest backup and reconciled.
 - [ ] Security checklist complete; pen-test findings closed or accepted in writing.
