@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Plus, Archive, RotateCcw, ShieldCheck, Wallet, ArrowRightLeft } from "lucide-react";
+import { Plus, Archive, RotateCcw, ShieldCheck, Wallet, ArrowRightLeft, UploadCloud } from "lucide-react";
 import { getAccounts, restoreAccount } from "../api";
 import { Account } from "../types";
 import { CreateAccountDialog } from "./create-account-dialog";
 import { ArchiveAccountDialog } from "./archive-account-dialog";
 import { TransferDialog } from "@/features/transfers/components/transfer-dialog";
+import { ImportWizardDialog } from "@/features/imports/components/import-wizard-dialog";
 import { MoneyDisplay } from "@/components/money";
 import { formatAccountType } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
@@ -15,6 +16,7 @@ export const StatementSheet: React.FC = () => {
   const [includeArchived, setIncludeArchived] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const [accountToArchive, setAccountToArchive] = useState<Account | null>(null);
 
   const { data: accounts = [], isLoading } = useQuery({
@@ -60,6 +62,15 @@ export const StatementSheet: React.FC = () => {
             />
             Show Archived
           </label>
+
+          <button
+            onClick={() => setIsImportOpen(true)}
+            className="flex items-center gap-1.5 rounded border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] px-3 py-2 text-xs font-medium text-main cursor-pointer shadow-xs transition-colors"
+            title="Import bank statement CSV"
+          >
+            <UploadCloud className="w-3.5 h-3.5 text-gold" />
+            Import CSV
+          </button>
 
           <button
             onClick={() => setIsTransferOpen(true)}
@@ -211,6 +222,12 @@ export const StatementSheet: React.FC = () => {
       <TransferDialog
         open={isTransferOpen}
         onOpenChange={setIsTransferOpen}
+        accounts={accounts}
+      />
+
+      <ImportWizardDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
         accounts={accounts}
       />
 

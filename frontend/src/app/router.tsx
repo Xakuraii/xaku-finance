@@ -1,11 +1,18 @@
 import { createBrowserRouter, Navigate } from "react-router-dom";
+import { LandingPage } from "@/features/landing/landing-page";
 import { LoginPage } from "@/features/auth/pages/login-page";
 import { RegisterPage } from "@/features/auth/pages/register-page";
 import { AuthenticatedLayout } from "./authenticated-layout";
 import { StatementSheet } from "@/features/accounts/components/statement-sheet";
 import { TransactionsPage } from "@/features/transactions/pages/transactions-page";
+import { BudgetsPage } from "@/features/budgets/pages/budgets-page";
+import { AnalyticsPage } from "@/features/analytics/pages/analytics-page";
 
 export const router = createBrowserRouter([
+  {
+    path: "/",
+    element: <LandingPage />,
+  },
   {
     path: "/login",
     element: <LoginPage />,
@@ -15,12 +22,12 @@ export const router = createBrowserRouter([
     element: <RegisterPage />,
   },
   {
-    path: "/",
+    path: "/app",
     element: <AuthenticatedLayout />,
     children: [
       {
         index: true,
-        element: <Navigate to="/accounts" replace />,
+        element: <Navigate to="/app/accounts" replace />,
       },
       {
         path: "accounts",
@@ -30,7 +37,32 @@ export const router = createBrowserRouter([
         path: "transactions",
         element: <TransactionsPage />,
       },
+      {
+        path: "budgets",
+        element: <BudgetsPage />,
+      },
+      {
+        path: "analytics",
+        element: <AnalyticsPage />,
+      },
     ],
+  },
+  // Backward compatibility redirects for direct routes
+  {
+    path: "/accounts",
+    element: <Navigate to="/app/accounts" replace />,
+  },
+  {
+    path: "/transactions",
+    element: <Navigate to="/app/transactions" replace />,
+  },
+  {
+    path: "/budgets",
+    element: <Navigate to="/app/budgets" replace />,
+  },
+  {
+    path: "/analytics",
+    element: <Navigate to="/app/analytics" replace />,
   },
   {
     path: "*",

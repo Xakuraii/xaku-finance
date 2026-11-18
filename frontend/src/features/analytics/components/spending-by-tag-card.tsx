@@ -52,32 +52,32 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
   return (
     <div
       data-testid="spending-by-tag-card"
-      className="rounded-xl border border-[#2b313a] bg-[#181a20] p-6 text-white shadow-lg relative overflow-hidden"
+      className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 text-main shadow-xs relative overflow-hidden transition-colors"
     >
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-[#2b313a] gap-3">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-[var(--border)] gap-3">
         <div>
           <div className="flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-[#F0B90B]" />
-            <h3 className="font-semibold text-lg text-slate-100">Spending Intelligence</h3>
+            <PieChart className="w-5 h-5 text-gold" />
+            <h3 className="font-semibold text-lg text-main">Spending Intelligence</h3>
           </div>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-muted mt-0.5">
             Total expenses:{" "}
-            <span className="font-medium text-slate-200">
+            <span className="font-semibold text-main font-tabular">
               {totalExpense} {displayCurrency}
             </span>
           </p>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1 bg-[#0b0e11] p-1 rounded-lg border border-[#2b313a]">
+        <div className="flex items-center gap-1 bg-[var(--surface-raised)] p-1 rounded-lg border border-[var(--border)]">
           <button
             type="button"
             onClick={() => setActiveTab("tags")}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               activeTab === "tags"
-                ? "bg-[#F0B90B] text-black shadow-sm font-semibold"
-                : "text-slate-400 hover:text-white"
+                ? "bg-gold text-black shadow-xs font-semibold"
+                : "text-muted hover:text-main"
             }`}
           >
             <Tag className="w-3.5 h-3.5" />
@@ -86,10 +86,10 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
           <button
             type="button"
             onClick={() => setActiveTab("necessity")}
-            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               activeTab === "necessity"
-                ? "bg-[#F0B90B] text-black shadow-sm font-semibold"
-                : "text-slate-400 hover:text-white"
+                ? "bg-gold text-black shadow-xs font-semibold"
+                : "text-muted hover:text-main"
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -102,8 +102,8 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
       <div className="pt-4">
         {activeTab === "tags" ? (
           tagList.length === 0 ? (
-            <div className="py-8 text-center text-slate-500 text-sm">
-              <Tag className="w-8 h-8 mx-auto mb-2 text-slate-600 opacity-60" />
+            <div className="py-8 text-center text-muted text-sm">
+              <Tag className="w-8 h-8 mx-auto mb-2 opacity-50 text-gold" />
               No tagged expenses found in this period.
             </div>
           ) : (
@@ -111,21 +111,21 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
               {tagList.map((item) => (
                 <div key={item.tag} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-slate-200 flex items-center gap-1.5">
-                      <span className="text-slate-400">#</span>
+                    <span className="font-medium text-main flex items-center gap-1.5">
+                      <span className="text-gold font-semibold">#</span>
                       {item.tag}
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-muted">
                         ({item.count} {item.count === 1 ? "txn" : "txns"})
                       </span>
                     </span>
-                    <span className="text-slate-300 font-mono">
+                    <span className="text-main font-tabular font-medium">
                       {item.amount} {displayCurrency}{" "}
-                      <span className="text-slate-500">({item.percentage}%)</span>
+                      <span className="text-muted text-[11px]">({item.percentage}%)</span>
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#0b0e11] rounded-full overflow-hidden border border-[#2b313a]/50">
+                  <div className="h-2 w-full bg-[var(--surface-raised)] rounded-full overflow-hidden border border-[var(--border)]">
                     <div
-                      className="h-full bg-gradient-to-r from-[#F0B90B] to-[#FCD535] rounded-full transition-all duration-500"
+                      className="h-full bg-gradient-to-r from-amber-500 to-[#F0B90B] rounded-full transition-all duration-500"
                       style={{ width: `${Math.min(item.percentage, 100)}%` }}
                     />
                   </div>
@@ -134,8 +134,8 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
             </div>
           )
         ) : necessityList.length === 0 ? (
-          <div className="py-8 text-center text-slate-500 text-sm">
-            <Sparkles className="w-8 h-8 mx-auto mb-2 text-slate-600 opacity-60" />
+          <div className="py-8 text-center text-muted text-sm">
+            <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50 text-gold" />
             No classified expenses recorded in this period.
           </div>
         ) : (
@@ -143,8 +143,8 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
             {necessityList.map((item) => {
               const meta = NECESSITY_BADGES[item.necessity] || {
                 label: item.necessity,
-                color: "text-slate-300",
-                bg: "bg-slate-800 border-slate-700",
+                color: "text-muted",
+                bg: "bg-[var(--surface-raised)] border-[var(--border)]",
               };
               return (
                 <div key={item.necessity} className="space-y-1.5">
@@ -155,25 +155,25 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
                       >
                         {meta.label}
                       </span>
-                      <span className="text-[10px] text-slate-500">
+                      <span className="text-[10px] text-muted">
                         ({item.count} {item.count === 1 ? "txn" : "txns"})
                       </span>
                     </div>
-                    <span className="text-slate-300 font-mono">
+                    <span className="text-main font-tabular font-medium">
                       {item.amount} {displayCurrency}{" "}
-                      <span className="text-slate-500">({item.percentage}%)</span>
+                      <span className="text-muted text-[11px]">({item.percentage}%)</span>
                     </span>
                   </div>
-                  <div className="h-2 w-full bg-[#0b0e11] rounded-full overflow-hidden border border-[#2b313a]/50">
+                  <div className="h-2 w-full bg-[var(--surface-raised)] rounded-full overflow-hidden border border-[var(--border)]">
                     <div
                       className={`h-full rounded-full transition-all duration-500 ${
                         item.necessity === "essential"
-                          ? "bg-emerald-400"
+                          ? "bg-emerald-500"
                           : item.necessity === "important"
-                          ? "bg-sky-400"
+                          ? "bg-sky-500"
                           : item.necessity === "lifestyle"
-                          ? "bg-purple-400"
-                          : "bg-amber-400"
+                          ? "bg-purple-500"
+                          : "bg-amber-500"
                       }`}
                       style={{ width: `${Math.min(item.percentage, 100)}%` }}
                     />

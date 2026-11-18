@@ -8,7 +8,6 @@ from typing import Any
 
 from django.core.management.base import BaseCommand
 
-from apps.accounts.models import AccountType
 from apps.accounts.services import create_account
 from apps.categories.models import Category, CategoryKind
 from apps.identity.models import User
