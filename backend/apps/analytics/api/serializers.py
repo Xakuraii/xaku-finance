@@ -277,3 +277,34 @@ class RecurringObligationSerializer(serializers.ModelSerializer):
             validated_data["amount_minor"] = money.amount_minor
 
         return super().update(instance, validated_data)
+
+
+# ==========================================
+# Report Serializers
+# ==========================================
+
+
+class ReportPeriodSerializer(serializers.Serializer):
+    start = serializers.CharField()
+    end = serializers.CharField()
+
+
+class ReportReconciliationSerializer(serializers.Serializer):
+    ledger_income = serializers.CharField()
+    reported_income = serializers.CharField()
+    difference = serializers.CharField()
+    ledger_expense = serializers.CharField()
+    reported_expense = serializers.CharField()
+    checked_at = serializers.CharField()
+
+
+class ReportResponseSerializer(serializers.Serializer):
+    period = ReportPeriodSerializer()
+    currency = serializers.CharField()
+    totals = serializers.DictField()
+    series = serializers.ListField(child=serializers.DictField())
+    table = serializers.ListField(child=serializers.DictField())
+    rate_policy = serializers.CharField()
+    rates_used = serializers.ListField(child=serializers.DictField())
+    generated_from = serializers.CharField()
+    reconciliation = ReportReconciliationSerializer()
