@@ -57,6 +57,11 @@ class SessionNotFound(DomainError):
     code = "not_found"
 
 
+class ReauthRequired(DomainError):
+    status_code = 403
+    code = "reauth_required"
+
+
 @dataclass(frozen=True)
 class RequestMeta:
     user_agent: str = ""
@@ -221,6 +226,36 @@ def revoke_all_sessions(*, user: User, reason: str = "logout_all") -> int:
     return UserSession.objects.filter(user=user, revoked_at__isnull=True).update(
         revoked_at=timezone.now(), revoked_reason=reason
     )
+
+
+@transaction.atomic
+def mark_reauth(*, user: User, session_id: uuid.UUID) -> datetime:
+    """Record that the user re-entered their password for this session."""
+    now = timezone.now()
+    session = (
+        UserSession.objects.select_for_update()
+        .filter(id=session_id, user=user, revoked_at__isnull=True)
+        .first()
+    )
+    if session is None or session.expires_at <= now:
+        raise InvalidToken("Session is no longer valid.")
+    session.reauth_at = now
+    session.save(update_fields=["reauth_at"])
+    return now
+
+
+def has_recent_reauth(*, user: User, session_id: uuid.UUID | None) -> bool:
+    """Sensitive actions require a password check inside the reauthentication window."""
+    if session_id is None:
+        return False
+    now = timezone.now()
+    return UserSession.objects.filter(
+        id=session_id,
+        user=user,
+        revoked_at__isnull=True,
+        expires_at__gt=now,
+        reauth_at__gte=now - settings.REAUTH_WINDOW,
+    ).exists()
 
 
 def _lock_duration(failure_count: int) -> timedelta | None:

@@ -147,9 +147,9 @@ failures in 15 minutes is progressive (1, 5, 15, 60 minutes).
 
 | Endpoint | Purpose |
 |---|---|
-| `POST /auth/2fa/verify/` | `{mfa_token, method, code}` → tokens (single-use token) |
+| `POST /auth/2fa/verify/` | `{mfa_token, code}` → tokens; code is a TOTP or recovery code (single-use token) |
 | `POST /auth/2fa/setup/` | Begin enrollment → `{secret, otpauth_uri, qr_svg}` (requires reauth) |
-| `POST /auth/2fa/confirm/` | `{code}` → enables 2FA and returns 10 recovery codes **once** |
+| `POST /auth/2fa/confirm/` | `{code}` → enables 2FA and returns 10 recovery codes **once** (requires reauth) |
 | `POST /auth/2fa/disable/` | `{password, code}` → disables and revokes recovery codes |
 | `POST /auth/2fa/recovery-codes/` | `{password, code}` → regenerates and returns new codes |
 
@@ -162,7 +162,7 @@ failures in 15 minutes is progressive (1, 5, 15, 60 minutes).
 | `POST /auth/logout/` | Revoke current session, clear cookie |
 | `POST /auth/logout-all/` | Revoke all sessions |
 | `POST /auth/refresh/` | Rotate refresh cookie → new access; reuse revokes the family |
-| `POST /auth/reauth/` | `{password?, code?}` → sets `reauth_at` for 10 minutes |
+| `POST /auth/reauth/` | `{password}` → sets `reauth_at` for 10 minutes |
 
 ### 2.5 Email, password, Google
 

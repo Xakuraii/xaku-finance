@@ -48,6 +48,18 @@ All notable changes to this project are recorded here. Format loosely follows Ke
     verification resends
   - Plain-text email templates in `backend/apps/identity/templates/identity/emails/`; console backend
     locally, Mailpit service in Compose for SMTP testing
+- 2026-11-17 — Optional TOTP 2FA and recovery codes (Phase 1, Task 7):
+  - `TwoFactorConfig` stores a 160-bit TOTP secret only as versioned Fernet ciphertext;
+    `MFAChallenge` is a hashed, 5-minute, single-use token between password success and a code
+  - `POST /auth/2fa/setup/`, `/auth/2fa/confirm/`, `/auth/2fa/verify/`, `/auth/2fa/disable/`, and
+    `/auth/2fa/recovery-codes/`, plus `POST /auth/reauth/`
+  - Login and Google sign-in return `202 {mfa_required, mfa_token, methods}` when 2FA is enabled
+  - Replay protection records the last accepted time-step; five failures in ten minutes lock
+    verification for fifteen minutes
+  - Ten single-use recovery codes, Argon2id-hashed, returned once and invalidated as a batch on
+    regeneration; disabling 2FA emails a security notification
+  - Enrollment and recovery-code regeneration require a password reauthentication (`reauth_at`)
+    inside a ten-minute window
 
 ### Decisions
 - Double-entry ledger with system accounts is the accounting foundation.

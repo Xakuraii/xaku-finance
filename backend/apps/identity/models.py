@@ -194,6 +194,8 @@ class UserSession(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     last_used_at = models.DateTimeField()
     expires_at = models.DateTimeField()
+    #: Set by the reauthentication endpoint; sensitive actions require it to be recent.
+    reauth_at = models.DateTimeField(null=True, blank=True)
     revoked_at = models.DateTimeField(null=True, blank=True)
     revoked_reason = models.CharField(max_length=40, blank=True, default="")
 
@@ -284,3 +286,99 @@ class SocialIdentity(models.Model):
 
     def __str__(self) -> str:
         return f"{self.provider}:{self.subject}"
+
+
+class TwoFactorConfig(models.Model):
+    """TOTP enrollment state. The secret is stored only as Fernet ciphertext."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.OneToOneField(
+        "identity.User",
+        on_delete=models.CASCADE,
+        related_name="two_factor",
+    )
+    is_enabled = models.BooleanField(default=False)
+    secret_ciphertext = models.BinaryField()
+    key_version = models.PositiveSmallIntegerField(default=1)
+    algorithm = models.CharField(max_length=12, default="SHA1")
+    digits = models.PositiveSmallIntegerField(default=6)
+    period_seconds = models.PositiveSmallIntegerField(default=30)
+    #: Highest accepted TOTP time-step; a code at or below it is a replay.
+    last_used_counter = models.BigIntegerField(null=True, blank=True)
+    failed_attempts = models.PositiveSmallIntegerField(default=0)
+    last_failed_at = models.DateTimeField(null=True, blank=True)
+    locked_until = models.DateTimeField(null=True, blank=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    disabled_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "two_factor_config"
+        constraints = [
+            models.CheckConstraint(
+                condition=Q(digits__gte=6) & Q(digits__lte=8),
+                name="two_factor_digits_ck",
+            ),
+            models.CheckConstraint(
+                condition=Q(period_seconds__gte=15) & Q(period_seconds__lte=120),
+                name="two_factor_period_ck",
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f"2FA for {self.user_id} ({'enabled' if self.is_enabled else 'pending'})"
+
+
+class RecoveryCode(models.Model):
+    """One Argon2id-hashed, single-use recovery code. A batch id allows regeneration."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        "identity.User",
+        on_delete=models.CASCADE,
+        related_name="recovery_codes",
+    )
+    batch_id = models.UUIDField(db_index=True)
+    code_hash = models.CharField(max_length=128)
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "recovery_code"
+        constraints = [
+            models.UniqueConstraint(
+                fields=["user", "code_hash"],
+                name="recovery_code_user_hash_uq",
+            ),
+        ]
+        indexes = [
+            models.Index(fields=["user", "used_at"], name="recovery_code_user_used_ix"),
+        ]
+
+    def __str__(self) -> str:
+        return f"Recovery code for {self.user_id}"
+
+
+class MFAChallenge(models.Model):
+    """A short-lived, single-use token that bridges password success and a 2FA code."""
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(
+        "identity.User",
+        on_delete=models.CASCADE,
+        related_name="mfa_challenges",
+    )
+    token_hash = models.CharField(max_length=64, unique=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "mfa_challenge"
+        indexes = [
+            models.Index(fields=["user", "expires_at"], name="mfa_challenge_user_expiry_ix"),
+        ]
+
+    def __str__(self) -> str:
+        return f"MFA challenge for {self.user_id}"

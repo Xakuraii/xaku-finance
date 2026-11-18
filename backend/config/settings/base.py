@@ -149,6 +149,7 @@ REST_FRAMEWORK = {
         "password_reset": "20/hour",
         "password_reset_email": "5/hour",
         "email_verification": "5/hour",
+        "two_factor": "10/min",
     },
     "EXCEPTION_HANDLER": "apps.common.errors.exception_handler",
     "TEST_REQUEST_DEFAULT_FORMAT": "json",
@@ -186,6 +187,64 @@ EMAIL_USE_TLS = env_bool("EMAIL_USE_TLS", False)
 
 # Google sign-in is optional. An empty client id disables the endpoint with a clear error.
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+
+
+def _parse_two_factor_keys(raw: str) -> dict[int, str]:
+    """Parse ``version:key`` pairs so an old key can still decrypt during rotation."""
+    keys: dict[int, str] = {}
+    for item in raw.split(","):
+        item = item.strip()
+        if not item:
+            continue
+        version, _, key = item.partition(":")
+        if not version or not key:
+            raise ValueError("TWO_FACTOR_ENCRYPTION_KEYS must look like 1:key,2:key")
+        keys[int(version)] = key.strip()
+    return keys
+
+
+def _derived_two_factor_key() -> str:
+    """Development fallback so a fresh checkout can enroll without extra setup.
+
+    Production refuses to start without an explicit key (see production.py).
+    """
+    import base64
+    import hashlib
+
+    digest = hashlib.sha256(f"two-factor:{SECRET_KEY}".encode()).digest()
+    return base64.urlsafe_b64encode(digest).decode("ascii")
+
+
+_two_factor_raw = os.getenv("TWO_FACTOR_ENCRYPTION_KEYS", "").strip()
+if not _two_factor_raw:
+    single_key = os.getenv("TWO_FACTOR_ENCRYPTION_KEY", "").strip()
+    _two_factor_raw = f"1:{single_key}" if single_key else f"1:{_derived_two_factor_key()}"
+
+TWO_FACTOR_ENCRYPTION_KEYS = _parse_two_factor_keys(_two_factor_raw)
+TWO_FACTOR_CURRENT_KEY_VERSION = int(os.getenv("TWO_FACTOR_KEY_VERSION", "1"))
+if TWO_FACTOR_CURRENT_KEY_VERSION not in TWO_FACTOR_ENCRYPTION_KEYS:
+    raise ValueError("TWO_FACTOR_KEY_VERSION must name a configured encryption key.")
+
+TWO_FACTOR_ISSUER = os.getenv("TWO_FACTOR_ISSUER", "XakuFinance")
+TWO_FACTOR_ALGORITHM = "SHA1"
+TWO_FACTOR_DIGITS = 6
+TWO_FACTOR_PERIOD_SECONDS = 30
+TWO_FACTOR_MAX_FAILURES = 5
+TWO_FACTOR_LOCK_WINDOW = timedelta(minutes=10)
+TWO_FACTOR_LOCK_DURATION = timedelta(minutes=15)
+RECOVERY_CODE_COUNT = 10
+RECOVERY_CODE_BYTES = 10
+
+# A challenge bridges a correct password and a 2FA code; it is not a session.
+MFA_CHALLENGE_TTL = timedelta(minutes=5)
+
+# Sensitive actions (enrolling 2FA, regenerating recovery codes) need a recent password check.
+REAUTH_WINDOW = timedelta(minutes=10)
+
+# Recovery codes are Argon2id-hashed. Tests lower these so the suite stays fast.
+RECOVERY_CODE_HASH_TIME_COST = int(os.getenv("RECOVERY_CODE_HASH_TIME_COST", "3"))
+RECOVERY_CODE_HASH_MEMORY_COST = int(os.getenv("RECOVERY_CODE_HASH_MEMORY_COST", "65536"))
+RECOVERY_CODE_HASH_PARALLELISM = int(os.getenv("RECOVERY_CODE_HASH_PARALLELISM", "4"))
 
 SPECTACULAR_SETTINGS = {
     "TITLE": "XakuFinance API",

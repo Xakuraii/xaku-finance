@@ -102,6 +102,7 @@ user_session
   created_at timestamptz nn
   last_used_at timestamptz nn
   expires_at timestamptz nn
+  reauth_at timestamptz null                    -- password rechecked for sensitive actions
   revoked_at timestamptz null
   revoked_reason varchar(40) nn default ''     -- user_logout|logout_all|user_revoked|refresh_reuse
   IX (user_id, revoked_at, last_used_at desc)
@@ -132,11 +133,28 @@ two_factor_config
   digits smallint nn default 6
   period_seconds smallint nn default 30
   last_used_counter bigint null                 -- replay protection
+  failed_attempts smallint nn default 0         -- 5 in 10 minutes locks verification
+  last_failed_at timestamptz null
+  locked_until timestamptz null
   confirmed_at timestamptz null
   disabled_at timestamptz null
   created_at, updated_at timestamptz nn
   CK digits between 6 and 8, period_seconds between 15 and 120
 ```
+
+```
+mfa_challenge
+  id uuid pk
+  user_id uuid nn fk -> identity_user (cascade)
+  token_hash char(64) nn uq                     -- SHA-256 of a 32-byte random token
+  expires_at timestamptz nn                     -- 5 minutes
+  used_at timestamptz null                      -- single use
+  created_at timestamptz nn
+  IX (user_id, expires_at)
+```
+
+A challenge proves only the password step. Issuing a new one marks the previous challenge used, and
+the code itself is verified separately; neither alone opens a session.
 
 ```
 recovery_code
@@ -149,6 +167,9 @@ recovery_code
   UQ (user_id, code_hash)
   IX (user_id, used_at)
 ```
+
+Codes are generated as four groups of four base32 characters and stored only as Argon2id hashes.
+Issuing a new batch deletes the previous one, so regeneration invalidates every old code at once.
 
 ```
 identity_token

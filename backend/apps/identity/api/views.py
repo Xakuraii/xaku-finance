@@ -20,30 +20,43 @@ from apps.identity.api.serializers import (
     GoogleLoginSerializer,
     GoogleTokenResponseSerializer,
     LoginSerializer,
+    MFARequiredSerializer,
+    MFAVerifySerializer,
     PasswordForgotSerializer,
     PasswordResetResponseSerializer,
     PasswordResetSerializer,
+    ReauthResponseSerializer,
+    ReauthSerializer,
+    RecoveryCodesResponseSerializer,
     RegisterResponseSerializer,
     RegisterSerializer,
     SentResponseSerializer,
     SessionSerializer,
     TokenResponseSerializer,
+    TwoFactorCodeSerializer,
+    TwoFactorConfirmResponseSerializer,
+    TwoFactorFactorSerializer,
+    TwoFactorSetupResponseSerializer,
     UserSummarySerializer,
     VerifyEmailResponseSerializer,
     VerifyEmailSerializer,
 )
 from apps.identity.models import UserSession
+from apps.identity.services import two_factor
 from apps.identity.services.email_tokens import send_verification, verify_email
 from apps.identity.services.google import login_with_google
 from apps.identity.services.passwords import request_password_reset, reset_password
 from apps.identity.services.registration import register_user
 from apps.identity.services.sessions import (
     InvalidToken,
+    ReauthRequired,
     RequestMeta,
     SessionNotFound,
     TokenPair,
     authenticate_user,
+    has_recent_reauth,
     issue_tokens,
+    mark_reauth,
     revoke_all_sessions,
     revoke_session,
     rotate_refresh,
@@ -69,6 +82,15 @@ def _current_session_id(request: Request) -> uuid.UUID | None:
         return uuid.UUID(str(raw))
     except ValueError:
         return None
+
+
+def _require_recent_reauth(request: Request) -> None:
+    if not has_recent_reauth(
+        user=request.user, session_id=_current_session_id(request)
+    ):
+        raise ReauthRequired(
+            "Confirm your password again before changing security settings."
+        )
 
 
 class RegisterView(APIView):
@@ -111,14 +133,35 @@ class LoginView(APIView):
 
     @extend_schema(
         request=LoginSerializer,
-        responses={200: TokenResponseSerializer, 401: dict},
+        responses={
+            200: TokenResponseSerializer,
+            202: MFARequiredSerializer,
+            401: dict,
+        },
         tags=["auth"],
-        description="Exchange email and password for an access token and refresh cookie.",
+        description=(
+            "Exchange email and password for an access token and refresh cookie. When 2FA is "
+            "enabled, returns 202 with a short-lived challenge instead of tokens."
+        ),
     )
     def post(self, request: Request) -> Response:
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = authenticate_user(**serializer.validated_data)
+
+        if two_factor.is_enabled(user):
+            challenge = two_factor.create_challenge(user)
+            payload = {
+                "mfa_required": True,
+                "mfa_token": challenge.token,
+                "methods": ["totp", "recovery_code"],
+                "expires_in": challenge.expires_in,
+            }
+            return Response(
+                MFARequiredSerializer(payload).data,
+                status=status.HTTP_202_ACCEPTED,
+            )
+
         tokens = issue_tokens(user, request_meta=RequestMeta.from_request(request))
         response = Response(_token_payload(tokens), status=status.HTTP_200_OK)
         set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
@@ -302,7 +345,12 @@ class GoogleLoginView(APIView):
 
     @extend_schema(
         request=GoogleLoginSerializer,
-        responses={200: GoogleTokenResponseSerializer, 400: dict, 409: dict},
+        responses={
+            200: GoogleTokenResponseSerializer,
+            202: MFARequiredSerializer,
+            400: dict,
+            409: dict,
+        },
         tags=["auth"],
         description="Exchange a Google ID token for tokens. Existing accounts must be linked.",
     )
@@ -310,6 +358,20 @@ class GoogleLoginView(APIView):
         serializer = GoogleLoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = login_with_google(serializer.validated_data["id_token"])
+
+        if two_factor.is_enabled(user):
+            challenge = two_factor.create_challenge(user)
+            payload = {
+                "mfa_required": True,
+                "mfa_token": challenge.token,
+                "methods": ["totp", "recovery_code"],
+                "expires_in": challenge.expires_in,
+            }
+            return Response(
+                MFARequiredSerializer(payload).data,
+                status=status.HTTP_202_ACCEPTED,
+            )
+
         tokens = issue_tokens(user, request_meta=RequestMeta.from_request(request))
         payload = {
             "user": UserSummarySerializer(user).data,
@@ -318,3 +380,163 @@ class GoogleLoginView(APIView):
         response = Response(payload, status=status.HTTP_200_OK)
         set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
         return response
+
+
+class ReauthView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=ReauthSerializer,
+        responses={200: ReauthResponseSerializer, 401: dict, 403: dict},
+        tags=["auth"],
+        description="Re-enter the password to unlock sensitive security actions for 10 minutes.",
+    )
+    def post(self, request: Request) -> Response:
+        from apps.identity.services.two_factor import InvalidPassword
+
+        serializer = ReauthSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        if not request.user.has_usable_password() or not request.user.check_password(
+            serializer.validated_data["password"]
+        ):
+            raise InvalidPassword("Password is incorrect.")
+
+        session_id = _current_session_id(request)
+        if session_id is None:
+            raise InvalidToken("Session is no longer valid.")
+        mark_reauth(user=request.user, session_id=session_id)
+        return Response(
+            {"reauth_expires_in": int(_reauth_seconds())},
+            status=status.HTTP_200_OK,
+        )
+
+
+def _reauth_seconds() -> int:
+    from django.conf import settings
+
+    return int(settings.REAUTH_WINDOW.total_seconds())
+
+
+class TwoFactorSetupView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=None,
+        responses={200: TwoFactorSetupResponseSerializer, 403: dict, 409: dict},
+        tags=["auth"],
+        description="Start TOTP enrollment. Requires a recent password confirmation.",
+    )
+    def post(self, request: Request) -> Response:
+        _require_recent_reauth(request)
+        enrollment = two_factor.begin_enrollment(request.user)
+        payload = {
+            "secret": enrollment.secret,
+            "otpauth_uri": enrollment.otpauth_uri,
+            "qr_svg": enrollment.qr_svg,
+        }
+        return Response(
+            TwoFactorSetupResponseSerializer(payload).data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class TwoFactorConfirmView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=TwoFactorCodeSerializer,
+        responses={
+            200: TwoFactorConfirmResponseSerializer,
+            401: dict,
+            403: dict,
+            409: dict,
+        },
+        tags=["auth"],
+        description="Enable 2FA with a code from the authenticator app and return recovery codes.",
+    )
+    def post(self, request: Request) -> Response:
+        _require_recent_reauth(request)
+        serializer = TwoFactorCodeSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        codes = two_factor.confirm_enrollment(
+            request.user, serializer.validated_data["code"]
+        )
+        payload = {"enabled": True, "recovery_codes": codes}
+        return Response(
+            TwoFactorConfirmResponseSerializer(payload).data,
+            status=status.HTTP_200_OK,
+        )
+
+
+class TwoFactorVerifyView(APIView):
+    permission_classes = [AllowAny]
+    authentication_classes: list[type] = []
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = "two_factor"
+
+    @extend_schema(
+        request=MFAVerifySerializer,
+        responses={200: TokenResponseSerializer, 401: dict, 429: dict},
+        tags=["auth"],
+        description="Complete a 2FA login challenge with a TOTP or recovery code.",
+    )
+    def post(self, request: Request) -> Response:
+        serializer = MFAVerifySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        tokens = two_factor.verify_challenge(
+            serializer.validated_data["mfa_token"],
+            serializer.validated_data["code"],
+            request_meta=RequestMeta.from_request(request),
+        )
+        response = Response(_token_payload(tokens), status=status.HTTP_200_OK)
+        set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
+        return response
+
+
+class TwoFactorDisableView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=TwoFactorFactorSerializer,
+        responses={204: None, 401: dict, 409: dict, 429: dict},
+        tags=["auth"],
+        description="Disable 2FA. Requires the password and a current code.",
+    )
+    def post(self, request: Request) -> Response:
+        serializer = TwoFactorFactorSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        two_factor.disable(
+            request.user,
+            password=serializer.validated_data["password"],
+            code=serializer.validated_data["code"],
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class RecoveryCodesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @extend_schema(
+        request=TwoFactorFactorSerializer,
+        responses={
+            200: RecoveryCodesResponseSerializer,
+            401: dict,
+            409: dict,
+            429: dict,
+        },
+        tags=["auth"],
+        description="Replace recovery codes. Requires the password and a current code.",
+    )
+    def post(self, request: Request) -> Response:
+        serializer = TwoFactorFactorSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        codes = two_factor.regenerate_recovery_codes(
+            request.user,
+            password=serializer.validated_data["password"],
+            code=serializer.validated_data["code"],
+        )
+        payload = {"recovery_codes": codes}
+        return Response(
+            RecoveryCodesResponseSerializer(payload).data,
+            status=status.HTTP_200_OK,
+        )

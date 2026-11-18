@@ -170,3 +170,61 @@ class GoogleTokenResponseSerializer(serializers.Serializer):
     access = serializers.CharField(read_only=True)
     access_expires_in = serializers.IntegerField(read_only=True)
     refresh_expires_in = serializers.IntegerField(read_only=True)
+
+
+class MFARequiredSerializer(serializers.Serializer):
+    mfa_required = serializers.BooleanField(read_only=True)
+    mfa_token = serializers.CharField(read_only=True)
+    methods = serializers.ListField(child=serializers.CharField(), read_only=True)
+    expires_in = serializers.IntegerField(read_only=True)
+
+
+class MFAVerifySerializer(serializers.Serializer):
+    mfa_token = serializers.CharField(max_length=128, trim_whitespace=False)
+    code = serializers.CharField(max_length=64, trim_whitespace=False)
+
+
+class TwoFactorSetupResponseSerializer(serializers.Serializer):
+    secret = serializers.CharField(read_only=True)
+    otpauth_uri = serializers.CharField(read_only=True)
+    qr_svg = serializers.CharField(read_only=True)
+
+
+class TwoFactorCodeSerializer(serializers.Serializer):
+    code = serializers.CharField(max_length=64, trim_whitespace=False)
+
+
+class TwoFactorConfirmResponseSerializer(serializers.Serializer):
+    enabled = serializers.BooleanField(read_only=True)
+    recovery_codes = serializers.ListField(
+        child=serializers.CharField(), read_only=True
+    )
+
+
+class TwoFactorFactorSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        write_only=True,
+        max_length=128,
+        trim_whitespace=False,
+        style={"input_type": "password"},
+    )
+    code = serializers.CharField(max_length=64, trim_whitespace=False)
+
+
+class RecoveryCodesResponseSerializer(serializers.Serializer):
+    recovery_codes = serializers.ListField(
+        child=serializers.CharField(), read_only=True
+    )
+
+
+class ReauthSerializer(serializers.Serializer):
+    password = serializers.CharField(
+        write_only=True,
+        max_length=128,
+        trim_whitespace=False,
+        style={"input_type": "password"},
+    )
+
+
+class ReauthResponseSerializer(serializers.Serializer):
+    reauth_expires_in = serializers.IntegerField(read_only=True)
