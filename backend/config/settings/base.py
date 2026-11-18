@@ -45,6 +45,10 @@ INSTALLED_APPS = [
     "apps.common",
     "apps.identity",
     "apps.workspaces",
+    "apps.accounts",
+    "apps.ledger",
+    "apps.categories",
+    "apps.tags",
 ]
 
 MIDDLEWARE = [

@@ -13,6 +13,31 @@ def _clear_throttle_cache():
     cache.clear()
 
 
+@pytest.fixture(autouse=True)
+def _ensure_currencies(db):
+    """Ensure seed currencies exist even when transaction=True truncates tables."""
+    from apps.common.models import Currency
+
+    Currency.objects.get_or_create(
+        code="USD",
+        defaults={
+            "name": "United States Dollar",
+            "symbol": "$",
+            "minor_unit": 2,
+            "is_active": True,
+        },
+    )
+    Currency.objects.get_or_create(
+        code="KHR",
+        defaults={
+            "name": "Cambodian Riel",
+            "symbol": "៛",
+            "minor_unit": 2,
+            "is_active": True,
+        },
+    )
+
+
 @pytest.fixture
 def api_client():
     from rest_framework.test import APIClient
