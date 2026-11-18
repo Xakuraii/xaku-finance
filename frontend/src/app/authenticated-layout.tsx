@@ -8,6 +8,8 @@ import {
   Shield,
   PiggyBank,
   BarChart3,
+  Target,
+  CreditCard,
   UploadCloud,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
@@ -100,6 +102,20 @@ export const AuthenticatedLayout: React.FC = () => {
               </NavLink>
 
               <NavLink
+                to="/app/savings"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "text-gold bg-gold/10 font-semibold border border-gold/20"
+                      : "text-muted hover:text-main hover:bg-[var(--surface-raised)]"
+                  }`
+                }
+              >
+                <Target className="w-3.5 h-3.5" />
+                Savings
+              </NavLink>
+
+              <NavLink
                 to="/app/analytics"
                 className={({ isActive }) =>
                   `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
@@ -186,6 +202,17 @@ export const AuthenticatedLayout: React.FC = () => {
           >
             <PiggyBank className="w-3.5 h-3.5" />
             Budgets
+          </NavLink>
+          <NavLink
+            to="/app/savings"
+            className={({ isActive }) =>
+              `flex items-center gap-1 px-2.5 py-1 rounded font-medium ${
+                isActive ? "text-gold font-semibold" : "text-muted"
+              }`
+            }
+          >
+            <Target className="w-3.5 h-3.5" />
+            Savings
           </NavLink>
           <NavLink
             to="/app/analytics"
