@@ -823,6 +823,246 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/budgets/:
+    get:
+      operationId: budgets_list
+      description: ViewSet for managing category budgets and tracking period spending.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - budgets
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Budget'
+          description: ''
+    post:
+      operationId: budgets_create
+      description: ViewSet for managing category budgets and tracking period spending.
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+          description: ''
+  /api/v1/budgets/{id}/:
+    get:
+      operationId: budgets_retrieve
+      description: ViewSet for managing category budgets and tracking period spending.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this budget.
+        required: true
+      tags:
+      - budgets
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+          description: ''
+    patch:
+      operationId: budgets_partial_update
+      description: ViewSet for managing category budgets and tracking period spending.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this budget.
+        required: true
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBudgetRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBudgetRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBudgetRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+          description: ''
+    delete:
+      operationId: budgets_destroy
+      description: ViewSet for managing category budgets and tracking period spending.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this budget.
+        required: true
+      tags:
+      - budgets
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/budgets/{id}/archive/:
+    post:
+      operationId: budgets_archive_create
+      description: ViewSet for managing category budgets and tracking period spending.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this budget.
+        required: true
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Budget'
+          description: ''
+  /api/v1/budgets/{id}/close_period/:
+    post:
+      operationId: budgets_close_period_create
+      description: ViewSet for managing category budgets and tracking period spending.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this budget.
+        required: true
+      tags:
+      - budgets
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BudgetRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetPeriod'
+          description: ''
+  /api/v1/budgets/{id}/periods/:
+    get:
+      operationId: budgets_periods_list
+      description: ViewSet for managing category budgets and tracking period spending.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this budget.
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - budgets
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BudgetPeriod'
+          description: ''
+  /api/v1/budgets/overview/:
+    get:
+      operationId: budgets_overview_retrieve
+      description: ViewSet for managing category budgets and tracking period spending.
+      tags:
+      - budgets
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetOverview'
+          description: ''
   /api/v1/categories/:
     get:
       operationId: categories_list
@@ -1659,6 +1899,343 @@ components:
         * `credit_card` - Credit Card
         * `investment` - Investment
         * `other` - Other
+    Budget:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        category:
+          allOf:
+          - $ref: '#/components/schemas/BudgetCategoryBrief'
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        period_type:
+          $ref: '#/components/schemas/PeriodTypeEnum'
+        base_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        base_amount:
+          type: string
+          readOnly: true
+        rollover_enabled:
+          type: boolean
+        rollover_cap_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        rollover_cap:
+          type: string
+          nullable: true
+          readOnly: true
+        is_flexible:
+          type: boolean
+        warn_at_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        alert_at_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        is_archived:
+          type: boolean
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+        current_period:
+          type: object
+          additionalProperties: {}
+          nullable: true
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - base_amount
+      - base_amount_minor
+      - category
+      - created_at
+      - currency
+      - current_period
+      - id
+      - name
+      - rollover_cap
+      - starts_on
+      - updated_at
+    BudgetCategoryBrief:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 80
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        icon:
+          type: string
+          nullable: true
+          maxLength: 40
+        color:
+          type: string
+          nullable: true
+          maxLength: 7
+      required:
+      - id
+      - kind
+      - name
+    BudgetCategoryBriefRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        kind:
+          $ref: '#/components/schemas/KindEnum'
+        icon:
+          type: string
+          nullable: true
+          maxLength: 40
+        color:
+          type: string
+          nullable: true
+          maxLength: 7
+      required:
+      - kind
+      - name
+    BudgetOverview:
+      type: object
+      properties:
+        currency:
+          type: string
+        total_budgeted_minor:
+          type: integer
+        total_budgeted:
+          type: string
+        total_spent_minor:
+          type: integer
+        total_spent:
+          type: string
+        total_remaining_minor:
+          type: integer
+        total_remaining:
+          type: string
+        budgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/BudgetOverviewItem'
+      required:
+      - budgets
+      - currency
+      - total_budgeted
+      - total_budgeted_minor
+      - total_remaining
+      - total_remaining_minor
+      - total_spent
+      - total_spent_minor
+    BudgetOverviewItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        category:
+          $ref: '#/components/schemas/BudgetCategoryBrief'
+        spent:
+          type: string
+        spent_minor:
+          type: integer
+        total_available:
+          type: string
+        total_available_minor:
+          type: integer
+        remaining:
+          type: string
+        remaining_minor:
+          type: integer
+        spent_percentage:
+          type: number
+          format: double
+        health_status:
+          type: string
+        is_flexible:
+          type: boolean
+      required:
+      - category
+      - health_status
+      - id
+      - is_flexible
+      - name
+      - remaining
+      - remaining_minor
+      - spent
+      - spent_minor
+      - spent_percentage
+      - total_available
+      - total_available_minor
+    BudgetPeriod:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        period_start:
+          type: string
+          format: date
+        period_end:
+          type: string
+          format: date
+        base_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        base_amount:
+          type: string
+          readOnly: true
+        rollover_in_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        rollover_in:
+          type: string
+          readOnly: true
+        spent_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        spent:
+          type: string
+          readOnly: true
+        rollover_out_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        rollover_out:
+          type: string
+          readOnly: true
+        total_available_minor:
+          type: integer
+          readOnly: true
+        total_available:
+          type: string
+          readOnly: true
+        remaining_minor:
+          type: integer
+          readOnly: true
+        remaining:
+          type: string
+          readOnly: true
+        spent_percentage:
+          type: number
+          format: double
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/BudgetPeriodStatusEnum'
+        health_status:
+          type: string
+          readOnly: true
+        computed_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - base_amount
+      - base_amount_minor
+      - health_status
+      - id
+      - period_end
+      - period_start
+      - remaining
+      - remaining_minor
+      - rollover_in
+      - rollover_out
+      - spent
+      - spent_percentage
+      - total_available
+      - total_available_minor
+    BudgetPeriodStatusEnum:
+      enum:
+      - open
+      - closed
+      type: string
+      description: |-
+        * `open` - Open
+        * `closed` - Closed
+    BudgetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        period_type:
+          $ref: '#/components/schemas/PeriodTypeEnum'
+        base_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        rollover_enabled:
+          type: boolean
+        rollover_cap_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        is_flexible:
+          type: boolean
+        warn_at_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        alert_at_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        is_archived:
+          type: boolean
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+          nullable: true
+      required:
+      - base_amount_minor
+      - name
+      - starts_on
     Category:
       type: object
       properties:
@@ -1983,6 +2560,47 @@ components:
         currency:
           type: string
           minLength: 1
+    PatchedBudgetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        period_type:
+          $ref: '#/components/schemas/PeriodTypeEnum'
+        base_amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        rollover_enabled:
+          type: boolean
+        rollover_cap_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+        is_flexible:
+          type: boolean
+        warn_at_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        alert_at_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+        is_archived:
+          type: boolean
+        starts_on:
+          type: string
+          format: date
+        ends_on:
+          type: string
+          format: date
+          nullable: true
     PatchedCategoryRequest:
       type: object
       properties:
@@ -2029,6 +2647,16 @@ components:
         currency:
           type: string
           minLength: 1
+    PeriodTypeEnum:
+      enum:
+      - monthly
+      - weekly
+      - custom
+      type: string
+      description: |-
+        * `monthly` - Monthly
+        * `weekly` - Weekly
+        * `custom` - Custom
     ReauthRequest:
       type: object
       properties:
@@ -2206,16 +2834,6 @@ components:
           maxLength: 240
       required:
       - amount_minor
-    StatusEnum:
-      enum:
-      - pending
-      - completed
-      - cancelled
-      type: string
-      description: |-
-        * `pending` - Pending
-        * `completed` - Completed
-        * `cancelled` - Cancelled
     Tag:
       type: object
       properties:
@@ -2338,7 +2956,7 @@ components:
           type: string
         status:
           allOf:
-          - $ref: '#/components/schemas/StatusEnum'
+          - $ref: '#/components/schemas/TransactionStatusEnum'
           readOnly: true
         amount:
           type: string
@@ -2455,6 +3073,16 @@ components:
       required:
       - currency
       - type
+    TransactionStatusEnum:
+      enum:
+      - pending
+      - completed
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `completed` - Completed
+        * `cancelled` - Cancelled
     Transfer:
       type: object
       properties:
