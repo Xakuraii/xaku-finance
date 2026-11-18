@@ -82,38 +82,38 @@ export interface DebtProjection {
 }
 
 export async function fetchLiabilities(includeArchived = false): Promise<Liability[]> {
-  const url = includeArchived ? "/debts/?include_archived=true" : "/debts/";
+  const url = includeArchived ? "/api/v1/debts/?include_archived=true" : "/api/v1/debts/";
   return await api.get<Liability[]>(url);
 }
 
 export async function createLiability(payload: CreateLiabilityPayload): Promise<Liability> {
-  return await api.post<Liability>("/debts/", payload);
+  return await api.post<Liability>("/api/v1/debts/", payload);
 }
 
 export async function updateLiability(
   id: string,
   payload: Partial<CreateLiabilityPayload> & { status?: string }
 ): Promise<Liability> {
-  return await api.patch<Liability>(`/debts/${id}/`, payload);
+  return await api.patch<Liability>(`/api/v1/debts/${id}/`, payload);
 }
 
 export async function archiveLiability(id: string): Promise<Liability> {
-  return await api.post<Liability>(`/debts/${id}/archive/`);
+  return await api.post<Liability>(`/api/v1/debts/${id}/archive/`);
 }
 
 export async function restoreLiability(id: string): Promise<Liability> {
-  return await api.post<Liability>(`/debts/${id}/restore/`);
+  return await api.post<Liability>(`/api/v1/debts/${id}/restore/`);
 }
 
 export async function fetchDebtRepayments(liabilityId: string): Promise<DebtRepayment[]> {
-  return await api.get<DebtRepayment[]>(`/debts/${liabilityId}/repayments/`);
+  return await api.get<DebtRepayment[]>(`/api/v1/debts/${liabilityId}/repayments/`);
 }
 
 export async function recordDebtRepayment(
   liabilityId: string,
   payload: RecordRepaymentPayload
 ): Promise<DebtRepayment> {
-  return await api.post<DebtRepayment>(`/debts/${liabilityId}/repayments/`, payload);
+  return await api.post<DebtRepayment>(`/api/v1/debts/${liabilityId}/repayments/`, payload);
 }
 
 export async function fetchDebtProjection(
@@ -121,7 +121,7 @@ export async function fetchDebtProjection(
   monthlyPayment?: string
 ): Promise<DebtProjection> {
   const url = monthlyPayment
-    ? `/debts/${liabilityId}/projection/?monthly_payment=${encodeURIComponent(monthlyPayment)}`
-    : `/debts/${liabilityId}/projection/`;
+    ? `/api/v1/debts/${liabilityId}/projection/?monthly_payment=${encodeURIComponent(monthlyPayment)}`
+    : `/api/v1/debts/${liabilityId}/projection/`;
   return await api.get<DebtProjection>(url);
 }

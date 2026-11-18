@@ -45,19 +45,19 @@ export interface EmergencyFundProjection {
 }
 
 export async function getEmergencyFundStatus(): Promise<EmergencyFundStatus> {
-  return api.get<EmergencyFundStatus>("/emergency-fund/");
+  return api.get<EmergencyFundStatus>("/api/v1/emergency-fund/");
 }
 
 export async function updateEmergencyFundConfig(
   payload: EmergencyFundConfigPayload
 ): Promise<EmergencyFundStatus> {
-  return api.patch<EmergencyFundStatus>("/emergency-fund/", payload);
+  return api.patch<EmergencyFundStatus>("/api/v1/emergency-fund/", payload);
 }
 
 export async function getEmergencyFundProjection(
   monthlyContribution: string
 ): Promise<EmergencyFundProjection> {
-  return api.post<EmergencyFundProjection>("/emergency-fund/projection/", {
+  return api.post<EmergencyFundProjection>("/api/v1/emergency-fund/projection/", {
     monthly_contribution: monthlyContribution,
   });
 }

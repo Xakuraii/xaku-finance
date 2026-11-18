@@ -83,31 +83,33 @@ export interface GoalProjection {
 }
 
 export async function fetchSavingsGoals(includeArchived = false): Promise<SavingsGoal[]> {
-  const url = includeArchived ? "/savings-goals/?include_archived=true" : "/savings-goals/";
+  const url = includeArchived
+    ? "/api/v1/savings-goals/?include_archived=true"
+    : "/api/v1/savings-goals/";
   return await api.get<SavingsGoal[]>(url);
 }
 
 export async function createSavingsGoal(payload: CreateSavingsGoalPayload): Promise<SavingsGoal> {
-  return await api.post<SavingsGoal>("/savings-goals/", payload);
+  return await api.post<SavingsGoal>("/api/v1/savings-goals/", payload);
 }
 
 export async function updateSavingsGoal(
   id: string,
   payload: Partial<CreateSavingsGoalPayload> & { status?: string }
 ): Promise<SavingsGoal> {
-  return await api.patch<SavingsGoal>(`/savings-goals/${id}/`, payload);
+  return await api.patch<SavingsGoal>(`/api/v1/savings-goals/${id}/`, payload);
 }
 
 export async function archiveSavingsGoal(id: string): Promise<SavingsGoal> {
-  return await api.post<SavingsGoal>(`/savings-goals/${id}/archive/`);
+  return await api.post<SavingsGoal>(`/api/v1/savings-goals/${id}/archive/`);
 }
 
 export async function restoreSavingsGoal(id: string): Promise<SavingsGoal> {
-  return await api.post<SavingsGoal>(`/savings-goals/${id}/restore/`);
+  return await api.post<SavingsGoal>(`/api/v1/savings-goals/${id}/restore/`);
 }
 
 export async function fetchSavingsContributions(goalId: string): Promise<SavingsContribution[]> {
-  return await api.get<SavingsContribution[]>(`/savings-goals/${goalId}/contributions/`);
+  return await api.get<SavingsContribution[]>(`/api/v1/savings-goals/${goalId}/contributions/`);
 }
 
 export async function recordSavingsContribution(
@@ -115,11 +117,11 @@ export async function recordSavingsContribution(
   payload: RecordContributionPayload
 ): Promise<SavingsContribution> {
   return await api.post<SavingsContribution>(
-    `/savings-goals/${goalId}/contributions/`,
+    `/api/v1/savings-goals/${goalId}/contributions/`,
     payload
   );
 }
 
 export async function fetchSavingsProjection(goalId: string): Promise<GoalProjection> {
-  return await api.get<GoalProjection>(`/savings-goals/${goalId}/projection/`);
+  return await api.get<GoalProjection>(`/api/v1/savings-goals/${goalId}/projection/`);
 }
