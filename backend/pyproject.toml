@@ -27,6 +27,7 @@ dependencies = [
     "cryptography>=43",
     "google-auth>=2.37",
     "requests>=2.32",
+    "qrcode>=8.0",
 ]
 
 [project.optional-dependencies]
