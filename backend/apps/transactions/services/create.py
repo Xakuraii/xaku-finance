@@ -232,7 +232,9 @@ def create_transaction(
             "currency": currency,
             "status": status,
             "kind": kind,
-            "occurred_on": occurred_on.isoformat(),
+            "occurred_on": (
+                occurred_on.isoformat() if hasattr(occurred_on, "isoformat") else str(occurred_on)
+            ),
             "category_id": str(category_id) if category_id else None,
             "is_split": is_split,
         }

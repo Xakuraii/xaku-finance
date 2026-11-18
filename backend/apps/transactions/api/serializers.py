@@ -203,4 +203,4 @@ class TransactionSerializer(serializers.ModelSerializer):
     def get_tags(self, obj: Transaction) -> list[str]:
         if hasattr(obj, "_prefetched_tags"):
             return obj._prefetched_tags
-        return list(obj.tagged_items.values_list("tag__name", flat=True))
+        return [item.tag.name for item in obj.tagged_items.all()]

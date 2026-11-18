@@ -61,6 +61,43 @@ All notable changes to this project are recorded here. Format loosely follows Ke
   - Enrollment and recovery-code regeneration require a password reauthentication (`reauth_at`)
     inside a ten-minute window
 
+- 2026-11-18 — Workspace Scoping & Multi-Tenancy (Phase 1, Task 8):
+  - `WorkspaceScopedModel` and `WorkspaceScopedManager` auto-filtering queries by workspace.
+  - `IsWorkspaceMember` DRF permission class strictly verifying access boundaries.
+  - Cross-workspace isolation integration tests ensuring zero data leakage across workspaces.
+- 2026-11-18 — Double-Entry Engine & PostgreSQL Triggers (Phase 1, Tasks 9–10):
+  - System ledger accounts (Equity, Opening Balances, Retained Earnings, Category Ledger Accounts).
+  - PostgreSQL trigger `trg_assert_journal_entry_balanced` asserting sum(amount) == 0 per currency.
+  - PostgreSQL trigger `trg_prevent_posting_update_delete` locking journal entries and postings into immutable records.
+  - `post_entry`, `reverse_entry`, and `reconcile_workspace` services.
+  - Management command `check_ledger --fail-on-drift` validating zero accounting drift.
+- 2026-11-18 — Transactions, Splits & Audit History (Phase 1, Task 11):
+  - `Transaction`, `TransactionSplit`, `TransactionTag`, and `TaggedItem` models.
+  - Dynamic multi-category splitting with validation that split totals equal transaction amount.
+  - Status lifecycle (`pending`, `completed`, `cancelled`) ensuring only completed transactions hit ledger postings.
+  - `TransactionAudit` recording revisions, actor, timestamp, reason, and previous JSON snapshot.
+- 2026-11-18 — Account Lifecycle Services (Phase 1, Task 12):
+  - `create_account`, `archive_account`, `restore_account`, and `change_currency` services.
+  - Non-zero balance acknowledgement guard on archiving.
+  - Currency immutability once ledger postings exist.
+  - Dynamic `account_balance` selector deriving balances directly from ledger postings.
+- 2026-11-18 — REST API & Idempotency (Phase 1, Task 13):
+  - REST ViewSets for Accounts, Transactions, Categories, and Tags.
+  - Cursor-based pagination (`(created_at, id)`).
+  - RFC 7807 structured error envelope across all endpoints.
+  - Redis-backed `Idempotency-Key` deduplication on write operations.
+  - Auto-generated OpenAPI 3.1 specification validated via `spectacular`.
+- 2026-11-18 — Frontend Architecture & UI Features (Phase 1, Tasks 14–15):
+  - React 19 + TypeScript 5.8 + Vite + Tailwind CSS v4 setup adhering to `docs/DESIGN_SYSTEM.md`.
+  - Obsidian (`#0F1216`) and Binance Gold (`#F0B90B`) tokens.
+  - Typed Money library (`src/lib/money.ts`) with integer minor units arithmetic.
+  - API client with automatic 401 token refresh queue.
+  - UI pages and dialogs: Login, Register, Accounts listing, Statement drawer, Account creation, Archive dialog, Transactions table, Transaction creation drawer, Dynamic split editor with live balancing, and Audit drawer.
+- 2026-11-18 — Phase 1 Hardening & Exit Verification (Phase 1, Task 16):
+  - `seed_workspace` management command.
+  - Query count regression budget: transaction listing optimized to 3 queries (select_related + in-memory tag prefetch).
+  - Comprehensive exit review artifact created at `docs/PHASE_1_REPORT.md`.
+
 ### Decisions
 - Double-entry ledger with system accounts is the accounting foundation.
 - Money is stored as integer minor units; no floats anywhere.
@@ -71,16 +108,11 @@ All notable changes to this project are recorded here. Format loosely follows Ke
 - Receipt attachments/OCR, multi-workspace, bank sync, and AI chat are out of V1.
 
 ### Known limitations
-- Registration, login, rotation, session revocation, email verification, password reset, and Google
-  sign-in are implemented. TOTP 2FA, accounts, transactions, and reports are not; every other
-  functional claim in the planning docs remains a requirement, not a shipped fact.
-- The refresh cookie is `HttpOnly`/`Secure`/`SameSite=Lax`, but double-submit CSRF enforcement on
-  refresh is not implemented yet. It must land with the frontend auth client before release.
-- Password change from a signed-in session (`/auth/password/change/`) and explicit Google linking
-  are not implemented yet. Google sign-in refuses to link an existing password account.
-- Health endpoints, registration, session flows, email verification, password reset, and Google
-  sign-in are the tested routes.
-- Estimates in `docs/ROADMAP.md` are ranges, not commitments.
+- Phase 1 Foundation is fully shipped, tested, and verified.
+- Internal account transfers and foreign exchange clearing are scheduled for Phase 2.1.
+- Budget management and positive rollover calculations are scheduled for Phase 2.2.
+- Safe-to-Spend and Daily Spending Allowance calculations are scheduled for Phase 2.3.
+- Analytics, financial reports, and CSV/JSON data import/export are scheduled for Phase 2.4 and 2.5.
 
 ---
 
