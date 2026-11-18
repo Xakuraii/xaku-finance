@@ -1222,6 +1222,22 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
           description: ''
+  /api/v1/daily-allowance/:
+    get:
+      operationId: daily_allowance_retrieve
+      description: Calculate daily spending allowance across flexible budget categories.
+      summary: Get daily spending allowance
+      tags:
+      - daily-allowance
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyAllowanceResponse'
+          description: ''
   /api/v1/debts/:
     get:
       operationId: debts_list
@@ -1806,6 +1822,296 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ImportJob'
+          description: ''
+  /api/v1/net-worth/:
+    get:
+      operationId: net_worth_retrieve
+      description: Retrieve net worth headline, change, breakdown, and FX effect as
+        of a given date.
+      summary: Get net worth as of date
+      tags:
+      - net-worth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetWorthResponse'
+          description: ''
+  /api/v1/net-worth/history/:
+    get:
+      operationId: net_worth_history_retrieve
+      description: Retrieve historical net worth time-series and accessible data table.
+      summary: Get net worth history
+      tags:
+      - net-worth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NetWorthHistoryResponse'
+          description: ''
+  /api/v1/recurring-obligations/:
+    get:
+      operationId: recurring_obligations_list
+      description: CRUD for user recurring obligations, bills, and subscriptions.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - recurring-obligations
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecurringObligation'
+          description: ''
+    post:
+      operationId: recurring_obligations_create
+      description: CRUD for user recurring obligations, bills, and subscriptions.
+      tags:
+      - recurring-obligations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecurringObligationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecurringObligationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecurringObligationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringObligation'
+          description: ''
+  /api/v1/recurring-obligations/{id}/:
+    get:
+      operationId: recurring_obligations_retrieve
+      description: CRUD for user recurring obligations, bills, and subscriptions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this recurring obligation.
+        required: true
+      tags:
+      - recurring-obligations
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringObligation'
+          description: ''
+    put:
+      operationId: recurring_obligations_update
+      description: CRUD for user recurring obligations, bills, and subscriptions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this recurring obligation.
+        required: true
+      tags:
+      - recurring-obligations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecurringObligationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RecurringObligationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RecurringObligationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringObligation'
+          description: ''
+    patch:
+      operationId: recurring_obligations_partial_update
+      description: CRUD for user recurring obligations, bills, and subscriptions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this recurring obligation.
+        required: true
+      tags:
+      - recurring-obligations
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedRecurringObligationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedRecurringObligationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedRecurringObligationRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecurringObligation'
+          description: ''
+    delete:
+      operationId: recurring_obligations_destroy
+      description: CRUD for user recurring obligations, bills, and subscriptions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this recurring obligation.
+        required: true
+      tags:
+      - recurring-obligations
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/reports/cashflow/:
+    get:
+      operationId: reports_cashflow_retrieve
+      description: Retrieve cash flow statement excluding internal transfers with
+        ledger reconciliation.
+      summary: Get cash flow report
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+          description: ''
+  /api/v1/reports/categories/:
+    get:
+      operationId: reports_categories_retrieve
+      description: Retrieve category spending shares and breakdown with ledger reconciliation.
+      summary: Get category report
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+          description: ''
+  /api/v1/reports/expenses/:
+    get:
+      operationId: reports_expenses_retrieve
+      description: Retrieve Expense statement report with periodic breakdown and ledger
+        reconciliation.
+      summary: Get expense report
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+          description: ''
+  /api/v1/reports/income/:
+    get:
+      operationId: reports_income_retrieve
+      description: Retrieve Income statement report with periodic breakdown and ledger
+        reconciliation.
+      summary: Get income report
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+          description: ''
+  /api/v1/reports/trends/:
+    get:
+      operationId: reports_trends_retrieve
+      description: Retrieve periodic spending and income trends with ledger reconciliation.
+      summary: Get trends report
+      tags:
+      - reports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReportResponse'
+          description: ''
+  /api/v1/safe-to-spend/:
+    get:
+      operationId: safe_to_spend_retrieve
+      description: Calculate liquid Safe-to-Spend allowance and component breakdown.
+      summary: Get Safe-to-Spend
+      tags:
+      - safe-to-spend
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SafeToSpendResponse'
           description: ''
   /api/v1/savings-goals/:
     get:
@@ -2870,7 +3176,7 @@ components:
           type: string
           maxLength: 80
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/Kind005Enum'
         icon:
           type: string
           nullable: true
@@ -2891,7 +3197,7 @@ components:
           minLength: 1
           maxLength: 80
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/Kind005Enum'
         icon:
           type: string
           nullable: true
@@ -3113,6 +3419,20 @@ components:
       - base_amount_minor
       - name
       - starts_on
+    CadenceEnum:
+      enum:
+      - weekly
+      - monthly
+      - quarterly
+      - yearly
+      - one_off
+      type: string
+      description: |-
+        * `weekly` - Weekly
+        * `monthly` - Monthly
+        * `quarterly` - Quarterly
+        * `yearly` - Yearly
+        * `one_off` - One Off
     Category:
       type: object
       properties:
@@ -3124,7 +3444,7 @@ components:
           type: string
           maxLength: 80
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/Kind005Enum'
         parent_id:
           type: string
           format: uuid
@@ -3173,7 +3493,7 @@ components:
           type: string
           maxLength: 80
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/Kind005Enum'
       required:
       - id
       - kind
@@ -3186,7 +3506,7 @@ components:
           minLength: 1
           maxLength: 80
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/Kind005Enum'
       required:
       - kind
       - name
@@ -3198,7 +3518,7 @@ components:
           minLength: 1
           maxLength: 80
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/Kind005Enum'
         icon:
           type: string
           nullable: true
@@ -3218,6 +3538,71 @@ components:
       required:
       - kind
       - name
+    DailyAllowanceBudgetItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        remaining:
+          type: string
+        flexible:
+          type: boolean
+        reason:
+          type: string
+      required:
+      - id
+      - name
+      - remaining
+    DailyAllowancePeriod:
+      type: object
+      properties:
+        start:
+          type: string
+        end:
+          type: string
+        timezone:
+          type: string
+      required:
+      - end
+      - start
+      - timezone
+    DailyAllowanceResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+        period:
+          $ref: '#/components/schemas/DailyAllowancePeriod'
+        remaining_days:
+          type: integer
+        flexible_remaining:
+          type: string
+        allowance:
+          type: string
+        state:
+          type: string
+        explanation:
+          type: string
+        budgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyAllowanceBudgetItem'
+        excluded:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyAllowanceBudgetItem'
+      required:
+      - allowance
+      - budgets
+      - currency
+      - excluded
+      - explanation
+      - flexible_remaining
+      - period
+      - remaining_days
+      - state
     DetailResponse:
       type: object
       properties:
@@ -3597,7 +3982,7 @@ components:
         * `none` - None
         * `simple` - Simple
         * `compound` - Compound
-    KindEnum:
+    Kind005Enum:
       enum:
       - expense
       - income
@@ -3869,6 +4254,167 @@ components:
       - count
       - necessity
       - percentage
+    NetWorthBreakdown:
+      type: object
+      properties:
+        assets:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetWorthBreakdownItem'
+        liabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetWorthBreakdownItem'
+      required:
+      - assets
+      - liabilities
+    NetWorthBreakdownItem:
+      type: object
+      properties:
+        account_id:
+          type: string
+          nullable: true
+        liability_id:
+          type: string
+          nullable: true
+        name:
+          type: string
+        kind:
+          type: string
+        currency:
+          type: string
+        native_amount:
+          type: string
+        amount:
+          type: string
+        outstanding:
+          type: string
+          nullable: true
+      required:
+      - amount
+      - currency
+      - kind
+      - name
+      - native_amount
+    NetWorthChange:
+      type: object
+      properties:
+        amount:
+          type: string
+        since:
+          type: string
+        direction:
+          type: string
+      required:
+      - amount
+      - direction
+      - since
+    NetWorthHistoryPoint:
+      type: object
+      properties:
+        date:
+          type: string
+        assets:
+          type: string
+        liabilities:
+          type: string
+        net_worth:
+          type: string
+        stale:
+          type: boolean
+      required:
+      - assets
+      - date
+      - liabilities
+      - net_worth
+      - stale
+    NetWorthHistoryResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+        from_date:
+          type: string
+        to_date:
+          type: string
+        granularity:
+          type: string
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetWorthHistoryPoint'
+        table:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - currency
+      - from_date
+      - granularity
+      - series
+      - table
+      - to_date
+    NetWorthRateUsed:
+      type: object
+      properties:
+        pair:
+          type: string
+        rate:
+          type: string
+        date:
+          type: string
+      required:
+      - date
+      - pair
+      - rate
+    NetWorthResponse:
+      type: object
+      properties:
+        as_of:
+          type: string
+        currency:
+          type: string
+        assets:
+          type: string
+        liabilities:
+          type: string
+        net_worth:
+          type: string
+        change:
+          allOf:
+          - $ref: '#/components/schemas/NetWorthChange'
+          nullable: true
+        breakdown:
+          $ref: '#/components/schemas/NetWorthBreakdown'
+        fx_effect:
+          type: string
+        rate_policy:
+          type: string
+        rates_used:
+          type: array
+          items:
+            $ref: '#/components/schemas/NetWorthRateUsed'
+        ledger_seq:
+          type: integer
+        computed_from:
+          type: string
+        conversion_unavailable:
+          type: boolean
+      required:
+      - as_of
+      - assets
+      - breakdown
+      - change
+      - computed_from
+      - conversion_unavailable
+      - currency
+      - fx_effect
+      - ledger_seq
+      - liabilities
+      - net_worth
+      - rate_policy
+      - rates_used
     NullEnum:
       enum:
       - null
@@ -3999,7 +4545,7 @@ components:
           minLength: 1
           maxLength: 80
         kind:
-          $ref: '#/components/schemas/KindEnum'
+          $ref: '#/components/schemas/Kind005Enum'
         icon:
           type: string
           nullable: true
@@ -4071,6 +4617,41 @@ components:
         status:
           $ref: '#/components/schemas/LiabilityStatusEnum'
         is_archived:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+    PatchedRecurringObligationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        kind:
+          $ref: '#/components/schemas/RecurringObligationKindEnum'
+        currency_code:
+          type: string
+          minLength: 1
+          maxLength: 3
+        account:
+          type: string
+          format: uuid
+          nullable: true
+        category:
+          type: string
+          format: uuid
+          nullable: true
+        cadence:
+          $ref: '#/components/schemas/CadenceEnum'
+        next_due_date:
+          type: string
+          format: date
+        is_reserved:
+          type: boolean
+        auto_post:
+          type: boolean
+        is_active:
           type: boolean
         notes:
           type: string
@@ -4163,6 +4744,115 @@ components:
           readOnly: true
       required:
       - recovery_codes
+    RecurringObligation:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        kind:
+          $ref: '#/components/schemas/RecurringObligationKindEnum'
+        amount_minor:
+          type: integer
+          readOnly: true
+        amount:
+          type: string
+          readOnly: true
+        currency_code:
+          type: string
+          maxLength: 3
+        account:
+          type: string
+          format: uuid
+          nullable: true
+        category:
+          type: string
+          format: uuid
+          nullable: true
+        cadence:
+          $ref: '#/components/schemas/CadenceEnum'
+        next_due_date:
+          type: string
+          format: date
+        is_reserved:
+          type: boolean
+        auto_post:
+          type: boolean
+        is_active:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - amount_minor
+      - created_at
+      - id
+      - name
+      - next_due_date
+      - updated_at
+    RecurringObligationKindEnum:
+      enum:
+      - bill
+      - subscription
+      - reserved
+      - savings_plan
+      type: string
+      description: |-
+        * `bill` - Bill
+        * `subscription` - Subscription
+        * `reserved` - Reserved
+        * `savings_plan` - Savings Plan
+    RecurringObligationRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        kind:
+          $ref: '#/components/schemas/RecurringObligationKindEnum'
+        currency_code:
+          type: string
+          minLength: 1
+          maxLength: 3
+        account:
+          type: string
+          format: uuid
+          nullable: true
+        category:
+          type: string
+          format: uuid
+          nullable: true
+        cadence:
+          $ref: '#/components/schemas/CadenceEnum'
+        next_due_date:
+          type: string
+          format: date
+        is_reserved:
+          type: boolean
+        auto_post:
+          type: boolean
+        is_active:
+          type: boolean
+        notes:
+          type: string
+          nullable: true
+      required:
+      - name
+      - next_due_date
     RegisterRequest:
       type: object
       properties:
@@ -4220,6 +4910,177 @@ components:
       - refresh_expires_in
       - user
       - workspace
+    ReportPeriod:
+      type: object
+      properties:
+        start:
+          type: string
+        end:
+          type: string
+      required:
+      - end
+      - start
+    ReportReconciliation:
+      type: object
+      properties:
+        ledger_income:
+          type: string
+        reported_income:
+          type: string
+        difference:
+          type: string
+        ledger_expense:
+          type: string
+        reported_expense:
+          type: string
+        checked_at:
+          type: string
+      required:
+      - checked_at
+      - difference
+      - ledger_expense
+      - ledger_income
+      - reported_expense
+      - reported_income
+    ReportResponse:
+      type: object
+      properties:
+        period:
+          $ref: '#/components/schemas/ReportPeriod'
+        currency:
+          type: string
+        totals:
+          type: object
+          additionalProperties: {}
+        series:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        table:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        rate_policy:
+          type: string
+        rates_used:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        generated_from:
+          type: string
+        reconciliation:
+          $ref: '#/components/schemas/ReportReconciliation'
+      required:
+      - currency
+      - generated_from
+      - period
+      - rate_policy
+      - rates_used
+      - reconciliation
+      - series
+      - table
+      - totals
+    SafeToSpendAccountItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        included:
+          type: boolean
+        balance:
+          type: string
+        reason:
+          type: string
+      required:
+      - balance
+      - id
+      - included
+      - name
+      - reason
+    SafeToSpendComponents:
+      type: object
+      properties:
+        spendable_balance:
+          type: string
+        pending_outflows:
+          type: string
+        reserved_bills:
+          type: string
+        planned_savings:
+          type: string
+      required:
+      - pending_outflows
+      - planned_savings
+      - reserved_bills
+      - spendable_balance
+    SafeToSpendExcludedAccount:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        reason:
+          type: string
+      required:
+      - id
+      - name
+      - reason
+    SafeToSpendHorizon:
+      type: object
+      properties:
+        start:
+          type: string
+        end:
+          type: string
+        label:
+          type: string
+      required:
+      - end
+      - label
+      - start
+    SafeToSpendResponse:
+      type: object
+      properties:
+        currency:
+          type: string
+        display:
+          type: string
+        raw:
+          type: string
+        is_negative:
+          type: boolean
+        horizon:
+          $ref: '#/components/schemas/SafeToSpendHorizon'
+        components:
+          $ref: '#/components/schemas/SafeToSpendComponents'
+        accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SafeToSpendAccountItem'
+        excluded_accounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/SafeToSpendExcludedAccount'
+        notes:
+          type: array
+          items:
+            type: string
+      required:
+      - accounts
+      - components
+      - currency
+      - display
+      - excluded_accounts
+      - horizon
+      - is_negative
+      - notes
+      - raw
     SavingsAllocation:
       type: object
       properties:
