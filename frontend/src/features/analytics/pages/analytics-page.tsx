@@ -1,10 +1,13 @@
 import React, { useState } from "react";
 import { SpendingByTagCard } from "../components/spending-by-tag-card";
+import { NetWorthCard } from "../components/net-worth-card";
+import { NetWorthChart } from "../components/net-worth-chart";
 import { useAuth } from "@/features/auth/auth-context";
-import { Calendar, BarChart3 } from "lucide-react";
+import { Calendar, BarChart3, Landmark, PieChart } from "lucide-react";
 
 export const AnalyticsPage: React.FC = () => {
   const { workspace } = useAuth();
+  const [activeTab, setActiveTab] = useState<"net_worth" | "spending">("net_worth");
   const [period, setPeriod] = useState<"30d" | "this_month" | "all">("30d");
 
   // Calculate dates
@@ -20,6 +23,8 @@ export const AnalyticsPage: React.FC = () => {
     fromDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-01`;
   }
 
+  const currency = workspace?.reporting_currency || "USD";
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -27,57 +32,95 @@ export const AnalyticsPage: React.FC = () => {
         <div>
           <h1 className="font-display text-2xl font-semibold text-main tracking-tight flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-gold" />
-            Spending Analytics
+            Financial Intelligence
           </h1>
           <p className="text-xs text-muted mt-1">
-            Categorize financial outflows by built-in tags and necessity classifications.
+            Historical net worth, asset/liability breakdowns, and spending analytics.
           </p>
         </div>
 
+        {/* Section Tabs */}
         <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs">
-          <Calendar className="w-3.5 h-3.5 text-muted ml-2 mr-1" />
           <button
             type="button"
-            onClick={() => setPeriod("30d")}
-            className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
-              period === "30d"
+            onClick={() => setActiveTab("net_worth")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+              activeTab === "net_worth"
                 ? "bg-gold text-black font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >
-            Last 30 Days
+            <Landmark className="w-3.5 h-3.5" />
+            Net Worth
           </button>
           <button
             type="button"
-            onClick={() => setPeriod("this_month")}
-            className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
-              period === "this_month"
+            onClick={() => setActiveTab("spending")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+              activeTab === "spending"
                 ? "bg-gold text-black font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >
-            This Month
-          </button>
-          <button
-            type="button"
-            onClick={() => setPeriod("all")}
-            className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
-              period === "all"
-                ? "bg-gold text-black font-semibold"
-                : "text-muted hover:text-main"
-            }`}
-          >
-            All Time
+            <PieChart className="w-3.5 h-3.5" />
+            Spending Breakdown
           </button>
         </div>
       </div>
 
-      {/* Main Analytics Card */}
-      <SpendingByTagCard
-        from={fromDate || undefined}
-        to={toDate}
-        currency={workspace?.reporting_currency || "USD"}
-      />
+      {activeTab === "net_worth" ? (
+        <div className="space-y-6">
+          <NetWorthCard currency={currency} />
+          <NetWorthChart currency={currency} />
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <div className="flex justify-end">
+            <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs">
+              <Calendar className="w-3.5 h-3.5 text-muted ml-2 mr-1" />
+              <button
+                type="button"
+                onClick={() => setPeriod("30d")}
+                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
+                  period === "30d"
+                    ? "bg-gold text-black font-semibold"
+                    : "text-muted hover:text-main"
+                }`}
+              >
+                Last 30 Days
+              </button>
+              <button
+                type="button"
+                onClick={() => setPeriod("this_month")}
+                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
+                  period === "this_month"
+                    ? "bg-gold text-black font-semibold"
+                    : "text-muted hover:text-main"
+                }`}
+              >
+                This Month
+              </button>
+              <button
+                type="button"
+                onClick={() => setPeriod("all")}
+                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
+                  period === "all"
+                    ? "bg-gold text-black font-semibold"
+                    : "text-muted hover:text-main"
+                }`}
+              >
+                All Time
+              </button>
+            </div>
+          </div>
+
+          <SpendingByTagCard
+            from={fromDate || undefined}
+            to={toDate}
+            currency={currency}
+          />
+        </div>
+      )}
     </div>
   );
 };
