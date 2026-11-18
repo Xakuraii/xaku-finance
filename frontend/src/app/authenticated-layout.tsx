@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/auth-context";
 import {
   Wallet,
+  LayoutDashboard,
   ArrowLeftRight,
   LogOut,
   Shield,
@@ -59,6 +60,20 @@ export const AuthenticatedLayout: React.FC = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-1.5">
+              <NavLink
+                to="/app/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "text-gold bg-gold/10 font-semibold border border-gold/20"
+                      : "text-muted hover:text-main hover:bg-[var(--surface-raised)]"
+                  }`
+                }
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                Dashboard
+              </NavLink>
+
               <NavLink
                 to="/app/accounts"
                 className={({ isActive }) =>
