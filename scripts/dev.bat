@@ -26,6 +26,9 @@ if errorlevel 1 (
     exit /b 1
 )
 
+REM Ensure demo account and workspace are initialized
+backend\.venv\Scripts\python.exe backend\manage.py seed_workspace
+
 REM 3. Start Backend Django API Server in a new window
 echo [2/3] Starting Backend API Server (http://127.0.0.1:8000)...
 start "XakuFinance Backend [8000]" cmd /k "backend\.venv\Scripts\python.exe backend\manage.py runserver 127.0.0.1:8000"
@@ -43,7 +46,7 @@ echo   - Interactive API: http://127.0.0.1:8000/api/docs/
 echo.
 echo   Demo Login:
 echo     Email:    demo@xakufinance.local
-echo     Password: DemoPass123456!
+echo     Password: DemoPass123456
 echo ========================================================
 echo.
 pause

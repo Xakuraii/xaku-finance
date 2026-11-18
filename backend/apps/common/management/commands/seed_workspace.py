@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser: Any) -> None:
         parser.add_argument("--email", type=str, default="demo@xakufinance.local")
-        parser.add_argument("--password", type=str, default="DemoPass123456!")
+        parser.add_argument("--password", type=str, default="DemoPass123456")
         parser.add_argument("--count", type=int, default=30)
 
     def handle(self, *args: Any, **options: Any) -> None:
@@ -47,42 +47,63 @@ class Command(BaseCommand):
             user.is_email_verified = True
             user.save()
             self.stdout.write(self.style.SUCCESS(f"Created user {email}"))
+        else:
+            user.set_password(password)
+            user.is_email_verified = True
+            user.failed_login_count = 0
+            user.locked_until = None
+            user.is_active = True
+            user.save()
+            self.stdout.write(self.style.SUCCESS(f"Updated password and reset lockout for {email}"))
 
         ws = ensure_workspace(user=user)
 
+        from apps.accounts.models import Account
+        from apps.transactions.models import Transaction
+
         # Create demo accounts if none exist
-        checking = create_account(
-            workspace=ws,
-            actor=user,
-            name="Primary Checking",
-            account_type=str(AccountType.CHECKING[0]),
-            currency="USD",
-            opening_balance="3500.00",
-            opening_balance_date=date(2026, 11, 1),
-            is_spendable=True,
-            description="Main day-to-day spending and salary deposit account",
-        )
-        create_account(
-            workspace=ws,
-            actor=user,
-            name="Emergency Fund",
-            account_type=str(AccountType.SAVINGS[0]),
-            currency="USD",
-            opening_balance="10000.00",
-            opening_balance_date=date(2026, 11, 1),
-            is_spendable=False,
-            description="High-yield savings buffer",
-        )
-        cash = create_account(
-            workspace=ws,
-            actor=user,
-            name="Physical Wallet",
-            account_type=str(AccountType.CASH[0]),
-            currency="USD",
-            opening_balance="200.00",
-            opening_balance_date=date(2026, 11, 1),
-            is_spendable=True,
-        )
+        if not Account.objects.filter(workspace=ws, is_archived=False).exists():
+            checking = create_account(
+                workspace=ws,
+                actor=user,
+                name="Primary Checking",
+                account_type="checking",
+                currency="USD",
+                opening_balance="3500.00",
+                opening_balance_date=date(2026, 11, 1),
+                is_spendable=True,
+                description="Main day-to-day spending and salary deposit account",
+            )
+            create_account(
+                workspace=ws,
+                actor=user,
+                name="Emergency Fund",
+                account_type="savings",
+                currency="USD",
+                opening_balance="10000.00",
+                opening_balance_date=date(2026, 11, 1),
+                is_spendable=False,
+                description="High-yield savings buffer",
+            )
+            cash = create_account(
+                workspace=ws,
+                actor=user,
+                name="Physical Wallet",
+                account_type="cash",
+                currency="USD",
+                opening_balance="200.00",
+                opening_balance_date=date(2026, 11, 1),
+                is_spendable=True,
+            )
+        else:
+            checking = (
+                Account.objects.filter(workspace=ws, account_type="checking").first()
+                or Account.objects.filter(workspace=ws).first()
+            )
+            cash = (
+                Account.objects.filter(workspace=ws, account_type="cash").first()
+                or checking
+            )
 
         categories_data = [
             ("Groceries", CategoryKind.EXPENSE),
@@ -103,28 +124,33 @@ class Command(BaseCommand):
         merchants = ["Whole Foods", "Local Cafe", "Shell Oil", "Electric Utility", "Corner Market"]
         today = date.today()
 
-        self.stdout.write(f"Generating {count} transactions through service layer...")
-        for i in range(count):
-            days_ago = random.randint(0, 30)
-            tx_date = today - timedelta(days=days_ago)
-            amount_dollars = random.randint(5, 120)
-            amount_str = f"{amount_dollars}.50"
+        if Transaction.objects.filter(workspace=ws).count() <= 3:
+            self.stdout.write(f"Generating {count} transactions through service layer...")
+            for i in range(count):
+                days_ago = random.randint(0, 30)
+                tx_date = today - timedelta(days=days_ago)
+                amount_dollars = random.randint(5, 120)
+                amount_str = f"{amount_dollars}.50"
 
-            cat_name = random.choice(["Groceries", "Dining & Cafes", "Utilities", "Transportation"])
-            acc = random.choice([checking, cash])
+                cat_name = random.choice(
+                    ["Groceries", "Dining & Cafes", "Utilities", "Transportation"]
+                )
+                acc = random.choice([checking, cash])
 
-            create_transaction(
-                workspace=ws,
-                actor=user,
-                kind="expense",
-                account_id=acc.id,
-                amount=amount_str,
-                currency="USD",
-                occurred_on=tx_date,
-                title=f"{cat_name} payment #{i + 1}",
-                category_id=categories[cat_name].id,
-                merchant=random.choice(merchants),
-            )
+                create_transaction(
+                    workspace=ws,
+                    actor=user,
+                    kind="expense",
+                    account_id=acc.id,
+                    amount=amount_str,
+                    currency="USD",
+                    occurred_on=tx_date,
+                    title=f"{cat_name} payment #{i + 1}",
+                    category_id=categories[cat_name].id,
+                    merchant=random.choice(merchants),
+                )
+        else:
+            self.stdout.write("Transactions already exist in workspace; skipping generation.")
 
         # Run reconciliation
         reconciled = reconcile_workspace(workspace=ws)

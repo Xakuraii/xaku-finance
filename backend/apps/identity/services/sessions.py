@@ -89,6 +89,7 @@ class TokenPair:
     session_id: uuid.UUID
     access_expires_in: int
     refresh_expires_in: int
+    user: User | None = None
 
 
 def _expires_at(token: RefreshToken) -> datetime:
@@ -102,13 +103,14 @@ def _new_refresh(user: User, session_id: uuid.UUID) -> RefreshToken:
     return token
 
 
-def _pair(token: RefreshToken, session_id: uuid.UUID) -> TokenPair:
+def _pair(token: RefreshToken, session_id: uuid.UUID, user: User | None = None) -> TokenPair:
     return TokenPair(
         access=str(token.access_token),
         refresh=str(token),
         session_id=session_id,
         access_expires_in=int(api_settings.ACCESS_TOKEN_LIFETIME.total_seconds()),
         refresh_expires_in=int(api_settings.REFRESH_TOKEN_LIFETIME.total_seconds()),
+        user=user,
     )
 
 
@@ -129,7 +131,7 @@ def issue_tokens(user: User, *, request_meta: RequestMeta) -> TokenPair:
         last_used_at=now,
         expires_at=_expires_at(token),
     )
-    return _pair(token, session_id)
+    return _pair(token, session_id, user=user)
 
 
 class _RefreshReuse(Exception):
@@ -200,7 +202,7 @@ def rotate_refresh(raw_refresh: str, *, request_meta: RequestMeta | None = None)
         )
         raise RefreshReuseDetected("Session is no longer valid.") from None
 
-    return _pair(new_token, session_id)
+    return _pair(new_token, session_id, user=user)
 
 
 @transaction.atomic

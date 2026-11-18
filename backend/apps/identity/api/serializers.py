@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Any
+
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 
@@ -27,6 +29,20 @@ class TokenResponseSerializer(serializers.Serializer):
     access = serializers.CharField(read_only=True)
     access_expires_in = serializers.IntegerField(read_only=True)
     refresh_expires_in = serializers.IntegerField(read_only=True)
+    user = serializers.SerializerMethodField(required=False)
+    workspace = serializers.SerializerMethodField(required=False)
+
+    def get_user(self, obj: Any) -> dict[str, Any] | None:
+        user_data = obj.get("user") if isinstance(obj, dict) else getattr(obj, "user", None)
+        if user_data:
+            return UserSummarySerializer(user_data).data
+        return None
+
+    def get_workspace(self, obj: Any) -> dict[str, Any] | None:
+        ws_data = obj.get("workspace") if isinstance(obj, dict) else getattr(obj, "workspace", None)
+        if ws_data:
+            return WorkspaceSummarySerializer(ws_data).data
+        return None
 
 
 def _device_label(user_agent: str) -> str:

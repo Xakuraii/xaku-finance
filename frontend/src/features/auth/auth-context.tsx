@@ -48,8 +48,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }>("/api/v1/auth/refresh/");
         if (res.access) {
           setAccessToken(res.access);
-          setUser(res.user);
-          setWorkspace(res.workspace);
+          if (res.user) setUser(res.user);
+          if (res.workspace) setWorkspace(res.workspace);
         }
       } catch {
         // No active session or refresh cookie expired
@@ -75,10 +75,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { mfa_required: true };
     }
 
-    if (res.access && res.user && res.workspace) {
+    if (res.access) {
       setAccessToken(res.access);
-      setUser(res.user);
-      setWorkspace(res.workspace);
+      if (res.user) setUser(res.user);
+      if (res.workspace) setWorkspace(res.workspace);
     }
     return { mfa_required: false };
   };

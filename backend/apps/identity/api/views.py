@@ -159,7 +159,20 @@ class LoginView(APIView):
             )
 
         tokens = issue_tokens(user, request_meta=RequestMeta.from_request(request))
-        response = Response(_token_payload(tokens), status=status.HTTP_200_OK)
+        ws = None
+        if user:
+            try:
+                ws = user.workspace
+            except Exception:
+                ws = None
+        payload = {
+            **_token_payload(tokens),
+            "user": user,
+            "workspace": ws,
+        }
+        response = Response(
+            TokenResponseSerializer(payload).data, status=status.HTTP_200_OK
+        )
         set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
         return response
 
@@ -179,7 +192,21 @@ class RefreshView(APIView):
         if not raw_refresh:
             raise InvalidToken("Session is no longer valid.")
         tokens = rotate_refresh(raw_refresh, request_meta=RequestMeta.from_request(request))
-        response = Response(_token_payload(tokens), status=status.HTTP_200_OK)
+        user = tokens.user
+        ws = None
+        if user:
+            try:
+                ws = user.workspace
+            except Exception:
+                ws = None
+        payload = {
+            **_token_payload(tokens),
+            "user": user,
+            "workspace": ws,
+        }
+        response = Response(
+            TokenResponseSerializer(payload).data, status=status.HTTP_200_OK
+        )
         set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
         return response
 

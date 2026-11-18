@@ -115,7 +115,9 @@ def test_transfers_list_query_budget(api, phase2_populated_workspace, django_ass
 
 
 @pytest.mark.django_db
-def test_categories_tree_list_query_budget(api, phase2_populated_workspace, django_assert_num_queries):
+def test_categories_tree_list_query_budget(
+    api, phase2_populated_workspace, django_assert_num_queries
+):
     user = phase2_populated_workspace
     api.force_authenticate(user)
 
