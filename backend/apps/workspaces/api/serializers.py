@@ -63,3 +63,61 @@ class DashboardResponseSerializer(serializers.Serializer[Any]):
     savings_progress = serializers.DictField(required=False)
     recent_transactions = serializers.DictField(required=False)
     spending_by_category = serializers.DictField(required=False)
+
+
+class MeResponseSerializer(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    email = serializers.EmailField()
+    is_email_verified = serializers.BooleanField()
+    display_name = serializers.CharField()
+    avatar_url = serializers.CharField(allow_blank=True)
+    timezone = serializers.CharField()
+    locale = serializers.CharField()
+    reporting_currency = serializers.CharField()
+    week_start = serializers.IntegerField()
+    theme = serializers.CharField()
+    created_at = serializers.DateTimeField()
+
+
+class MeUpdateSerializer(serializers.Serializer[Any]):
+    display_name = serializers.CharField(max_length=80, required=False)
+    avatar_url = serializers.CharField(max_length=500, required=False, allow_blank=True)
+    timezone = serializers.CharField(max_length=64, required=False)
+    locale = serializers.CharField(max_length=16, required=False)
+    reporting_currency = serializers.CharField(max_length=3, required=False)
+    week_start = serializers.IntegerField(min_value=1, max_value=7, required=False)
+    theme = serializers.ChoiceField(choices=["light", "dark", "system"], required=False)
+
+
+class WorkspaceSettingsSerializer(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    reporting_currency = serializers.CharField()
+    timezone = serializers.CharField()
+    week_start = serializers.IntegerField()
+    ledger_seq = serializers.IntegerField()
+    created_at = serializers.DateTimeField()
+    updated_at = serializers.DateTimeField()
+
+
+class WorkspaceSettingsUpdateSerializer(serializers.Serializer[Any]):
+    name = serializers.CharField(max_length=80, required=False)
+    reporting_currency = serializers.CharField(max_length=3, required=False)
+    timezone = serializers.CharField(max_length=64, required=False)
+    week_start = serializers.IntegerField(min_value=1, max_value=7, required=False)
+
+
+class WorkspaceSummarySerializer(serializers.Serializer[Any]):
+    id = serializers.UUIDField()
+    name = serializers.CharField()
+    reporting_currency = serializers.CharField()
+    timezone = serializers.CharField()
+    week_start = serializers.IntegerField()
+    ledger_seq = serializers.IntegerField()
+    accounts_count = serializers.IntegerField()
+    transactions_count = serializers.IntegerField()
+    budgets_count = serializers.IntegerField()
+    savings_goals_count = serializers.IntegerField()
+    debts_count = serializers.IntegerField()
+    created_at = serializers.DateTimeField()
+

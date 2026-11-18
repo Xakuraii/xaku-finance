@@ -11,6 +11,7 @@ import { AnalyticsPage } from "@/features/analytics/pages/analytics-page";
 import { SavingsPage } from "@/features/savings/pages/savings-page";
 import { DebtsPage } from "@/features/debts/pages/debts-page";
 import { EmergencyFundPage } from "@/features/emergency-fund/pages/emergency-fund-page";
+import { SettingsPage } from "@/features/settings/pages/settings-page";
 
 export const router = createBrowserRouter([
   {
@@ -65,9 +66,17 @@ export const router = createBrowserRouter([
         path: "analytics",
         element: <AnalyticsPage />,
       },
+      {
+        path: "settings",
+        element: <SettingsPage />,
+      },
     ],
   },
   // Backward compatibility redirects for direct routes
+  {
+    path: "/settings",
+    element: <Navigate to="/app/settings" replace />,
+  },
   {
     path: "/dashboard",
     element: <Navigate to="/app/dashboard" replace />,

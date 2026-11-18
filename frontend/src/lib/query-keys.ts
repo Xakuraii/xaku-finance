@@ -25,4 +25,9 @@ export const queryKeys = {
     unreadCount: ["notifications", "unread-count"] as const,
     preferences: ["notifications", "preferences"] as const,
   },
+  settings: {
+    me: ["settings", "me"] as const,
+    workspace: ["settings", "workspace"] as const,
+    summary: ["settings", "summary"] as const,
+  },
 };

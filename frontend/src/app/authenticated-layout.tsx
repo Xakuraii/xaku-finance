@@ -12,6 +12,7 @@ import {
   Target,
   CreditCard,
   UploadCloud,
+  Settings,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
@@ -171,6 +172,20 @@ export const AuthenticatedLayout: React.FC = () => {
               >
                 <BarChart3 className="w-3.5 h-3.5" />
                 Analytics
+              </NavLink>
+
+              <NavLink
+                to="/app/settings"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "text-gold bg-gold/10 font-semibold border border-gold/20"
+                      : "text-muted hover:text-main hover:bg-[var(--surface-raised)]"
+                  }`
+                }
+              >
+                <Settings className="w-3.5 h-3.5" />
+                Settings
               </NavLink>
             </nav>
           </div>
