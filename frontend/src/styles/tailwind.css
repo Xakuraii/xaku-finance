@@ -1,0 +1,80 @@
+@import "tailwindcss";
+@import "./tokens.css";
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.font-display {
+  font-family: var(--font-serif);
+}
+
+/* Hairline borders */
+.border-subtle {
+  border-color: var(--border);
+}
+
+.border-strong {
+  border-color: var(--border-strong);
+}
+
+/* Surfaces */
+.bg-obsidian {
+  background-color: var(--bg);
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+.bg-surface-raised {
+  background-color: var(--surface-raised);
+}
+
+/* Accent */
+.bg-gold {
+  background-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.bg-gold:hover {
+  background-color: var(--accent-hover);
+}
+
+.text-gold {
+  color: var(--accent);
+}
+
+.border-gold {
+  border-color: var(--accent);
+}
+
+/* Text */
+.text-main {
+  color: var(--text);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+.text-faint {
+  color: var(--text-faint);
+}
+
+.text-positive {
+  color: var(--positive);
+}
+
+.text-negative {
+  color: var(--negative);
+}

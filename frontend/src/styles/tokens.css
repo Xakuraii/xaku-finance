@@ -1,0 +1,49 @@
+:root {
+  /* Dark theme is primary: obsidian and brass financial instrument */
+  --bg: #0b0e11;
+  --surface: #12161c;
+  --surface-raised: #1a2027;
+  --border: #262d36;
+  --border-strong: #3a4450;
+  --text: #f2f0ea;
+  --text-muted: #9aa3ae;
+  --text-faint: #6b7480;
+
+  /* Binance golden brand */
+  --accent: #f0b90b;
+  --accent-hover: #ffd34e;
+  --accent-press: #d9a600;
+  --on-accent: #14171c;
+
+  /* Semantics */
+  --positive: #2ebd85;
+  --negative: #f0616d;
+  --warning: #e8a33d;
+  --info: #6ea8fe;
+  --focus: #f0b90b;
+
+  /* Typography */
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+[data-theme="light"] {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --border: #e3ded2;
+  --border-strong: #c9c2b2;
+  --text: #171a1f;
+  --text-muted: #5c6470;
+  --text-faint: #8a8f98;
+
+  --accent: #8a6508;
+  --accent-fill: #f0b90b;
+  --on-accent: #171a1f;
+
+  --positive: #0f7a5a;
+  --negative: #b4232f;
+  --warning: #8a5a00;
+  --info: #1f5fbf;
+  --focus: #f0b90b;
+}

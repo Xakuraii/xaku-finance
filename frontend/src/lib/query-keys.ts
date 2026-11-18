@@ -1,0 +1,17 @@
+export const queryKeys = {
+  auth: {
+    me: ["auth", "me"] as const,
+    sessions: ["auth", "sessions"] as const,
+  },
+  accounts: {
+    all: ["accounts"] as const,
+    list: (includeArchived?: boolean) => ["accounts", "list", { includeArchived }] as const,
+    detail: (id: string) => ["accounts", "detail", id] as const,
+  },
+  transactions: {
+    all: ["transactions"] as const,
+    list: (filters?: Record<string, unknown>) => ["transactions", "list", filters] as const,
+    detail: (id: string) => ["transactions", "detail", id] as const,
+    audit: (id: string) => ["transactions", "audit", id] as const,
+  },
+};
