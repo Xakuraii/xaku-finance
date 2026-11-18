@@ -1222,6 +1222,178 @@ paths:
               schema:
                 $ref: '#/components/schemas/Category'
           description: ''
+  /api/v1/imports/:
+    get:
+      operationId: imports_list
+      description: ViewSet for managing CSV import workflows, duplicate reviews, and
+        commits.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - imports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportJob'
+          description: ''
+  /api/v1/imports/{id}/:
+    get:
+      operationId: imports_retrieve
+      description: ViewSet for managing CSV import workflows, duplicate reviews, and
+        commits.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this import job.
+        required: true
+      tags:
+      - imports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: ''
+  /api/v1/imports/{id}/commit/:
+    post:
+      operationId: imports_commit_create
+      description: Atomically commit staged import records into real financial transactions.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this import job.
+        required: true
+      tags:
+      - imports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ImportJobRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ImportJobRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ImportJobRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: ''
+  /api/v1/imports/{id}/records/:
+    get:
+      operationId: imports_records_list
+      description: ViewSet for managing CSV import workflows, duplicate reviews, and
+        commits.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this import job.
+        required: true
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - imports
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ImportRecord'
+          description: ''
+  /api/v1/imports/{id}/resolve/:
+    post:
+      operationId: imports_resolve_create
+      description: Resolve a duplicate candidate by choosing 'import' or 'skip'.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this import job.
+        required: true
+      tags:
+      - imports
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DuplicateResolveRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DuplicateResolveRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DuplicateResolveRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DuplicateCandidate'
+          description: ''
+  /api/v1/imports/upload/:
+    post:
+      operationId: imports_upload_create
+      description: Upload a CSV bank statement to stage records and run duplicate
+        detection.
+      tags:
+      - imports
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportJob'
+          description: ''
   /api/v1/tags/:
     get:
       operationId: tags_list
@@ -1899,6 +2071,14 @@ components:
         * `credit_card` - Credit Card
         * `investment` - Investment
         * `other` - Other
+    ActionEnum:
+      enum:
+      - import
+      - skip
+      type: string
+      description: |-
+        * `import` - Import
+        * `skip` - Skip
     Budget:
       type: object
       properties:
@@ -2349,6 +2529,61 @@ components:
           readOnly: true
       required:
       - detail
+    DuplicateCandidate:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        existing_transaction_id:
+          type: string
+          format: uuid
+          readOnly: true
+        score:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,1}(?:\.\d{0,3})?$
+        reasons: {}
+        decision:
+          $ref: '#/components/schemas/DuplicateCandidateDecisionEnum'
+        decided_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - existing_transaction_id
+      - id
+      - score
+    DuplicateCandidateDecisionEnum:
+      enum:
+      - pending
+      - import
+      - skip
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `import` - Import
+        * `skip` - Skip
+    DuplicateResolveDecisionEnum:
+      enum:
+      - import
+      - skip
+      type: string
+      description: |-
+        * `import` - import
+        * `skip` - skip
+    DuplicateResolveRequest:
+      type: object
+      properties:
+        candidate_id:
+          type: string
+          format: uuid
+        decision:
+          $ref: '#/components/schemas/DuplicateResolveDecisionEnum'
+      required:
+      - candidate_id
+      - decision
     GoogleLoginRequest:
       type: object
       properties:
@@ -2379,6 +2614,165 @@ components:
       - access_expires_in
       - refresh_expires_in
       - user
+    ImportJob:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        account_id:
+          type: string
+          format: uuid
+          readOnly: true
+        file_name:
+          type: string
+          maxLength: 240
+        file_format:
+          type: string
+          maxLength: 8
+        status:
+          $ref: '#/components/schemas/ImportJobStatusEnum'
+        mapping: {}
+        row_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        valid_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        invalid_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        duplicate_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        imported_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        error_summary: {}
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - account_id
+      - created_at
+      - file_name
+      - id
+    ImportJobRequest:
+      type: object
+      properties:
+        file_name:
+          type: string
+          minLength: 1
+          maxLength: 240
+        file_format:
+          type: string
+          minLength: 1
+          maxLength: 8
+        status:
+          $ref: '#/components/schemas/ImportJobStatusEnum'
+        mapping: {}
+        row_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        valid_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        invalid_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        duplicate_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        imported_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        error_summary: {}
+        finished_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+      - file_name
+    ImportJobStatusEnum:
+      enum:
+      - uploaded
+      - validating
+      - validated
+      - awaiting_review
+      - committing
+      - completed
+      - failed
+      - cancelled
+      type: string
+      description: |-
+        * `uploaded` - Uploaded
+        * `validating` - Validating
+        * `validated` - Validated
+        * `awaiting_review` - Awaiting Review
+        * `committing` - Committing
+        * `completed` - Completed
+        * `failed` - Failed
+        * `cancelled` - Cancelled
+    ImportRecord:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        row_number:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        raw: {}
+        normalized:
+          nullable: true
+        status:
+          $ref: '#/components/schemas/ImportRecordStatusEnum'
+        action:
+          $ref: '#/components/schemas/ActionEnum'
+        errors: {}
+        duplicate_candidates:
+          type: array
+          items:
+            $ref: '#/components/schemas/DuplicateCandidate'
+          readOnly: true
+      required:
+      - duplicate_candidates
+      - id
+      - row_number
+    ImportRecordStatusEnum:
+      enum:
+      - valid
+      - invalid
+      - duplicate_exact
+      - duplicate_potential
+      - skipped
+      - imported
+      type: string
+      description: |-
+        * `valid` - Valid
+        * `invalid` - Invalid
+        * `duplicate_exact` - Duplicate Exact
+        * `duplicate_potential` - Duplicate Potential
+        * `skipped` - Skipped
+        * `imported` - Imported
     KindEnum:
       enum:
       - expense
