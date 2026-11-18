@@ -141,4 +141,3 @@ def test_archived_account_cannot_create_transaction():
             occurred_on=date.today(),
             title="Lunch",
         )
-

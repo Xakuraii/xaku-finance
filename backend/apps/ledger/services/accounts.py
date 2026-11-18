@@ -72,9 +72,7 @@ def get_or_create_category_ledger_account(
     currency_code: str,
 ) -> LedgerAccount:
     """Ensure a Category has a backing LedgerAccount for the given currency."""
-    acc_kind = (
-        LedgerAccountKind.EXPENSE if kind == "expense" else LedgerAccountKind.INCOME
-    )
+    acc_kind = LedgerAccountKind.EXPENSE if kind == "expense" else LedgerAccountKind.INCOME
     code = f"{kind}:{category_id}:{currency_code}"
 
     acc, _ = LedgerAccount.objects.get_or_create(

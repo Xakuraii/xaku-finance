@@ -25,9 +25,7 @@ def test_registration_creates_user_profile_and_workspace() -> None:
 
 @pytest.mark.django_db
 def test_registration_normalizes_email_and_hashes_password() -> None:
-    user = register_user(
-        email="  Mara@Example.COM ", password=PASSWORD, display_name="  Mara  "
-    )
+    user = register_user(email="  Mara@Example.COM ", password=PASSWORD, display_name="  Mara  ")
     assert user.email == "mara@example.com"
     assert user.profile.display_name == "Mara"
     assert user.password != PASSWORD
@@ -39,18 +37,14 @@ def test_registration_normalizes_email_and_hashes_password() -> None:
 def test_duplicate_email_rejected_case_insensitively() -> None:
     register_user(email="mara@example.com", password=PASSWORD, display_name="Mara")
     with pytest.raises(EmailTaken):
-        register_user(
-            email="MARA@example.com", password=PASSWORD, display_name="Mara 2"
-        )
+        register_user(email="MARA@example.com", password=PASSWORD, display_name="Mara 2")
 
 
 @pytest.mark.django_db
 def test_failed_registration_leaves_no_partial_rows() -> None:
     register_user(email="mara@example.com", password=PASSWORD, display_name="Mara")
     with pytest.raises(EmailTaken):
-        register_user(
-            email="mara@example.com", password=PASSWORD, display_name="Duplicate"
-        )
+        register_user(email="mara@example.com", password=PASSWORD, display_name="Duplicate")
     assert User.objects.count() == 1
     assert UserProfile.objects.count() == 1
     assert Workspace.objects.count() == 1

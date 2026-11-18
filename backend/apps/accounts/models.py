@@ -69,8 +69,7 @@ class Account(WorkspaceScopedModel, ArchivedModel):
             ),
             CheckConstraint(
                 condition=(
-                    ~Q(account_type=AccountType.CREDIT_CARD)
-                    | Q(nature=AccountNature.LIABILITY)
+                    ~Q(account_type=AccountType.CREDIT_CARD) | Q(nature=AccountNature.LIABILITY)
                 ),
                 name="account_credit_card_is_liability_ck",
             ),

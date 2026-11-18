@@ -196,9 +196,7 @@ class TwoFactorCodeSerializer(serializers.Serializer):
 
 class TwoFactorConfirmResponseSerializer(serializers.Serializer):
     enabled = serializers.BooleanField(read_only=True)
-    recovery_codes = serializers.ListField(
-        child=serializers.CharField(), read_only=True
-    )
+    recovery_codes = serializers.ListField(child=serializers.CharField(), read_only=True)
 
 
 class TwoFactorFactorSerializer(serializers.Serializer):
@@ -212,9 +210,7 @@ class TwoFactorFactorSerializer(serializers.Serializer):
 
 
 class RecoveryCodesResponseSerializer(serializers.Serializer):
-    recovery_codes = serializers.ListField(
-        child=serializers.CharField(), read_only=True
-    )
+    recovery_codes = serializers.ListField(child=serializers.CharField(), read_only=True)
 
 
 class ReauthSerializer(serializers.Serializer):

@@ -29,9 +29,8 @@ def archive_transaction(
     If posted, reverses the journal entry so the archived transaction no longer affects balances.
     """
     with transaction.atomic():
-        tx = (
-            Transaction.objects.select_for_update()
-            .get(id=transaction_id, workspace_id=workspace.id)
+        tx = Transaction.objects.select_for_update().get(
+            id=transaction_id, workspace_id=workspace.id
         )
 
         if tx.is_archived:
@@ -76,9 +75,8 @@ def restore_transaction(
     from apps.transactions.services.update import update_transaction
 
     with transaction.atomic():
-        tx = (
-            Transaction.objects.select_for_update()
-            .get(id=transaction_id, workspace_id=workspace.id)
+        tx = Transaction.objects.select_for_update().get(
+            id=transaction_id, workspace_id=workspace.id
         )
         if not tx.is_archived:
             return tx

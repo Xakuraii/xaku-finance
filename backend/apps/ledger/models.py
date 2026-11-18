@@ -139,8 +139,7 @@ class JournalEntry(WorkspaceScopedModel):
             ),
             CheckConstraint(
                 condition=(
-                    ~Q(status=JournalEntryStatus.REVERSED)
-                    | Q(reversed_by_entry__isnull=False)
+                    ~Q(status=JournalEntryStatus.REVERSED) | Q(reversed_by_entry__isnull=False)
                 ),
                 name="journal_entry_reversed_link_ck",
             ),

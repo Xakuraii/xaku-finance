@@ -181,9 +181,7 @@ PASSWORD_RESET_TTL = timedelta(hours=1)
 
 # Links in emails point at the SPA, never at the API host.
 FRONTEND_BASE_URL = os.getenv("FRONTEND_BASE_URL", "http://localhost:5173")
-DEFAULT_FROM_EMAIL = os.getenv(
-    "DEFAULT_FROM_EMAIL", "XakuFinance <no-reply@xakufinance.local>"
-)
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", "XakuFinance <no-reply@xakufinance.local>")
 EMAIL_HOST = os.getenv("EMAIL_HOST", "localhost")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "25"))
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")

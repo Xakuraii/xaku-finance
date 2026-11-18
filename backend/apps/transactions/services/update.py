@@ -54,9 +54,8 @@ def update_transaction(
 ) -> Transaction:
     """Update a transaction with optimistic locking, reversal/repost, and audit."""
     with transaction.atomic():
-        tx = (
-            Transaction.objects.select_for_update()
-            .get(id=transaction_id, workspace_id=workspace.id)
+        tx = Transaction.objects.select_for_update().get(
+            id=transaction_id, workspace_id=workspace.id
         )
 
         if tx.version != expected_version:
@@ -263,9 +262,7 @@ def update_transaction(
             "necessity": tx.necessity,
         }
 
-        changed_fields = [
-            k for k in after_state if before_state.get(k) != after_state.get(k)
-        ]
+        changed_fields = [k for k in after_state if before_state.get(k) != after_state.get(k)]
 
         # Check if amount changed, note in changed fields
         if amount is not None and "amount_minor" in changed_fields:

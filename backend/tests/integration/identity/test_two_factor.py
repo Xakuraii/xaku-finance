@@ -154,9 +154,7 @@ def test_recovery_code_is_single_use(enrolled) -> None:
     user, codes = enrolled
 
     assert verify_challenge(_challenge(user), codes[0], request_meta=RequestMeta()).access
-    assert (
-        RecoveryCode.objects.get(user=user, used_at__isnull=False).used_at is not None
-    )
+    assert RecoveryCode.objects.get(user=user, used_at__isnull=False).used_at is not None
 
     with pytest.raises(InvalidCode):
         verify_challenge(_challenge(user), codes[0], request_meta=RequestMeta())
@@ -275,9 +273,7 @@ def test_regenerating_recovery_codes_invalidates_the_old_batch(enrolled) -> None
     with pytest.raises(InvalidCode):
         verify_challenge(_challenge(user), old_codes[0], request_meta=RequestMeta())
 
-    assert verify_challenge(
-        _challenge(user), new_codes[0], request_meta=RequestMeta()
-    ).access
+    assert verify_challenge(_challenge(user), new_codes[0], request_meta=RequestMeta()).access
 
 
 @pytest.mark.django_db
@@ -289,9 +285,7 @@ def test_regeneration_checks_the_password(enrolled) -> None:
 
 
 @pytest.mark.django_db
-def test_login_with_two_factor_returns_a_challenge(
-    api_client, enrolled
-) -> None:
+def test_login_with_two_factor_returns_a_challenge(api_client, enrolled) -> None:
     user, _ = enrolled
 
     response = api_client.post(
@@ -365,9 +359,7 @@ def test_setup_requires_reauth(api_client, user) -> None:
     assert blocked.status_code == 403
     assert blocked.json()["error"]["code"] == "reauth_required"
 
-    reauth = api_client.post(
-        "/api/v1/auth/reauth/", {"password": PASSWORD}, format="json"
-    )
+    reauth = api_client.post("/api/v1/auth/reauth/", {"password": PASSWORD}, format="json")
     assert reauth.status_code == 200
     assert reauth.json()["reauth_expires_in"] == 600
 
@@ -382,9 +374,7 @@ def test_reauth_rejects_a_wrong_password(api_client, user) -> None:
     tokens = issue_tokens(user, request_meta=RequestMeta())
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens.access}")
 
-    response = api_client.post(
-        "/api/v1/auth/reauth/", {"password": "wrong"}, format="json"
-    )
+    response = api_client.post("/api/v1/auth/reauth/", {"password": "wrong"}, format="json")
 
     assert response.status_code == 401
     assert response.json()["error"]["code"] == "invalid_password"
@@ -420,9 +410,7 @@ def test_full_enrollment_through_the_api(api_client, user) -> None:
     secret = setup.json()["secret"]
     code = pyotp.TOTP(secret).now()
 
-    confirm = api_client.post(
-        "/api/v1/auth/2fa/confirm/", {"code": code}, format="json"
-    )
+    confirm = api_client.post("/api/v1/auth/2fa/confirm/", {"code": code}, format="json")
 
     assert confirm.status_code == 200
     assert confirm.json()["enabled"] is True
@@ -491,9 +479,7 @@ def test_reauth_marks_only_the_current_session(api_client, user) -> None:
 
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {first.access}")
     assert (
-        api_client.post(
-            "/api/v1/auth/reauth/", {"password": PASSWORD}, format="json"
-        ).status_code
+        api_client.post("/api/v1/auth/reauth/", {"password": PASSWORD}, format="json").status_code
         == 200
     )
 

@@ -123,16 +123,18 @@ def post_entry(
             created_by=actor,
         )
 
-        Posting.objects.bulk_create([
-            Posting(
-                journal_entry=entry,
-                ledger_account_id=p.ledger_account_id,
-                workspace=ws,
-                currency_id=p.currency,
-                amount_minor=p.amount_minor,
-                memo=p.memo,
-            )
-            for p in spec.postings
-        ])
+        Posting.objects.bulk_create(
+            [
+                Posting(
+                    journal_entry=entry,
+                    ledger_account_id=p.ledger_account_id,
+                    workspace=ws,
+                    currency_id=p.currency,
+                    amount_minor=p.amount_minor,
+                    memo=p.memo,
+                )
+                for p in spec.postings
+            ]
+        )
 
         return entry

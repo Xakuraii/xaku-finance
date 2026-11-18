@@ -111,8 +111,7 @@ class Transaction(WorkspaceScopedModel, ArchivedModel):
             ),
             CheckConstraint(
                 condition=(
-                    Q(necessity__isnull=True)
-                    | Q(necessity__in=NecessityClassification.values)
+                    Q(necessity__isnull=True) | Q(necessity__in=NecessityClassification.values)
                 ),
                 name="transaction_necessity_ck",
             ),

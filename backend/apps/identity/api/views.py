@@ -85,12 +85,8 @@ def _current_session_id(request: Request) -> uuid.UUID | None:
 
 
 def _require_recent_reauth(request: Request) -> None:
-    if not has_recent_reauth(
-        user=request.user, session_id=_current_session_id(request)
-    ):
-        raise ReauthRequired(
-            "Confirm your password again before changing security settings."
-        )
+    if not has_recent_reauth(user=request.user, session_id=_current_session_id(request)):
+        raise ReauthRequired("Confirm your password again before changing security settings.")
 
 
 class RegisterView(APIView):
@@ -182,9 +178,7 @@ class RefreshView(APIView):
         raw_refresh = request.COOKIES.get(REFRESH_COOKIE)
         if not raw_refresh:
             raise InvalidToken("Session is no longer valid.")
-        tokens = rotate_refresh(
-            raw_refresh, request_meta=RequestMeta.from_request(request)
-        )
+        tokens = rotate_refresh(raw_refresh, request_meta=RequestMeta.from_request(request))
         response = Response(_token_payload(tokens), status=status.HTTP_200_OK)
         set_refresh_cookie(response, tokens.refresh, tokens.refresh_expires_in)
         return response
@@ -306,9 +300,7 @@ class PasswordForgotView(APIView):
         serializer = PasswordForgotSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         meta = RequestMeta.from_request(request)
-        request_password_reset(
-            serializer.validated_data["email"], requested_ip_hash=meta.ip_hash
-        )
+        request_password_reset(serializer.validated_data["email"], requested_ip_hash=meta.ip_hash)
         return Response(
             {"detail": "If an account exists, a reset link has been sent."},
             status=status.HTTP_202_ACCEPTED,
@@ -458,9 +450,7 @@ class TwoFactorConfirmView(APIView):
         _require_recent_reauth(request)
         serializer = TwoFactorCodeSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        codes = two_factor.confirm_enrollment(
-            request.user, serializer.validated_data["code"]
-        )
+        codes = two_factor.confirm_enrollment(request.user, serializer.validated_data["code"])
         payload = {"enabled": True, "recovery_codes": codes}
         return Response(
             TwoFactorConfirmResponseSerializer(payload).data,

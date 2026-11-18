@@ -170,9 +170,7 @@ def rotate_refresh(raw_refresh: str, *, request_meta: RequestMeta | None = None)
     try:
         with transaction.atomic():
             session = (
-                UserSession.objects.select_for_update()
-                .filter(id=session_id, user=user)
-                .first()
+                UserSession.objects.select_for_update().filter(id=session_id, user=user).first()
             )
             if session is None or session.revoked_at is not None or session.expires_at <= now:
                 raise InvalidToken("Session is no longer valid.")
@@ -197,21 +195,17 @@ def rotate_refresh(raw_refresh: str, *, request_meta: RequestMeta | None = None)
             )
     except _RefreshReuse as exc:
         # Runs after the inner atomic block rolled back, so the revocation is durable.
-        UserSession.objects.filter(
-            family_id=exc.family_id, revoked_at__isnull=True
-        ).update(revoked_at=now, revoked_reason="refresh_reuse")
+        UserSession.objects.filter(family_id=exc.family_id, revoked_at__isnull=True).update(
+            revoked_at=now, revoked_reason="refresh_reuse"
+        )
         raise RefreshReuseDetected("Session is no longer valid.") from None
 
     return _pair(new_token, session_id)
 
 
 @transaction.atomic
-def revoke_session(
-    *, user: User, session_id: uuid.UUID, reason: str = "user_logout"
-) -> None:
-    session = (
-        UserSession.objects.select_for_update().filter(id=session_id, user=user).first()
-    )
+def revoke_session(*, user: User, session_id: uuid.UUID, reason: str = "user_logout") -> None:
+    session = UserSession.objects.select_for_update().filter(id=session_id, user=user).first()
     if session is None:
         raise SessionNotFound("Session not found.")
     if session.revoked_at is None:

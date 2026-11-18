@@ -122,9 +122,7 @@ def test_verify_email_endpoint(mailoutbox, user) -> None:
     raw = send_verification(user)
     from rest_framework.test import APIClient
 
-    response = APIClient().post(
-        "/api/v1/auth/verify-email/", {"token": raw}, format="json"
-    )
+    response = APIClient().post("/api/v1/auth/verify-email/", {"token": raw}, format="json")
     assert response.status_code == 200
     assert response.json() == {"verified": True}
 
@@ -212,9 +210,7 @@ def test_weak_password_does_not_consume_the_reset_token(mailoutbox, user) -> Non
 
 @pytest.mark.django_db
 def test_password_reset_endpoints_do_not_reveal_accounts(api_client, mailoutbox, user) -> None:
-    known = api_client.post(
-        "/api/v1/auth/password/forgot/", {"email": user.email}, format="json"
-    )
+    known = api_client.post("/api/v1/auth/password/forgot/", {"email": user.email}, format="json")
     unknown = api_client.post(
         "/api/v1/auth/password/forgot/", {"email": "nobody@example.com"}, format="json"
     )

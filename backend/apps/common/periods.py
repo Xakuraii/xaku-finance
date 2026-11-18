@@ -86,9 +86,7 @@ def resolve_period(
 
     if period == "calendar_month":
         first = local_today.replace(day=1)
-        last = local_today.replace(
-            day=calendar.monthrange(local_today.year, local_today.month)[1]
-        )
+        last = local_today.replace(day=calendar.monthrange(local_today.year, local_today.month)[1])
     elif period == "calendar_year":
         first = local_today.replace(month=1, day=1)
         last = local_today.replace(month=12, day=31)

@@ -74,10 +74,7 @@ def create_transaction(
         raise ValueError("Transaction amount must be positive")
 
     with transaction.atomic():
-        account = (
-            Account.objects.select_for_update()
-            .get(id=account_id, workspace_id=workspace.id)
-        )
+        account = Account.objects.select_for_update().get(id=account_id, workspace_id=workspace.id)
         if account.is_archived:
             raise ValueError(f"Cannot record transaction on archived account {account.id}")
         if account.currency_id != currency:
@@ -135,16 +132,18 @@ def create_transaction(
         )
 
         if is_split:
-            TransactionSplit.objects.bulk_create([
-                TransactionSplit(
-                    workspace=workspace,
-                    transaction=tx,
-                    category=cat,
-                    amount_minor=amt,
-                    memo=memo,
-                )
-                for cat, amt, memo in split_records
-            ])
+            TransactionSplit.objects.bulk_create(
+                [
+                    TransactionSplit(
+                        workspace=workspace,
+                        transaction=tx,
+                        category=cat,
+                        amount_minor=amt,
+                        memo=memo,
+                    )
+                    for cat, amt, memo in split_records
+                ]
+            )
 
         if tags:
             for tag_name in tags:

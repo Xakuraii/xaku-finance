@@ -28,9 +28,7 @@ CLAIMS = {
 @pytest.fixture
 def google_claims(monkeypatch):
     def _set(claims: dict[str, object]) -> None:
-        monkeypatch.setattr(
-            "apps.identity.services.google._verify_id_token", lambda _raw: claims
-        )
+        monkeypatch.setattr("apps.identity.services.google._verify_id_token", lambda _raw: claims)
 
     return _set
 
@@ -102,9 +100,7 @@ def test_google_requires_a_client_id(settings) -> None:
 def test_google_api_returns_tokens_and_cookie(api_client, google_claims) -> None:
     google_claims(CLAIMS)
 
-    response = api_client.post(
-        "/api/v1/auth/google/", {"id_token": "fake-id-token"}, format="json"
-    )
+    response = api_client.post("/api/v1/auth/google/", {"id_token": "fake-id-token"}, format="json")
 
     assert response.status_code == 200
     body = response.json()
@@ -118,9 +114,7 @@ def test_google_api_reports_link_required(api_client, google_claims) -> None:
     UserFactory(email="mara@example.com")
     google_claims(CLAIMS)
 
-    response = api_client.post(
-        "/api/v1/auth/google/", {"id_token": "fake-id-token"}, format="json"
-    )
+    response = api_client.post("/api/v1/auth/google/", {"id_token": "fake-id-token"}, format="json")
 
     assert response.status_code == 409
     assert response.json()["error"]["code"] == "google_link_required"
@@ -130,9 +124,7 @@ def test_google_api_reports_link_required(api_client, google_claims) -> None:
 def test_google_api_reports_unverified_email(api_client, google_claims) -> None:
     google_claims({**CLAIMS, "email_verified": False})
 
-    response = api_client.post(
-        "/api/v1/auth/google/", {"id_token": "fake-id-token"}, format="json"
-    )
+    response = api_client.post("/api/v1/auth/google/", {"id_token": "fake-id-token"}, format="json")
 
     assert response.status_code == 400
     assert response.json()["error"]["code"] == "google_email_unverified"

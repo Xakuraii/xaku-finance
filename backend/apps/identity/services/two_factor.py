@@ -112,9 +112,7 @@ def _decrypt_secret(config: TwoFactorConfig) -> str:
     """Try the recorded key first, then every configured key so rotation works."""
     ciphertext = bytes(config.secret_ciphertext)
     ordered = [config.key_version] + [
-        version
-        for version in settings.TWO_FACTOR_ENCRYPTION_KEYS
-        if version != config.key_version
+        version for version in settings.TWO_FACTOR_ENCRYPTION_KEYS if version != config.key_version
     ]
     for version in ordered:
         key = settings.TWO_FACTOR_ENCRYPTION_KEYS.get(version)
@@ -178,9 +176,7 @@ def _record_failure(config: TwoFactorConfig, now: datetime) -> None:
     config.save(update_fields=["failed_attempts", "last_failed_at", "locked_until"])
 
 
-def _record_success(
-    config: TwoFactorConfig, now: datetime, *, counter: int | None
-) -> None:
+def _record_success(config: TwoFactorConfig, now: datetime, *, counter: int | None) -> None:
     config.failed_attempts = 0
     config.last_failed_at = None
     config.locked_until = None
@@ -196,9 +192,7 @@ def _record_success(
     )
 
 
-def _matching_counter(
-    config: TwoFactorConfig, secret: str, code: str, now: datetime
-) -> int | None:
+def _matching_counter(config: TwoFactorConfig, secret: str, code: str, now: datetime) -> int | None:
     totp = pyotp.TOTP(
         secret,
         digits=config.digits,
@@ -241,9 +235,7 @@ def _consume_recovery_code(user: User, code: str, now: datetime) -> bool:
     return False
 
 
-def _consume_factor(
-    user: User, config: TwoFactorConfig, code: str, now: datetime
-) -> None:
+def _consume_factor(user: User, config: TwoFactorConfig, code: str, now: datetime) -> None:
     """Accept a current TOTP code or an unused recovery code, or record a failure."""
     _ensure_unlocked(config, now)
     candidate_code = code.strip()
@@ -254,10 +246,7 @@ def _consume_factor(
         if counter is None:
             _record_failure(config, now)
             raise InvalidCode("That code is not valid.")
-        if (
-            config.last_used_counter is not None
-            and counter <= config.last_used_counter
-        ):
+        if config.last_used_counter is not None and counter <= config.last_used_counter:
             _record_failure(config, now)
             raise InvalidCode("That code has already been used.")
         _record_success(config, now, counter=counter)
@@ -368,9 +357,7 @@ def create_challenge(user: User) -> ChallengeIssued:
     )
 
 
-def verify_challenge(
-    raw_token: str, code: str, *, request_meta: RequestMeta
-) -> TokenPair:
+def verify_challenge(raw_token: str, code: str, *, request_meta: RequestMeta) -> TokenPair:
     """Complete a login challenge with a TOTP or recovery code and open a session.
 
     Deliberately not atomic: a wrong code must persist its failure counter even though the
@@ -389,18 +376,16 @@ def verify_challenge(
     if not user.is_active:
         raise ChallengeInvalid("This sign-in attempt has expired. Start again.")
 
-    config = (
-        TwoFactorConfig.objects.filter(user=user, is_enabled=True).first()
-    )
+    config = TwoFactorConfig.objects.filter(user=user, is_enabled=True).first()
     if config is None:
         raise ChallengeInvalid("This sign-in attempt has expired. Start again.")
 
     _consume_factor(user, config, code, now)
 
     with transaction.atomic():
-        burned = MFAChallenge.objects.filter(
-            pk=challenge.pk, used_at__isnull=True
-        ).update(used_at=timezone.now())
+        burned = MFAChallenge.objects.filter(pk=challenge.pk, used_at__isnull=True).update(
+            used_at=timezone.now()
+        )
         if not burned:
             raise ChallengeInvalid("This sign-in attempt has expired. Start again.")
 
@@ -452,9 +437,7 @@ def disable(user: User, *, password: str, code: str) -> None:
 
 
 @transaction.atomic
-def regenerate_recovery_codes(
-    user: User, *, password: str, code: str
-) -> list[str]:
+def regenerate_recovery_codes(user: User, *, password: str, code: str) -> list[str]:
     """Replace recovery codes after re-checking the password and a current factor."""
     config = _enabled_config(user, for_update=True)
     _check_password(user, password)

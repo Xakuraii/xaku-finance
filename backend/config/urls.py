@@ -10,6 +10,8 @@ urlpatterns = [
     path("health/live", health_live, name="health-live"),
     path("health/ready", health_ready, name="health-ready"),
     path("api/v1/auth/", include("apps.identity.api.urls")),
+    path("api/v1/accounts/", include("apps.accounts.api.urls")),
+    path("api/v1/transactions/", include("apps.transactions.api.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",

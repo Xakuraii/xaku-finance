@@ -4,6 +4,446 @@ info:
   version: 1.0.0
   description: Personal finance management API. Amounts are decimal strings.
 paths:
+  /api/v1/accounts/:
+    get:
+      operationId: accounts_list
+      description: ViewSet for managing user financial accounts.
+      parameters:
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - accounts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Account'
+          description: ''
+    post:
+      operationId: accounts_create
+      description: ViewSet for managing user financial accounts.
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+  /api/v1/accounts/{id}/:
+    get:
+      operationId: accounts_retrieve
+      description: ViewSet for managing user financial accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - accounts
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+    patch:
+      operationId: accounts_partial_update
+      description: ViewSet for managing user financial accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedAccountRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+    delete:
+      operationId: accounts_destroy
+      description: ViewSet for managing user financial accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - accounts
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/accounts/{id}/archive/:
+    post:
+      operationId: accounts_archive_create
+      description: ViewSet for managing user financial accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+  /api/v1/accounts/{id}/opening-balance/:
+    post:
+      operationId: accounts_opening_balance_create
+      description: ViewSet for managing user financial accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+  /api/v1/accounts/{id}/restore/:
+    post:
+      operationId: accounts_restore_create
+      description: ViewSet for managing user financial accounts.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this account.
+        required: true
+      tags:
+      - accounts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AccountRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Account'
+          description: ''
+  /api/v1/auth/2fa/confirm/:
+    post:
+      operationId: auth_2fa_confirm_create
+      description: Enable 2FA with a code from the authenticator app and return recovery
+        codes.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorCodeRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TwoFactorCodeRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TwoFactorCodeRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFactorConfirmResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/2fa/disable/:
+    post:
+      operationId: auth_2fa_disable_create
+      description: Disable 2FA. Requires the password and a current code.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorFactorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TwoFactorFactorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TwoFactorFactorRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/2fa/recovery-codes/:
+    post:
+      operationId: auth_2fa_recovery_codes_create
+      description: Replace recovery codes. Requires the password and a current code.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TwoFactorFactorRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TwoFactorFactorRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TwoFactorFactorRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecoveryCodesResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/2fa/setup/:
+    post:
+      operationId: auth_2fa_setup_create
+      description: Start TOTP enrollment. Requires a recent password confirmation.
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TwoFactorSetupResponse'
+          description: ''
+        '403':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/2fa/verify/:
+    post:
+      operationId: auth_2fa_verify_create
+      description: Complete a 2FA login challenge with a TOTP or recovery code.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MFAVerifyRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/MFAVerifyRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/MFAVerifyRequest'
+        required: true
+      security:
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '429':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
   /api/v1/auth/google/:
     post:
       operationId: auth_google_create
@@ -32,6 +472,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/GoogleTokenResponse'
           description: ''
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MFARequired'
+          description: ''
         '400':
           content:
             application/json:
@@ -50,6 +496,7 @@ paths:
     post:
       operationId: auth_login_create
       description: Exchange email and password for an access token and refresh cookie.
+        When 2FA is enabled, returns 202 with a short-lived challenge instead of tokens.
       tags:
       - auth
       requestBody:
@@ -72,6 +519,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TokenResponse'
+          description: ''
+        '202':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MFARequired'
           description: ''
         '401':
           content:
@@ -169,6 +622,48 @@ paths:
                 additionalProperties: {}
           description: ''
         '409':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/v1/auth/reauth/:
+    post:
+      operationId: auth_reauth_create
+      description: Re-enter the password to unlock sensitive security actions for
+        10 minutes.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReauthRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReauthRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReauthRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReauthResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+        '403':
           content:
             application/json:
               schema:
@@ -328,6 +823,241 @@ paths:
                 type: object
                 additionalProperties: {}
           description: ''
+  /api/v1/transactions/:
+    get:
+      operationId: transactions_list
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      parameters:
+      - name: cursor
+        required: false
+        in: query
+        description: The pagination cursor value.
+        schema:
+          type: string
+      - name: limit
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      - name: ordering
+        required: false
+        in: query
+        description: Which field to use when ordering the results.
+        schema:
+          type: string
+      tags:
+      - transactions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+    post:
+      operationId: transactions_create
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      tags:
+      - transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/transactions/{id}/:
+    get:
+      operationId: transactions_retrieve
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transaction.
+        required: true
+      tags:
+      - transactions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+    patch:
+      operationId: transactions_partial_update
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transaction.
+        required: true
+      tags:
+      - transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTransactionRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+    delete:
+      operationId: transactions_destroy
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transaction.
+        required: true
+      tags:
+      - transactions
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/v1/transactions/{id}/archive/:
+    post:
+      operationId: transactions_archive_create
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transaction.
+        required: true
+      tags:
+      - transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/transactions/{id}/audit/:
+    get:
+      operationId: transactions_audit_retrieve
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transaction.
+        required: true
+      tags:
+      - transactions
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /api/v1/transactions/{id}/restore/:
+    post:
+      operationId: transactions_restore_create
+      description: ViewSet for managing user financial transactions, splits, and audit
+        history.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this transaction.
+        required: true
+      tags:
+      - transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
   /health/live:
     get:
       operationId: health_live_retrieve
@@ -365,6 +1095,119 @@ paths:
           description: ''
 components:
   schemas:
+    Account:
+      type: object
+      description: Full account representation including dynamic ledger balance.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          readOnly: true
+        account_type:
+          allOf:
+          - $ref: '#/components/schemas/AccountTypeEnum'
+          readOnly: true
+        currency:
+          type: string
+        nature:
+          allOf:
+          - $ref: '#/components/schemas/NatureEnum'
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+          nullable: true
+        is_spendable:
+          type: boolean
+          readOnly: true
+        allows_negative_balance:
+          type: boolean
+          readOnly: true
+        display_order:
+          type: integer
+          readOnly: true
+        opened_on:
+          type: string
+          format: date
+          readOnly: true
+        is_archived:
+          type: boolean
+          readOnly: true
+        archived_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        archive_reason:
+          type: string
+          readOnly: true
+          nullable: true
+        balance:
+          type: string
+          readOnly: true
+        balance_minor:
+          type: integer
+          readOnly: true
+        balance_display:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - account_type
+      - allows_negative_balance
+      - archive_reason
+      - archived_at
+      - balance
+      - balance_display
+      - balance_minor
+      - created_at
+      - currency
+      - description
+      - display_order
+      - id
+      - is_archived
+      - is_spendable
+      - name
+      - nature
+      - opened_on
+      - updated_at
+    AccountRequest:
+      type: object
+      description: Full account representation including dynamic ledger balance.
+      properties:
+        currency:
+          type: string
+          minLength: 1
+      required:
+      - currency
+    AccountTypeEnum:
+      enum:
+      - checking
+      - savings
+      - cash
+      - ewallet
+      - credit_card
+      - investment
+      - other
+      type: string
+      description: |-
+        * `checking` - Checking
+        * `savings` - Savings
+        * `cash` - Cash
+        * `ewallet` - E-Wallet
+        * `credit_card` - Credit Card
+        * `investment` - Investment
+        * `other` - Other
     DetailResponse:
       type: object
       properties:
@@ -419,6 +1262,84 @@ components:
       required:
       - email
       - password
+    MFARequired:
+      type: object
+      properties:
+        mfa_required:
+          type: boolean
+          readOnly: true
+        mfa_token:
+          type: string
+          readOnly: true
+        methods:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        expires_in:
+          type: integer
+          readOnly: true
+      required:
+      - expires_in
+      - methods
+      - mfa_required
+      - mfa_token
+    MFAVerifyRequest:
+      type: object
+      properties:
+        mfa_token:
+          type: string
+          minLength: 1
+          maxLength: 128
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+      required:
+      - code
+      - mfa_token
+    NatureEnum:
+      enum:
+      - asset
+      - liability
+      type: string
+      description: |-
+        * `asset` - Asset
+        * `liability` - Liability
+    NecessityEnum:
+      enum:
+      - essential
+      - important
+      - lifestyle
+      - unplanned
+      type: string
+      description: |-
+        * `essential` - Essential
+        * `important` - Important
+        * `lifestyle` - Lifestyle
+        * `unplanned` - Unplanned
+    NullEnum:
+      enum:
+      - null
+    PaginatedTransactionList:
+      type: object
+      required:
+      - results
+      properties:
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cD00ODY%3D"
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?cursor=cj0xJnA9NDg3
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
     PasswordForgotRequest:
       type: object
       properties:
@@ -452,6 +1373,51 @@ components:
           readOnly: true
       required:
       - reset
+    PatchedAccountRequest:
+      type: object
+      description: Full account representation including dynamic ledger balance.
+      properties:
+        currency:
+          type: string
+          minLength: 1
+    PatchedTransactionRequest:
+      type: object
+      description: Full transaction output serializer.
+      properties:
+        type:
+          type: string
+          minLength: 1
+        currency:
+          type: string
+          minLength: 1
+    ReauthRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+      required:
+      - password
+    ReauthResponse:
+      type: object
+      properties:
+        reauth_expires_in:
+          type: integer
+          readOnly: true
+      required:
+      - reauth_expires_in
+    RecoveryCodesResponse:
+      type: object
+      properties:
+        recovery_codes:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - recovery_codes
     RegisterRequest:
       type: object
       properties:
@@ -549,6 +1515,68 @@ components:
       - device
       - id
       - last_used_at
+    SplitOutput:
+      type: object
+      description: Output serializer for transaction splits.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        category_id:
+          type: string
+          format: uuid
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        amount:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        amount_display:
+          type: string
+          readOnly: true
+        memo:
+          type: string
+          nullable: true
+          maxLength: 240
+      required:
+      - amount
+      - amount_display
+      - amount_minor
+      - category_id
+      - category_name
+      - id
+    SplitOutputRequest:
+      type: object
+      description: Output serializer for transaction splits.
+      properties:
+        amount_minor:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+        memo:
+          type: string
+          nullable: true
+          maxLength: 240
+      required:
+      - amount_minor
+    StatusEnum:
+      enum:
+      - pending
+      - completed
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `completed` - Completed
+        * `cancelled` - Cancelled
     TokenResponse:
       type: object
       properties:
@@ -565,6 +1593,196 @@ components:
       - access
       - access_expires_in
       - refresh_expires_in
+    Transaction:
+      type: object
+      description: Full transaction output serializer.
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        account_id:
+          type: string
+          format: uuid
+          readOnly: true
+        account_name:
+          type: string
+          readOnly: true
+        type:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        amount:
+          type: string
+          readOnly: true
+        amount_minor:
+          type: integer
+          readOnly: true
+        amount_display:
+          type: string
+          readOnly: true
+        currency:
+          type: string
+        occurred_on:
+          type: string
+          format: date
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        description:
+          type: string
+          readOnly: true
+          nullable: true
+        notes:
+          type: string
+          readOnly: true
+          nullable: true
+        merchant:
+          type: string
+          readOnly: true
+          nullable: true
+        category_id:
+          type: string
+          format: uuid
+          nullable: true
+          readOnly: true
+        category_name:
+          type: string
+          readOnly: true
+        is_split:
+          type: boolean
+          readOnly: true
+        splits:
+          type: array
+          items:
+            $ref: '#/components/schemas/SplitOutput'
+          readOnly: true
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        necessity:
+          readOnly: true
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/NecessityEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        version:
+          type: integer
+          readOnly: true
+        is_archived:
+          type: boolean
+          readOnly: true
+        archived_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - account_id
+      - account_name
+      - amount
+      - amount_display
+      - amount_minor
+      - archived_at
+      - category_id
+      - category_name
+      - created_at
+      - currency
+      - description
+      - id
+      - is_archived
+      - is_split
+      - merchant
+      - necessity
+      - notes
+      - occurred_on
+      - splits
+      - status
+      - tags
+      - title
+      - type
+      - updated_at
+      - version
+    TransactionRequest:
+      type: object
+      description: Full transaction output serializer.
+      properties:
+        type:
+          type: string
+          minLength: 1
+        currency:
+          type: string
+          minLength: 1
+      required:
+      - currency
+      - type
+    TwoFactorCodeRequest:
+      type: object
+      properties:
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+      required:
+      - code
+    TwoFactorConfirmResponse:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+          readOnly: true
+        recovery_codes:
+          type: array
+          items:
+            type: string
+          readOnly: true
+      required:
+      - enabled
+      - recovery_codes
+    TwoFactorFactorRequest:
+      type: object
+      properties:
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          maxLength: 128
+        code:
+          type: string
+          minLength: 1
+          maxLength: 64
+      required:
+      - code
+      - password
+    TwoFactorSetupResponse:
+      type: object
+      properties:
+        secret:
+          type: string
+          readOnly: true
+        otpauth_uri:
+          type: string
+          readOnly: true
+        qr_svg:
+          type: string
+          readOnly: true
+      required:
+      - otpauth_uri
+      - qr_svg
+      - secret
     UserSummary:
       type: object
       properties:

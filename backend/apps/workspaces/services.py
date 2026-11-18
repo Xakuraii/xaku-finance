@@ -22,9 +22,7 @@ def ensure_workspace(user: User) -> Workspace:
     """
     profile = getattr(user, "profile", None)
     currency = (
-        profile.reporting_currency
-        if profile is not None
-        else Currency.objects.get(code="USD")
+        profile.reporting_currency if profile is not None else Currency.objects.get(code="USD")
     )
     workspace, _created = Workspace.objects.get_or_create(
         owner=user,

@@ -22,15 +22,11 @@ def split_workspace(db):
     user = UserFactory()
     ws = user.workspace
     account = AccountFactory(workspace=ws, currency_id="USD")
-    groceries = Category.objects.create(
-        workspace=ws, name="Groceries", kind=CategoryKind.EXPENSE
-    )
+    groceries = Category.objects.create(workspace=ws, name="Groceries", kind=CategoryKind.EXPENSE)
     supplies = Category.objects.create(
         workspace=ws, name="Household Supplies", kind=CategoryKind.EXPENSE
     )
-    care = Category.objects.create(
-        workspace=ws, name="Personal Care", kind=CategoryKind.EXPENSE
-    )
+    care = Category.objects.create(workspace=ws, name="Personal Care", kind=CategoryKind.EXPENSE)
     return {
         "user": user,
         "workspace": ws,

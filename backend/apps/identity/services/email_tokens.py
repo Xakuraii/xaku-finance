@@ -62,9 +62,9 @@ def issue_token(
     """Create a token, invalidate unused predecessors, and return the raw value once."""
     raw_token = secrets.token_urlsafe(TOKEN_BYTES)
     now = timezone.now()
-    IdentityToken.objects.filter(
-        user=user, purpose=purpose, used_at__isnull=True
-    ).update(used_at=now)
+    IdentityToken.objects.filter(user=user, purpose=purpose, used_at__isnull=True).update(
+        used_at=now
+    )
     IdentityToken.objects.create(
         user=user,
         token_hash=hash_token(raw_token),
