@@ -14,6 +14,7 @@ import {
   UploadCloud,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
 import { ImportWizardDialog } from "@/features/imports/components/import-wizard-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getAccounts } from "@/features/accounts/api";
@@ -193,6 +194,9 @@ export const AuthenticatedLayout: React.FC = () => {
                 {workspace.name} ({workspace.reporting_currency})
               </span>
             )}
+
+            {/* Notification Center Bell */}
+            <NotificationBell />
 
             {/* View Transitions Animated Theme Toggler */}
             <AnimatedThemeToggler variant="circle" />

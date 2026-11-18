@@ -19,4 +19,10 @@ export const queryKeys = {
     list: (params?: Record<string, unknown>) => ["transfers", "list", params] as const,
     detail: (id: string) => ["transfers", "detail", id] as const,
   },
+  notifications: {
+    all: ["notifications"] as const,
+    list: (filters?: Record<string, unknown>) => ["notifications", "list", filters] as const,
+    unreadCount: ["notifications", "unread-count"] as const,
+    preferences: ["notifications", "preferences"] as const,
+  },
 };
