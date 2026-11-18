@@ -7,29 +7,35 @@ from typing import Any
 
 from django.utils import timezone
 from drf_spectacular.utils import extend_schema
-from rest_framework import permissions
+from rest_framework import permissions, viewsets
 from rest_framework.exceptions import ValidationError
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.analytics.api.serializers import (
+    DailyAllowanceResponseSerializer,
     EmergencyFundConfigUpdateSerializer,
     EmergencyFundProjectionRequestSerializer,
     EmergencyFundProjectionSerializer,
     EmergencyFundStatusSerializer,
     NetWorthHistoryResponseSerializer,
     NetWorthResponseSerializer,
+    RecurringObligationSerializer,
+    SafeToSpendResponseSerializer,
 )
+from apps.analytics.daily_allowance import calculate_daily_allowance
 from apps.analytics.emergency_fund import (
     get_emergency_fund_projection,
     get_emergency_fund_status,
     update_emergency_fund_config,
 )
+from apps.analytics.models import RecurringObligation
 from apps.analytics.net_worth import (
     get_net_worth_history,
     get_or_create_snapshot,
 )
+from apps.analytics.safe_to_spend import calculate_safe_to_spend
 
 
 class EmergencyFundView(APIView):
@@ -182,3 +188,79 @@ class NetWorthHistoryView(APIView):
             currency_code=currency_param,
         )
         return Response(history)
+
+
+class SafeToSpendView(APIView):
+    """Calculate liquid Safe-to-Spend allowance and component breakdown."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get Safe-to-Spend",
+        responses={200: SafeToSpendResponseSerializer},
+    )
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        ws = getattr(request.user, "workspace", None)
+        if not ws:
+            raise ValidationError("Authenticated user does not belong to a workspace.")
+
+        horizon_type = request.query_params.get("horizon", "period_end")
+        horizon_days_param = request.query_params.get("horizon_days")
+        horizon_days = (
+            int(horizon_days_param)
+            if horizon_days_param and horizon_days_param.isdigit()
+            else None
+        )
+        currency_param = request.query_params.get("currency")
+
+        res = calculate_safe_to_spend(
+            workspace=ws,
+            horizon_type=horizon_type,
+            horizon_days=horizon_days,
+            currency_code=currency_param,
+        )
+        return Response(res.to_dict())
+
+
+class DailyAllowanceView(APIView):
+    """Calculate daily spending allowance across flexible budget categories."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    @extend_schema(
+        summary="Get daily spending allowance",
+        responses={200: DailyAllowanceResponseSerializer},
+    )
+    def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        ws = getattr(request.user, "workspace", None)
+        if not ws:
+            raise ValidationError("Authenticated user does not belong to a workspace.")
+
+        period_kind = request.query_params.get("period", "calendar_month")
+        currency_param = request.query_params.get("currency")
+
+        res = calculate_daily_allowance(
+            workspace=ws,
+            period_kind=period_kind,
+            currency_code=currency_param,
+        )
+        return Response(res.to_dict())
+
+
+class RecurringObligationViewSet(viewsets.ModelViewSet):
+    """CRUD for user recurring obligations, bills, and subscriptions."""
+
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = RecurringObligationSerializer
+
+    def get_queryset(self):
+        ws = getattr(self.request.user, "workspace", None)
+        if not ws:
+            return RecurringObligation.objects.none()
+        qs = RecurringObligation.objects.filter(workspace=ws)
+        include_inactive = (
+            self.request.query_params.get("include_inactive", "false").lower() == "true"
+        )
+        if not include_inactive:
+            qs = qs.filter(is_active=True)
+        return qs.order_by("next_due_date", "name")
