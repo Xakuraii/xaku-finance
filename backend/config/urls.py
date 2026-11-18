@@ -2,11 +2,13 @@
 
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 from apps.common.views import health_live, health_ready
 
 urlpatterns = [
+    path("", RedirectView.as_view(url="/api/docs/", permanent=False), name="root-redirect"),
     path("health/live", health_live, name="health-live"),
     path("health/ready", health_ready, name="health-ready"),
     path("api/v1/auth/", include("apps.identity.api.urls")),
