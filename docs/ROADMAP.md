@@ -293,11 +293,12 @@ matches the accounting worked example.
 
 ---
 
-## Phase 5 — User experience
+## Phase 5 — User experience (Completed)
 
 **Objective:** make the product pleasant, consistent, and accessible without adding accounting risk.
+**Report:** see [docs/PHASE_5_REPORT.md](PHASE_5_REPORT.md) for full verification certification.
 
-### Milestone 5.1 — Customizable dashboard
+### Milestone 5.1 — Customizable dashboard (Completed)
 
 - Widget registry server-side, layout persistence, show/hide/reorder, reset.
 - Dashboard assembly endpoint; empty states with reasons; loading skeletons.
@@ -306,7 +307,7 @@ matches the accounting worked example.
 
 **Exit:** preferences persist across devices and sessions; no fabricated zeroes.
 
-### Milestone 5.2 — Notifications and reminders
+### Milestone 5.2 — Notifications and reminders (Completed)
 
 - Notification model, preferences, quiet hours, digests, dedupe, budget threshold scan, bill reminders.
 - Security notifications locked; delivery records and failure handling.
@@ -315,7 +316,7 @@ matches the accounting worked example.
 
 **Exit:** users can configure every category except security; duplicates are not sent.
 
-### Milestone 5.3 — Settings, themes, responsive polish
+### Milestone 5.3 — Settings, themes, responsive polish (Completed)
 
 - Profile/workspace settings, reporting currency changes, timezone/week start.
 - Light/dark/system themes with token audit; responsive pass at 360/768/1024/1440.
@@ -323,6 +324,17 @@ matches the accounting worked example.
 - Accessibility pass: focus, labels, contrast, keyboard, reduced motion.
 
 **Exit:** WCAG 2.2 AA practical audit passes on primary flows in both themes; no illegible token pair.
+
+### Milestone 5.4 — Verification, Hardening & Exit Certification (Completed)
+
+- Query count performance budgets verified across all Phase 5 endpoints.
+- 0 ledger drift verified across all workspaces.
+- OpenAPI 3.1 specification generated and validated with 0 errors.
+- Test suites: 295 backend tests passed (100%), 43 frontend tests passed (100%).
+- Code quality: ruff, mypy, tsc, and vite production build clean.
+- Phase 5 report: `docs/PHASE_5_REPORT.md`.
+
+**Exit:** all Phase 5 acceptance criteria passed and verified. Ready for Phase 6 (Security and Release).
 
 ---
 

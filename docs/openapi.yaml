@@ -1238,6 +1238,94 @@ paths:
               schema:
                 $ref: '#/components/schemas/DailyAllowanceResponse'
           description: ''
+  /api/v1/dashboard/:
+    get:
+      operationId: dashboard_retrieve
+      description: Retrieve aggregated dashboard payload assembled for active layout
+        and period.
+      summary: Get assembled dashboard data
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+          description: ''
+  /api/v1/dashboard/layout/:
+    get:
+      operationId: dashboard_layout_retrieve
+      description: Retrieve or replace user's customizable dashboard layout.
+      summary: Get dashboard widget layout
+      tags:
+      - dashboard
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardLayout'
+          description: ''
+    put:
+      operationId: dashboard_layout_update
+      description: Retrieve or replace user's customizable dashboard layout.
+      summary: Update dashboard widget layout
+      tags:
+      - dashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardLayoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DashboardLayoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DashboardLayoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardLayout'
+          description: ''
+  /api/v1/dashboard/layout/reset/:
+    post:
+      operationId: dashboard_layout_reset_create
+      description: Reset user's dashboard layout to canonical defaults.
+      summary: Reset dashboard widget layout to default
+      tags:
+      - dashboard
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardLayoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DashboardLayoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DashboardLayoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardLayout'
+          description: ''
   /api/v1/debts/:
     get:
       operationId: debts_list
@@ -1823,6 +1911,48 @@ paths:
               schema:
                 $ref: '#/components/schemas/ImportJob'
           description: ''
+  /api/v1/me/:
+    get:
+      operationId: me_retrieve
+      description: Retrieve and update current user identity and preferences.
+      summary: Get current user profile and preferences
+      tags:
+      - me
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+          description: ''
+    patch:
+      operationId: me_partial_update
+      description: Retrieve and update current user identity and preferences.
+      summary: Update current user profile and preferences
+      tags:
+      - me
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedMeUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeResponse'
+          description: ''
   /api/v1/net-worth/:
     get:
       operationId: net_worth_retrieve
@@ -1855,6 +1985,185 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/NetWorthHistoryResponse'
+          description: ''
+  /api/v1/notification-preferences/:
+    get:
+      operationId: notification_preferences_list
+      description: Retrieve and update notification preferences for the user.
+      summary: Get user notification preferences
+      tags:
+      - notification-preferences
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationPreference'
+          description: ''
+    put:
+      operationId: notification_preferences_update
+      description: Retrieve and update notification preferences for the user.
+      summary: Update user notification preferences
+      tags:
+      - notification-preferences
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BulkNotificationPreferenceRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BulkNotificationPreferenceRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BulkNotificationPreferenceRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationPreference'
+          description: ''
+        '409':
+          content:
+            application/json:
+              schema:
+                description: Security notification preference locked
+          description: ''
+  /api/v1/notifications/:
+    get:
+      operationId: notifications_list
+      description: Retrieve notifications for the authenticated user, optionally filtered.
+      summary: List user notifications
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/v1/notifications/{id}/read/:
+    post:
+      operationId: notifications_read_create
+      description: Mark an individual notification as read.
+      summary: Mark notification as read
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadActionResponseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReadActionResponseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReadActionResponseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadActionResponse'
+          description: ''
+  /api/v1/notifications/evaluate/:
+    post:
+      operationId: notifications_evaluate_create
+      description: Trigger background evaluation of budget, bill, and savings notifications.
+      summary: Trigger notification evaluators
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EvaluateResponseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EvaluateResponseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EvaluateResponseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EvaluateResponse'
+          description: ''
+  /api/v1/notifications/read-all/:
+    post:
+      operationId: notifications_read_all_create
+      description: Mark all unread notifications for the user as read.
+      summary: Mark all notifications as read
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReadAllResponseRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ReadAllResponseRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ReadAllResponseRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReadAllResponse'
+          description: ''
+  /api/v1/notifications/unread-count/:
+    get:
+      operationId: notifications_unread_count_retrieve
+      description: Get the current count of unread notifications for the authenticated
+        user.
+      summary: Get unread notification count
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnreadCountResponse'
           description: ''
   /api/v1/recurring-obligations/:
     get:
@@ -2889,6 +3198,64 @@ paths:
               schema:
                 $ref: '#/components/schemas/Transfer'
           description: ''
+  /api/v1/workspace/:
+    get:
+      operationId: workspace_retrieve
+      description: Retrieve and update current user's workspace settings.
+      summary: Get workspace settings
+      tags:
+      - workspace
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceSettings'
+          description: ''
+    patch:
+      operationId: workspace_partial_update
+      description: Retrieve and update current user's workspace settings.
+      summary: Update workspace settings
+      tags:
+      - workspace
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspaceSettingsUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspaceSettingsUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspaceSettingsUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceSettings'
+          description: ''
+  /api/v1/workspace/summary/:
+    get:
+      operationId: workspace_summary_retrieve
+      description: Retrieve workspace diagnostic summary and record counts.
+      summary: Get workspace statistics and diagnostic summary
+      tags:
+      - workspace
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDiagnosticSummary'
+          description: ''
   /health/live:
     get:
       operationId: health_live_retrieve
@@ -3419,6 +3786,15 @@ components:
       - base_amount_minor
       - name
       - starts_on
+    BulkNotificationPreferenceRequest:
+      type: object
+      properties:
+        preferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationPreferenceRequest'
+      required:
+      - preferences
     CadenceEnum:
       enum:
       - weekly
@@ -3510,6 +3886,22 @@ components:
       required:
       - kind
       - name
+    CategoryEnum:
+      enum:
+      - security
+      - budget
+      - bill
+      - savings
+      - report
+      - system
+      type: string
+      description: |-
+        * `security` - Security
+        * `budget` - Budget
+        * `bill` - Bill & Recurring
+        * `savings` - Savings
+        * `report` - Report
+        * `system` - System
     CategoryRequest:
       type: object
       properties:
@@ -3538,6 +3930,25 @@ components:
       required:
       - kind
       - name
+    ConvertedTotal:
+      type: object
+      properties:
+        amount:
+          type: string
+        currency:
+          type: string
+        rate_policy:
+          type: string
+        rates_used:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+      required:
+      - amount
+      - currency
+      - rate_policy
+      - rates_used
     DailyAllowanceBudgetItem:
       type: object
       properties:
@@ -3603,6 +4014,70 @@ components:
       - period
       - remaining_days
       - state
+    DashboardLayout:
+      type: object
+      properties:
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WidgetLayoutItem'
+      required:
+      - widgets
+    DashboardLayoutRequest:
+      type: object
+      properties:
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WidgetLayoutItemRequest'
+      required:
+      - widgets
+    DashboardResponse:
+      type: object
+      properties:
+        period:
+          $ref: '#/components/schemas/PeriodInfo'
+        widget_order:
+          type: array
+          items:
+            type: string
+        currency:
+          type: string
+        balances:
+          type: array
+          items:
+            type: object
+            additionalProperties: {}
+        converted_total:
+          $ref: '#/components/schemas/ConvertedTotal'
+        net_worth:
+          type: object
+          additionalProperties: {}
+        safe_to_spend:
+          type: object
+          additionalProperties: {}
+        daily_allowance:
+          type: object
+          additionalProperties: {}
+        cash_flow:
+          type: object
+          additionalProperties: {}
+        budget_overview:
+          type: object
+          additionalProperties: {}
+        savings_progress:
+          type: object
+          additionalProperties: {}
+        recent_transactions:
+          type: object
+          additionalProperties: {}
+        spending_by_category:
+          type: object
+          additionalProperties: {}
+      required:
+      - currency
+      - period
+      - widget_order
     DetailResponse:
       type: object
       properties:
@@ -3783,6 +4258,26 @@ components:
       - target_amount
       - target_amount_minor
       - target_months
+    EvaluateResponse:
+      type: object
+      properties:
+        evaluated:
+          type: boolean
+        created_count:
+          type: integer
+      required:
+      - created_count
+      - evaluated
+    EvaluateResponseRequest:
+      type: object
+      properties:
+        evaluated:
+          type: boolean
+        created_count:
+          type: integer
+      required:
+      - created_count
+      - evaluated
     GoogleLoginRequest:
       type: object
       properties:
@@ -4214,6 +4709,46 @@ components:
       required:
       - code
       - mfa_token
+    MeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        is_email_verified:
+          type: boolean
+        display_name:
+          type: string
+        avatar_url:
+          type: string
+        timezone:
+          type: string
+        locale:
+          type: string
+        reporting_currency:
+          type: string
+        week_start:
+          type: integer
+        theme:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - avatar_url
+      - created_at
+      - display_name
+      - email
+      - id
+      - is_email_verified
+      - locale
+      - reporting_currency
+      - theme
+      - timezone
+      - week_start
     NatureEnum:
       enum:
       - asset
@@ -4415,6 +4950,120 @@ components:
       - net_worth
       - rate_policy
       - rates_used
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        category:
+          allOf:
+          - $ref: '#/components/schemas/CategoryEnum'
+          readOnly: true
+        severity:
+          allOf:
+          - $ref: '#/components/schemas/SeverityEnum'
+          readOnly: true
+        title:
+          type: string
+          readOnly: true
+        body:
+          type: string
+          readOnly: true
+        data:
+          readOnly: true
+        dedupe_key:
+          type: string
+          readOnly: true
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - body
+      - category
+      - created_at
+      - data
+      - dedupe_key
+      - id
+      - read_at
+      - severity
+      - title
+    NotificationPreference:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        in_app:
+          type: boolean
+        email:
+          type: boolean
+        threshold_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        quiet_hours_start:
+          type: string
+          format: time
+          nullable: true
+        quiet_hours_end:
+          type: string
+          format: time
+          nullable: true
+        digest:
+          type: string
+          maxLength: 12
+        locked:
+          type: boolean
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - category
+      - id
+      - updated_at
+    NotificationPreferenceRequest:
+      type: object
+      properties:
+        category:
+          $ref: '#/components/schemas/CategoryEnum'
+        in_app:
+          type: boolean
+        email:
+          type: boolean
+        threshold_percent:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        quiet_hours_start:
+          type: string
+          format: time
+          nullable: true
+        quiet_hours_end:
+          type: string
+          format: time
+          nullable: true
+        digest:
+          type: string
+          minLength: 1
+          maxLength: 12
+        locked:
+          type: boolean
+      required:
+      - category
     NullEnum:
       enum:
       - null
@@ -4621,6 +5270,34 @@ components:
         notes:
           type: string
           nullable: true
+    PatchedMeUpdateRequest:
+      type: object
+      properties:
+        display_name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        avatar_url:
+          type: string
+          maxLength: 500
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 64
+        locale:
+          type: string
+          minLength: 1
+          maxLength: 16
+        reporting_currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        week_start:
+          type: integer
+          maximum: 7
+          minimum: 1
+        theme:
+          $ref: '#/components/schemas/ThemeEnum'
     PatchedRecurringObligationRequest:
       type: object
       properties:
@@ -4706,6 +5383,40 @@ components:
         currency:
           type: string
           minLength: 1
+    PatchedWorkspaceSettingsUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 80
+        reporting_currency:
+          type: string
+          minLength: 1
+          maxLength: 3
+        timezone:
+          type: string
+          minLength: 1
+          maxLength: 64
+        week_start:
+          type: integer
+          maximum: 7
+          minimum: 1
+    PeriodInfo:
+      type: object
+      properties:
+        start:
+          type: string
+          format: date
+        end:
+          type: string
+          format: date
+        timezone:
+          type: string
+      required:
+      - end
+      - start
+      - timezone
     PeriodTypeEnum:
       enum:
       - monthly
@@ -4716,6 +5427,34 @@ components:
         * `monthly` - Monthly
         * `weekly` - Weekly
         * `custom` - Custom
+    ReadActionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+      - success
+    ReadActionResponseRequest:
+      type: object
+      properties:
+        success:
+          type: boolean
+      required:
+      - success
+    ReadAllResponse:
+      type: object
+      properties:
+        updated_count:
+          type: integer
+      required:
+      - updated_count
+    ReadAllResponseRequest:
+      type: object
+      properties:
+        updated_count:
+          type: integer
+      required:
+      - updated_count
     ReauthRequest:
       type: object
       properties:
@@ -5305,6 +6044,16 @@ components:
       - device
       - id
       - last_used_at
+    SeverityEnum:
+      enum:
+      - info
+      - warning
+      - critical
+      type: string
+      description: |-
+        * `info` - Info
+        * `warning` - Warning
+        * `critical` - Critical
     SplitOutput:
       type: object
       description: Output serializer for transaction splits.
@@ -5452,6 +6201,16 @@ components:
           maxLength: 7
       required:
       - name
+    ThemeEnum:
+      enum:
+      - light
+      - dark
+      - system
+      type: string
+      description: |-
+        * `light` - light
+        * `dark` - dark
+        * `system` - system
     TokenResponse:
       type: object
       properties:
@@ -5835,6 +6594,13 @@ components:
       - otpauth_uri
       - qr_svg
       - secret
+    UnreadCountResponse:
+      type: object
+      properties:
+        unread_count:
+          type: integer
+      required:
+      - unread_count
     UserSummary:
       type: object
       properties:
@@ -5875,6 +6641,109 @@ components:
           readOnly: true
       required:
       - verified
+    WidgetLayoutItem:
+      type: object
+      properties:
+        key:
+          type: string
+          maxLength: 64
+        title:
+          type: string
+          maxLength: 120
+        enabled:
+          type: boolean
+          default: true
+      required:
+      - key
+    WidgetLayoutItemRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          minLength: 1
+          maxLength: 64
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+        enabled:
+          type: boolean
+          default: true
+      required:
+      - key
+    WorkspaceDiagnosticSummary:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        reporting_currency:
+          type: string
+        timezone:
+          type: string
+        week_start:
+          type: integer
+        ledger_seq:
+          type: integer
+        accounts_count:
+          type: integer
+        transactions_count:
+          type: integer
+        budgets_count:
+          type: integer
+        savings_goals_count:
+          type: integer
+        debts_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+      required:
+      - accounts_count
+      - budgets_count
+      - created_at
+      - debts_count
+      - id
+      - ledger_seq
+      - name
+      - reporting_currency
+      - savings_goals_count
+      - timezone
+      - transactions_count
+      - week_start
+    WorkspaceSettings:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        reporting_currency:
+          type: string
+        timezone:
+          type: string
+        week_start:
+          type: integer
+        ledger_seq:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+      - created_at
+      - id
+      - ledger_seq
+      - name
+      - reporting_currency
+      - timezone
+      - updated_at
+      - week_start
     WorkspaceSummary:
       type: object
       properties:

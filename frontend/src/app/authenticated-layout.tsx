@@ -3,6 +3,7 @@ import { Link, NavLink, Outlet, Navigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/auth-context";
 import {
   Wallet,
+  LayoutDashboard,
   ArrowLeftRight,
   LogOut,
   Shield,
@@ -11,8 +12,10 @@ import {
   Target,
   CreditCard,
   UploadCloud,
+  Settings,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { NotificationBell } from "@/features/notifications/components/notification-bell";
 import { ImportWizardDialog } from "@/features/imports/components/import-wizard-dialog";
 import { useQuery } from "@tanstack/react-query";
 import { getAccounts } from "@/features/accounts/api";
@@ -59,6 +62,20 @@ export const AuthenticatedLayout: React.FC = () => {
             </Link>
 
             <nav className="hidden md:flex items-center gap-1.5">
+              <NavLink
+                to="/app/dashboard"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "text-gold bg-gold/10 font-semibold border border-gold/20"
+                      : "text-muted hover:text-main hover:bg-[var(--surface-raised)]"
+                  }`
+                }
+              >
+                <LayoutDashboard className="w-3.5 h-3.5" />
+                Dashboard
+              </NavLink>
+
               <NavLink
                 to="/app/accounts"
                 className={({ isActive }) =>
@@ -156,6 +173,20 @@ export const AuthenticatedLayout: React.FC = () => {
                 <BarChart3 className="w-3.5 h-3.5" />
                 Analytics
               </NavLink>
+
+              <NavLink
+                to="/app/settings"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                    isActive
+                      ? "text-gold bg-gold/10 font-semibold border border-gold/20"
+                      : "text-muted hover:text-main hover:bg-[var(--surface-raised)]"
+                  }`
+                }
+              >
+                <Settings className="w-3.5 h-3.5" />
+                Settings
+              </NavLink>
             </nav>
           </div>
 
@@ -178,6 +209,9 @@ export const AuthenticatedLayout: React.FC = () => {
                 {workspace.name} ({workspace.reporting_currency})
               </span>
             )}
+
+            {/* Notification Center Bell */}
+            <NotificationBell />
 
             {/* View Transitions Animated Theme Toggler */}
             <AnimatedThemeToggler variant="circle" />

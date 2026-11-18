@@ -25,6 +25,8 @@ urlpatterns = [
     path("api/v1/net-worth/", include("apps.analytics.api.net_worth_urls")),
     path("api/v1/reports/", include("apps.analytics.api.report_urls")),
     path("api/v1/", include("apps.analytics.api.intelligence_urls")),
+    path("api/v1/", include("apps.workspaces.api.urls")),
+    path("api/v1/", include("apps.notifications.api.urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
     path(
         "api/docs/",
