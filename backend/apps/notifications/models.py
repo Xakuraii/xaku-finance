@@ -6,7 +6,6 @@ See docs/DATABASE.md Section 2.10 and docs/SRS.md FR-NOT-01..08.
 from __future__ import annotations
 
 import uuid
-from typing import Any
 
 from django.db import models
 from django.db.models import CheckConstraint, Index, Q, UniqueConstraint
