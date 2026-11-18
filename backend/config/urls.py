@@ -13,6 +13,8 @@ urlpatterns = [
     path("health/ready", health_ready, name="health-ready"),
     path("api/v1/auth/", include("apps.identity.api.urls")),
     path("api/v1/accounts/", include("apps.accounts.api.urls")),
+    path("api/v1/categories/", include("apps.categories.api.urls")),
+    path("api/v1/tags/", include("apps.tags.api.urls")),
     path("api/v1/transactions/", include("apps.transactions.api.urls")),
     path("api/v1/transfers/", include("apps.transactions.api.transfer_urls")),
     path("api/schema/", SpectacularAPIView.as_view(), name="schema"),
