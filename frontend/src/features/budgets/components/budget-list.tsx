@@ -46,7 +46,7 @@ export const BudgetList: React.FC<BudgetListProps> = ({
         <button
           type="button"
           onClick={() => setCreateDialogOpen(true)}
-          className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-gold text-black hover:opacity-90 transition-all cursor-pointer shadow-xs"
+          className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-lg bg-gold hover:opacity-90 transition-all cursor-pointer shadow-xs"
         >
           <Plus className="w-4 h-4" />
           New Budget
@@ -109,7 +109,7 @@ export const BudgetList: React.FC<BudgetListProps> = ({
           <button
             type="button"
             onClick={() => setCreateDialogOpen(true)}
-            className="px-4 py-2 text-xs font-semibold rounded-lg bg-gold text-black hover:opacity-90 transition-all cursor-pointer"
+            className="px-4 py-2 text-xs font-semibold rounded-lg bg-gold hover:opacity-90 transition-all cursor-pointer"
           >
             Create Budget
           </button>

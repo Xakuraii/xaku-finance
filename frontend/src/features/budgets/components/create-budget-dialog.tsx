@@ -83,18 +83,18 @@ export const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 animate-fade-in" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md rounded-2xl border border-[#2b313a] bg-[#181a20] p-6 shadow-2xl z-50 text-white animate-scale-in">
-          <div className="flex items-center justify-between pb-3 border-b border-[#2b313a]">
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl z-50 text-main animate-scale-in">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <PlusCircle className="w-5 h-5 text-[#F0B90B]" />
-              <Dialog.Title className="text-lg font-bold text-slate-100">
+              <PlusCircle className="w-5 h-5 text-gold" />
+              <Dialog.Title className="text-lg font-bold text-main">
                 Create New Budget
               </Dialog.Title>
             </div>
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
+                className="text-muted hover:text-main p-1 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -103,13 +103,13 @@ export const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({
 
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             {errorMessage && (
-              <div className="p-3 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg">
+              <div className="p-3 text-xs bg-[var(--negative-bg)] border border-[var(--negative-border)] text-[var(--negative)] rounded-lg">
                 {errorMessage}
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-main mb-1">
                 Budget Name
               </label>
               <input
@@ -117,19 +117,19 @@ export const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({
                 placeholder="e.g. Monthly Groceries"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#0b0e11] border border-[#2b313a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#F0B90B]"
+                className="w-full bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-main focus:outline-none focus:border-[var(--accent)]"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-medium text-main mb-1">
                 Expense Category
               </label>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full bg-[#0b0e11] border border-[#2b313a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#F0B90B]"
+                className="w-full bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-main focus:outline-none focus:border-[var(--accent)]"
                 required
               >
                 {expenseCategories.map((c) => (
@@ -142,7 +142,7 @@ export const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-main mb-1">
                   Budget Amount ({defaultCurrency})
                 </label>
                 <input
@@ -150,19 +150,19 @@ export const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({
                   placeholder="250.00"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full bg-[#0b0e11] border border-[#2b313a] rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#F0B90B]"
+                  className="w-full bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-main font-mono focus:outline-none focus:border-[var(--accent)]"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-medium text-main mb-1">
                   Period Type
                 </label>
                 <select
                   value={periodType}
                   onChange={(e) => setPeriodType(e.target.value as any)}
-                  className="w-full bg-[#0b0e11] border border-[#2b313a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#F0B90B]"
+                  className="w-full bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-main focus:outline-none focus:border-[var(--accent)]"
                 >
                   <option value="monthly">Monthly</option>
                   <option value="weekly">Weekly</option>
@@ -171,33 +171,33 @@ export const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({
             </div>
 
             {/* Rollover Settings */}
-            <div className="pt-2 border-t border-[#2b313a]/60 space-y-3">
-              <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+            <div className="pt-2 border-t border-[var(--border)]/60 space-y-3">
+              <label className="flex items-center gap-2 text-xs text-main cursor-pointer">
                 <input
                   type="checkbox"
                   checked={rolloverEnabled}
                   onChange={(e) => setRolloverEnabled(e.target.checked)}
-                  className="rounded border-[#2b313a] text-[#F0B90B] focus:ring-[#F0B90B] accent-[#F0B90B]"
+                  className="rounded border-[var(--border)] text-gold focus:ring-[#F0B90B] accent-[#F0B90B]"
                 />
                 <span className="flex items-center gap-1">
-                  <Sparkles className="w-3.5 h-3.5 text-[#F0B90B]" />
+                  <Sparkles className="w-3.5 h-3.5 text-gold" />
                   Enable Positive Rollover
                 </span>
               </label>
 
-              <label className="flex items-center gap-2 text-xs text-slate-300 cursor-pointer">
+              <label className="flex items-center gap-2 text-xs text-main cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isFlexible}
                   onChange={(e) => setIsFlexible(e.target.checked)}
-                  className="rounded border-[#2b313a] text-[#F0B90B] focus:ring-[#F0B90B] accent-[#F0B90B]"
+                  className="rounded border-[var(--border)] text-gold focus:ring-[#F0B90B] accent-[#F0B90B]"
                 />
                 <span>Flexible Budget (funds Safe-to-Spend & Daily Allowance)</span>
               </label>
 
               {rolloverEnabled && (
                 <div>
-                  <label className="block text-xs text-slate-400 mb-1">
+                  <label className="block text-xs text-muted mb-1">
                     Rollover Cap (Optional max limit)
                   </label>
                   <input
@@ -205,17 +205,17 @@ export const CreateBudgetDialog: React.FC<CreateBudgetDialogProps> = ({
                     placeholder="e.g. 50.00"
                     value={rolloverCap}
                     onChange={(e) => setRolloverCap(e.target.value)}
-                    className="w-full bg-[#0b0e11] border border-[#2b313a] rounded-lg px-3 py-2 text-sm text-white font-mono focus:outline-none focus:border-[#F0B90B]"
+                    className="w-full bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-main font-mono focus:outline-none focus:border-[var(--accent)]"
                   />
                 </div>
               )}
             </div>
 
-            <div className="pt-4 flex justify-end gap-3 border-t border-[#2b313a]">
+            <div className="pt-4 flex justify-end gap-3 border-t border-[var(--border)]">
               <Dialog.Close asChild>
                 <button
                   type="button"
-                  className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white rounded-lg transition-colors"
+                  className="px-4 py-2 text-xs font-medium text-muted hover:text-main rounded-lg transition-colors"
                 >
                   Cancel
                 </button>

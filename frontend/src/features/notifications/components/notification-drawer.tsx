@@ -71,13 +71,13 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
       case "budget":
         return <AlertTriangle className="w-4 h-4 text-warning" />;
       case "bill":
-        return <Receipt className="w-4 h-4 text-primary" />;
+        return <Receipt className="w-4 h-4 text-[var(--accent)]" />;
       case "savings":
         return <PiggyBank className="w-4 h-4 text-emerald-500" />;
       case "security":
-        return <ShieldAlert className="w-4 h-4 text-destructive" />;
+        return <ShieldAlert className="w-4 h-4 text-[var(--negative)]" />;
       default:
-        return <Info className="w-4 h-4 text-muted-foreground" />;
+        return <Info className="w-4 h-4 text-[var(--text-muted)]" />;
     }
   };
 
@@ -85,7 +85,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
     switch (severity) {
       case "critical":
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-destructive/10 text-destructive border border-destructive/20">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[var(--negative-bg)]/10 text-[var(--negative)] border border-destructive/20">
             <AlertCircle className="w-3 h-3" /> Critical
           </span>
         );
@@ -97,7 +97,7 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20">
+          <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-semibold bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">
             <Info className="w-3 h-3" /> Info
           </span>
         );
@@ -123,25 +123,25 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 backdrop-blur-xs animate-in fade-in" />
         <Dialog.Content
-          className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-card text-card-foreground shadow-2xl z-50 border-l border-border flex flex-col animate-in slide-in-from-right duration-200"
+          className="fixed right-0 top-0 bottom-0 w-full max-w-md bg-[var(--surface)] text-card-foreground shadow-2xl z-50 border-l border-[var(--border)] flex flex-col animate-in slide-in-from-right duration-200"
           aria-describedby="notification-drawer-description"
         >
           {/* Header */}
-          <div className="p-4 border-b border-border flex items-center justify-between">
+          <div className="p-4 border-b border-[var(--border)] flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+              <div className="w-8 h-8 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center text-[var(--accent)]">
                 <Bell className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
                   <Dialog.Title className="text-base font-semibold">Notifications</Dialog.Title>
                   {unreadCount > 0 && (
-                    <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-primary text-primary-foreground">
+                    <span className="px-2 py-0.5 text-xs font-bold rounded-full bg-[var(--accent)] text-[var(--accent)]-foreground">
                       {unreadCount} new
                     </span>
                   )}
                 </div>
-                <p id="notification-drawer-description" className="text-xs text-muted-foreground">
+                <p id="notification-drawer-description" className="text-xs text-[var(--text-muted)]">
                   Financial alerts, budget thresholds, and reminders
                 </p>
               </div>
@@ -153,21 +153,21 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                   type="button"
                   onClick={() => markAllReadMutation.mutate()}
                   disabled={markAllReadMutation.isPending}
-                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-md text-xs font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-colors cursor-pointer"
                   title="Mark all notifications as read"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
                   <span className="hidden sm:inline">Mark all read</span>
                 </button>
               )}
-              <Dialog.Close className="p-1.5 rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors cursor-pointer">
+              <Dialog.Close className="p-1.5 rounded-md text-[var(--text-muted)] hover:bg-[var(--surface-raised)] hover:text-[var(--text)] transition-colors cursor-pointer">
                 <X className="w-5 h-5" />
               </Dialog.Close>
             </div>
           </div>
 
           {/* Filter Pills */}
-          <div className="px-4 py-2 border-b border-border bg-muted/20 flex items-center gap-1.5 overflow-x-auto text-xs">
+          <div className="px-4 py-2 border-b border-[var(--border)] bg-[var(--surface-raised)]/20 flex items-center gap-1.5 overflow-x-auto text-xs">
             {(
               [
                 { id: "all", label: "All" },
@@ -184,8 +184,8 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                 onClick={() => setFilter(item.id)}
                 className={`px-2.5 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap cursor-pointer ${
                   filter === item.id
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                    ? "bg-[var(--accent)] text-[var(--accent)]-foreground shadow-xs"
+                    : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
                 }`}
               >
                 {item.label}
@@ -196,17 +196,17 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
           {/* List Area */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {isLoading ? (
-              <div className="flex flex-col items-center justify-center h-48 text-muted-foreground gap-2">
-                <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+              <div className="flex flex-col items-center justify-center h-48 text-[var(--text-muted)] gap-2">
+                <div className="w-6 h-6 border-2 border-[var(--accent)] border-t-transparent rounded-full animate-spin" />
                 <span className="text-xs">Loading alerts...</span>
               </div>
             ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-56 text-center text-muted-foreground px-4">
-                <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mb-3">
-                  <Bell className="w-6 h-6 text-muted-foreground/60" />
+              <div className="flex flex-col items-center justify-center h-56 text-center text-[var(--text-muted)] px-4">
+                <div className="w-12 h-12 rounded-full bg-[var(--surface-raised)]/50 flex items-center justify-center mb-3">
+                  <Bell className="w-6 h-6 text-[var(--text-muted)]/60" />
                 </div>
-                <h4 className="text-sm font-semibold text-foreground">You're all caught up</h4>
-                <p className="text-xs text-muted-foreground mt-1 max-w-xs">
+                <h4 className="text-sm font-semibold text-[var(--text)]">You're all caught up</h4>
+                <p className="text-xs text-[var(--text-muted)] mt-1 max-w-xs">
                   {filter === "unread"
                     ? "No unread notifications at this time."
                     : "No notifications matching this filter."}
@@ -218,36 +218,36 @@ export const NotificationDrawer: React.FC<NotificationDrawerProps> = ({
                   key={notif.id}
                   className={`p-3.5 rounded-xl border transition-all ${
                     notif.read_at
-                      ? "bg-card/40 border-border/60 opacity-80"
-                      : "bg-card border-primary/20 shadow-xs hover:border-primary/40"
+                      ? "bg-[var(--surface)]/40 border-[var(--border)]/60 opacity-80"
+                      : "bg-[var(--surface)] border-[var(--accent)]/20 shadow-xs hover:border-[var(--accent)]/40"
                   }`}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5 flex-1">
-                      <div className="mt-0.5 p-1 rounded-md bg-muted/60">
+                      <div className="mt-0.5 p-1 rounded-md bg-[var(--surface-raised)]/60">
                         {getCategoryIcon(notif.category)}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap mb-1">
-                          <span className="text-xs font-semibold text-foreground truncate">
+                          <span className="text-xs font-semibold text-[var(--text)] truncate">
                             {notif.title}
                           </span>
                           {getSeverityBadge(notif.severity)}
                           {!notif.read_at && (
-                            <span className="w-2 h-2 rounded-full bg-primary" title="Unread" />
+                            <span className="w-2 h-2 rounded-full bg-[var(--accent)]" title="Unread" />
                           )}
                         </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
+                        <p className="text-xs text-[var(--text-muted)] leading-relaxed">
                           {notif.body}
                         </p>
-                        <div className="mt-2 flex items-center justify-between text-[11px] text-muted-foreground">
+                        <div className="mt-2 flex items-center justify-between text-[11px] text-[var(--text-muted)]">
                           <span>{formatDate(notif.created_at)}</span>
                           {!notif.read_at && (
                             <button
                               type="button"
                               onClick={() => markReadMutation.mutate(notif.id)}
                               disabled={markReadMutation.isPending}
-                              className="inline-flex items-center gap-1 text-primary hover:underline cursor-pointer"
+                              className="inline-flex items-center gap-1 text-[var(--accent)] hover:underline cursor-pointer"
                               title="Mark as read"
                             >
                               <Check className="w-3 h-3" /> Mark read

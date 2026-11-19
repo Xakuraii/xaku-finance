@@ -18,8 +18,8 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xs">
       <div className="overflow-x-auto">
-        <table className="w-full text-left text-sm">
-          <thead className="border-b border-[var(--border)] bg-[var(--surface-raised)] text-[11px] font-medium text-muted uppercase tracking-wider">
+        <table className="w-full text-left text-sm min-w-[650px]">
+          <thead className="border-b border-[var(--border)] bg-[var(--surface-raised)] text-xs font-medium text-[var(--text-muted)]">
             <tr>
               <th className="py-3 px-4">Date</th>
               <th className="py-3 px-4">Title / Merchant</th>
@@ -94,15 +94,15 @@ export const TransactionsTable: React.FC<TransactionsTableProps> = ({
 
                     <td className="py-3 px-4">
                       {tx.status === "pending" ? (
-                        <span className="inline-flex text-[10px] rounded bg-amber-950/40 border border-amber-800 px-1.5 py-0.5 text-warning font-medium">
+                        <span className="inline-flex text-[10px] rounded bg-[var(--warning-bg)] border border-[var(--warning-border)] px-2 py-0.5 text-[var(--warning)] font-medium">
                           Pending
                         </span>
                       ) : tx.status === "cancelled" ? (
-                        <span className="inline-flex text-[10px] rounded bg-gray-900 border border-gray-800 px-1.5 py-0.5 text-faint">
+                        <span className="inline-flex text-[10px] rounded bg-[var(--surface-raised)] border border-[var(--border)] px-2 py-0.5 text-faint">
                           Cancelled
                         </span>
                       ) : (
-                        <span className="inline-flex text-[10px] rounded bg-green-950/30 border border-green-900/50 px-1.5 py-0.5 text-positive font-medium">
+                        <span className="inline-flex text-[10px] rounded bg-[var(--positive-bg)] border border-[var(--positive-border)] px-2 py-0.5 text-[var(--positive)] font-medium">
                           Completed
                         </span>
                       )}

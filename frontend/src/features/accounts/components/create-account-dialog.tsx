@@ -84,7 +84,7 @@ export const CreateAccountDialog: React.FC<CreateAccountDialogProps> = ({
         </div>
 
         {errorMessage && (
-          <div className="mb-4 flex items-center gap-2 rounded bg-red-950/50 border border-red-800 p-3 text-sm text-red-200">
+          <div className="mb-4 flex items-center gap-2 rounded bg-[var(--negative-bg)] border border-[var(--negative-border)] p-3 text-sm text-[var(--negative)]">
             <AlertCircle className="w-4 h-4 shrink-0 text-negative" />
             <span>{errorMessage}</span>
           </div>

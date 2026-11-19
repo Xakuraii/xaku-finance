@@ -72,7 +72,7 @@ export const TransactionsPage: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           <Filter className="w-3.5 h-3.5 text-muted" />
           <select
             value={accountId}

@@ -48,7 +48,7 @@ export const DebtCard: React.FC<DebtCardProps> = ({
       data-testid={`debt-card-${liability.id}`}
       className={`rounded-xl border p-5 text-main shadow-xs relative overflow-hidden transition-all ${
         isArchived
-          ? "border-[var(--border)] opacity-60 bg-[var(--surface-muted)]"
+          ? "border-[var(--border)] opacity-60 bg-[var(--surface-raised)]"
           : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--border-strong)]"
       }`}
     >
@@ -60,19 +60,19 @@ export const DebtCard: React.FC<DebtCardProps> = ({
             {isPaidOff && (
               <span
                 data-testid="paid-off-pill"
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--positive-bg)] text-[var(--positive)] border border-[var(--positive-border)]"
               >
                 <Sparkles className="w-3 h-3" />
                 Paid Off
               </span>
             )}
             {liability.interest_rate && (
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--warning-bg)] text-[var(--warning)] border border-[var(--warning-border)]">
                 {parseFloat(liability.interest_rate)}% APR
               </span>
             )}
             {isArchived && (
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-700 text-zinc-300">
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-raised)] text-muted border border-[var(--border)]">
                 Archived
               </span>
             )}
@@ -117,7 +117,7 @@ export const DebtCard: React.FC<DebtCardProps> = ({
             <button
               onClick={() => archiveMutation.mutate()}
               title="Archive liability"
-              className="p-1.5 rounded-md hover:bg-[var(--surface-hover)] text-muted hover:text-red-400 transition-colors"
+              className="p-1.5 rounded-md hover:bg-[var(--surface-hover)] text-muted hover:text-[var(--negative)] transition-colors"
             >
               <Archive className="w-4 h-4" />
             </button>
@@ -144,9 +144,9 @@ export const DebtCard: React.FC<DebtCardProps> = ({
         </div>
 
         {/* Progress bar (Repaid %) */}
-        <div className="w-full h-2 rounded-full bg-[var(--surface-muted)] overflow-hidden">
+        <div className="w-full h-2 rounded-full bg-[var(--surface-raised)] overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all duration-500"
+            className="h-full bg-gradient-to-r from-[var(--positive)] to-[var(--positive)] transition-all duration-500"
             style={{ width: `${Math.min(100, liability.progress_percent)}%` }}
           />
         </div>

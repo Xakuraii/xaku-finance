@@ -111,22 +111,22 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 animate-fade-in" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-surface border border-border rounded-xl shadow-2xl p-6 z-50 focus:outline-none">
-          <div className="flex items-center justify-between pb-4 border-b border-border">
+        <Dialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg bg-[var(--surface)] border border-[var(--border)] rounded-xl shadow-2xl p-6 z-50 focus:outline-none">
+          <div className="flex items-center justify-between pb-4 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <Shield className="w-5 h-5 text-primary" />
-              <Dialog.Title className="text-lg font-semibold text-text-primary">
+              <Shield className="w-5 h-5 text-[var(--accent)]" />
+              <Dialog.Title className="text-lg font-semibold text-main">
                 Configure Emergency Fund
               </Dialog.Title>
             </div>
-            <Dialog.Close className="text-text-muted hover:text-text-primary p-1 rounded-md">
+            <Dialog.Close className="text-[var(--text-muted)] hover:text-main p-1 rounded-md">
               <X className="w-5 h-5" />
             </Dialog.Close>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4 pt-4">
             {errorMessage && (
-              <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg flex items-center gap-2 text-sm text-danger">
+              <div className="p-3 bg-danger/10 border border-danger/30 rounded-lg flex items-center gap-2 text-sm text-[var(--negative)]">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
               </div>
@@ -134,7 +134,7 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
 
             {/* Coverage Target in Months */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">
+              <label className="block text-sm font-medium text-muted mb-1">
                 Target Coverage (Months)
               </label>
               <div className="flex gap-2 mb-2">
@@ -145,8 +145,8 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                     onClick={() => setTargetMonths(m)}
                     className={`flex-1 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
                       targetMonths === m
-                        ? "bg-primary text-white border-primary"
-                        : "bg-surface-hover text-text-secondary border-border hover:border-text-muted"
+                        ? "bg-gold border-[var(--accent)]"
+                        : "bg-[var(--surface-raised)] text-muted border-[var(--border)] hover:border-text-muted"
                     }`}
                   >
                     {m} Months
@@ -159,17 +159,17 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                 max="60"
                 value={targetMonths}
                 onChange={(e) => setTargetMonths(parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 bg-surface-hover border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-primary"
+                className="w-full px-3 py-2 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg text-sm text-main focus:outline-none focus:border-[var(--accent)]"
               />
             </div>
 
             {/* Essential Expenses Calculation Source */}
-            <div className="p-3 bg-surface-hover/50 rounded-lg border border-border/60 space-y-2">
-              <label className="block text-sm font-medium text-text-primary">
+            <div className="p-3 bg-[var(--surface-raised)]/50 rounded-lg border border-[var(--border)]/60 space-y-2">
+              <label className="block text-sm font-medium text-main">
                 Monthly Essential Expenses Source
               </label>
               <div className="flex items-center gap-4 text-sm">
-                <label className="flex items-center gap-2 cursor-pointer text-text-secondary">
+                <label className="flex items-center gap-2 cursor-pointer text-muted">
                   <input
                     type="radio"
                     name="expense-source"
@@ -183,7 +183,7 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                 </label>
               </div>
               <div className="flex items-center gap-4 text-sm">
-                <label className="flex items-center gap-2 cursor-pointer text-text-secondary">
+                <label className="flex items-center gap-2 cursor-pointer text-muted">
                   <input
                     type="radio"
                     name="expense-source"
@@ -204,9 +204,9 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                     placeholder="e.g. 500.00"
                     value={overrideAmount}
                     onChange={(e) => setOverrideAmount(e.target.value)}
-                    className="w-full px-3 py-2 bg-surface border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-primary"
+                    className="w-full px-3 py-2 bg-[var(--surface)] border border-[var(--border)] rounded-lg text-sm text-main focus:outline-none focus:border-[var(--accent)]"
                   />
-                  <p className="text-xs text-text-muted mt-1">
+                  <p className="text-xs text-[var(--text-muted)] mt-1">
                     Explicitly override computed essential spending with your own baseline.
                   </p>
                 </div>
@@ -215,7 +215,7 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
 
             {/* Designated Source */}
             <div>
-              <label className="block text-sm font-medium text-text-secondary mb-1">
+              <label className="block text-sm font-medium text-muted mb-1">
                 Backing Savings Source
               </label>
               <div className="grid grid-cols-3 gap-2 mb-2">
@@ -224,8 +224,8 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                   onClick={() => setSourceType("account")}
                   className={`py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
                     sourceType === "account"
-                      ? "bg-primary text-white border-primary"
-                      : "bg-surface-hover text-text-secondary border-border"
+                      ? "bg-gold border-[var(--accent)]"
+                      : "bg-[var(--surface-raised)] text-muted border-[var(--border)]"
                   }`}
                 >
                   Bank Account
@@ -235,8 +235,8 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                   onClick={() => setSourceType("goal")}
                   className={`py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
                     sourceType === "goal"
-                      ? "bg-primary text-white border-primary"
-                      : "bg-surface-hover text-text-secondary border-border"
+                      ? "bg-gold border-[var(--accent)]"
+                      : "bg-[var(--surface-raised)] text-muted border-[var(--border)]"
                   }`}
                 >
                   Savings Goal
@@ -246,8 +246,8 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                   onClick={() => setSourceType("none")}
                   className={`py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
                     sourceType === "none"
-                      ? "bg-primary text-white border-primary"
-                      : "bg-surface-hover text-text-secondary border-border"
+                      ? "bg-gold border-[var(--accent)]"
+                      : "bg-[var(--surface-raised)] text-muted border-[var(--border)]"
                   }`}
                 >
                   None
@@ -258,7 +258,7 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                 <select
                   value={designatedAccountId}
                   onChange={(e) => setDesignatedAccountId(e.target.value)}
-                  className="w-full px-3 py-2 bg-surface-hover border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-primary"
+                  className="w-full px-3 py-2 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg text-sm text-main focus:outline-none focus:border-[var(--accent)]"
                 >
                   {activeAccounts.map((a) => (
                     <option key={a.id} value={a.id}>
@@ -272,7 +272,7 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
                 <select
                   value={designatedGoalId}
                   onChange={(e) => setDesignatedGoalId(e.target.value)}
-                  className="w-full px-3 py-2 bg-surface-hover border border-border rounded-lg text-sm text-text-primary focus:outline-none focus:border-primary"
+                  className="w-full px-3 py-2 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg text-sm text-main focus:outline-none focus:border-[var(--accent)]"
                 >
                   {activeGoals.map((g) => (
                     <option key={g.id} value={g.id}>
@@ -283,18 +283,18 @@ export const EmergencyConfigDialog: React.FC<EmergencyConfigDialogProps> = ({
               )}
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t border-border">
+            <div className="flex justify-end gap-2 pt-4 border-t border-[var(--border)]">
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="px-4 py-2 text-sm text-text-secondary hover:text-text-primary transition-colors"
+                className="px-4 py-2 text-sm text-muted hover:text-main transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={mutation.isPending}
-                className="px-4 py-2 text-sm bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="px-4 py-2 text-sm bg-gold rounded-lg hover:bg-[var(--accent)]/90 transition-colors disabled:opacity-50"
               >
                 {mutation.isPending ? "Saving..." : "Save Configuration"}
               </button>
