@@ -10,20 +10,27 @@
   --text-muted: #64748b;
   --text-faint: #94a3b8;
 
-  --accent: #d97706;
-  --accent-hover: #b45309;
-  --accent-press: #92400e;
-  --accent-fill: #f59e0b;
-  --on-accent: #ffffff;
+  /* Accent: signature gold button with dark text */
+  --accent: #f0b90b;
+  --accent-hover: #e0ac00;
+  --accent-press: #c79800;
+  --accent-fill: #f0b90b;
+  --accent-text: #b45309; /* Deep rich golden amber for text on light backgrounds */
+  --on-accent: #0f172a;
 
   --positive: #059669;
   --positive-bg: #ecfdf5;
-  --negative: #dc2626;
-  --negative-bg: #fef2f2;
+  --positive-border: #a7f3d0;
+  --negative: #e11d48;
+  --negative-bg: #fff1f2;
+  --negative-border: #fecdd3;
   --warning: #d97706;
   --warning-bg: #fffbeb;
-  --info: #2563eb;
-  --focus: #f59e0b;
+  --warning-border: #fde68a;
+  --info: #0284c7;
+  --info-bg: #f0f9ff;
+  --info-border: #bae6fd;
+  --focus: #f0b90b;
 
   --font-serif: "Fraunces", Georgia, serif;
   --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -38,22 +45,28 @@ html.dark,
   --surface-hover: #222933;
   --border: #262d36;
   --border-strong: #3a4450;
-  --text: #f2f0ea;
-  --text-muted: #9aa3ae;
-  --text-faint: #6b7480;
+  --text: #f3f4f6;
+  --text-muted: #9ca3af;
+  --text-faint: #6b7280;
 
   --accent: #f0b90b;
   --accent-hover: #ffd34e;
   --accent-press: #d9a600;
   --accent-fill: #f0b90b;
-  --on-accent: #14171c;
+  --accent-text: #f0b90b; /* Bright gold on dark backgrounds */
+  --on-accent: #0b0e11;
 
-  --positive: #2ebd85;
-  --positive-bg: rgba(46, 189, 133, 0.1);
-  --negative: #f0616d;
-  --negative-bg: rgba(240, 97, 109, 0.1);
-  --warning: #e8a33d;
-  --warning-bg: rgba(232, 163, 61, 0.1);
-  --info: #6ea8fe;
+  --positive: #10b981;
+  --positive-bg: rgba(16, 185, 129, 0.12);
+  --positive-border: rgba(16, 185, 129, 0.25);
+  --negative: #f43f5e;
+  --negative-bg: rgba(244, 63, 94, 0.12);
+  --negative-border: rgba(244, 63, 94, 0.25);
+  --warning: #f59e0b;
+  --warning-bg: rgba(245, 158, 11, 0.12);
+  --warning-border: rgba(245, 158, 11, 0.25);
+  --info: #38bdf8;
+  --info-bg: rgba(56, 189, 248, 0.12);
+  --info-border: rgba(56, 189, 248, 0.25);
   --focus: #f0b90b;
 }
