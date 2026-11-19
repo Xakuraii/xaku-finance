@@ -48,7 +48,7 @@ export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({
       data-testid={`savings-goal-card-${goal.id}`}
       className={`rounded-xl border p-5 text-main shadow-xs relative overflow-hidden transition-all ${
         isArchived
-          ? "border-[var(--border)] opacity-60 bg-[var(--surface-muted)]"
+          ? "border-[var(--border)] opacity-60 bg-[var(--surface-raised)]"
           : "border-[var(--border)] bg-[var(--surface)] hover:border-[var(--border-strong)]"
       }`}
     >
@@ -60,7 +60,7 @@ export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({
             {isAchieved && (
               <span
                 data-testid="achieved-pill"
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--positive-bg)] text-[var(--positive)] border border-[var(--positive-border)]"
               >
                 <Sparkles className="w-3 h-3" />
                 Achieved
@@ -69,13 +69,13 @@ export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({
             {goal.is_overfunded && (
               <span
                 data-testid="overfunded-pill"
-                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-[#F0B90B]/10 text-[#F0B90B] border border-[#F0B90B]/30"
+                className="inline-flex items-center gap-1 text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--warning-bg)] text-[var(--warning)] border border-[var(--warning-border)]"
               >
                 +{(goal.overfunded_amount_minor / 100).toFixed(2)} Over
               </span>
             )}
             {isArchived && (
-              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-zinc-700 text-zinc-300">
+              <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface-raised)] text-muted border border-[var(--border)]">
                 Archived
               </span>
             )}
@@ -120,7 +120,7 @@ export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({
             <button
               onClick={() => archiveMutation.mutate()}
               title="Archive goal (releases earmarks)"
-              className="p-1.5 rounded-md hover:bg-[var(--surface-hover)] text-muted hover:text-red-400 transition-colors"
+              className="p-1.5 rounded-md hover:bg-[var(--surface-hover)] text-muted hover:text-[var(--negative)] transition-colors"
             >
               <Archive className="w-4 h-4" />
             </button>
@@ -141,12 +141,12 @@ export const SavingsGoalCard: React.FC<SavingsGoalCardProps> = ({
         </div>
 
         {/* Progress bar */}
-        <div className="w-full h-2.5 rounded-full bg-[var(--surface-muted)] overflow-hidden">
+        <div className="w-full h-2.5 rounded-full bg-[var(--surface-raised)] overflow-hidden">
           <div
             className={`h-full transition-all duration-500 ${
               isAchieved
-                ? "bg-gradient-to-r from-emerald-500 to-emerald-400"
-                : "bg-gradient-to-r from-[#F0B90B] to-[#FCD535]"
+                ? "bg-gradient-to-r from-[var(--positive)] to-[var(--positive)]"
+                : "bg-gradient-to-r from-[var(--accent)] to-[var(--accent)]"
             }`}
             style={{ width: `${Math.min(100, goal.progress_percent)}%` }}
           />

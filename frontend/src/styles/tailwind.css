@@ -40,10 +40,14 @@ body {
   background-color: var(--surface-raised);
 }
 
+.bg-surface-hover {
+  background-color: var(--surface-hover);
+}
+
 /* Accent */
 .bg-gold {
   background-color: var(--accent);
-  color: var(--on-accent);
+  color: var(--on-accent) !important;
 }
 
 .bg-gold:hover {
@@ -51,7 +55,7 @@ body {
 }
 
 .text-gold {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .border-gold {
@@ -77,6 +81,39 @@ body {
 
 .text-negative {
   color: var(--negative);
+}
+
+.text-warning {
+  color: var(--warning);
+}
+
+.text-info {
+  color: var(--info);
+}
+
+/* Status backgrounds */
+.bg-positive-subtle {
+  background-color: var(--positive-bg);
+  border-color: var(--positive-border);
+  color: var(--positive);
+}
+
+.bg-negative-subtle {
+  background-color: var(--negative-bg);
+  border-color: var(--negative-border);
+  color: var(--negative);
+}
+
+.bg-warning-subtle {
+  background-color: var(--warning-bg);
+  border-color: var(--warning-border);
+  color: var(--warning);
+}
+
+.bg-info-subtle {
+  background-color: var(--info-bg);
+  border-color: var(--info-border);
+  color: var(--info);
 }
 
 /* AnimatedThemeToggler View Transitions API styles */

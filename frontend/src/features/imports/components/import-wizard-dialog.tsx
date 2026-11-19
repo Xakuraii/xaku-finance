@@ -121,29 +121,29 @@ export const ImportWizardDialog: React.FC<ImportWizardDialogProps> = ({
     <Dialog.Root open={open} onOpenChange={(val) => { onOpenChange(val); if (!val) resetAll(); }}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 animate-fade-in" />
-        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl rounded-2xl border border-[#2b313a] bg-[#181a20] p-6 shadow-2xl z-50 text-white animate-scale-in">
+        <Dialog.Content className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-xl rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-2xl z-50 text-main animate-scale-in">
           {/* Header */}
-          <div className="flex items-center justify-between pb-3 border-b border-[#2b313a]">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
             <div>
-              <Dialog.Title className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                <UploadCloud className="w-5 h-5 text-[#F0B90B]" />
+              <Dialog.Title className="text-lg font-bold text-main flex items-center gap-2">
+                <UploadCloud className="w-5 h-5 text-gold" />
                 Import Transactions (CSV)
               </Dialog.Title>
-              <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
-                <span className={step >= 1 ? "text-[#F0B90B] font-semibold" : ""}>1. File</span>
+              <div className="flex items-center gap-2 mt-1 text-xs text-muted">
+                <span className={step >= 1 ? "text-gold font-semibold" : ""}>1. File</span>
                 <span>→</span>
-                <span className={step >= 2 ? "text-[#F0B90B] font-semibold" : ""}>2. Mapping</span>
+                <span className={step >= 2 ? "text-gold font-semibold" : ""}>2. Mapping</span>
                 <span>→</span>
-                <span className={step >= 3 ? "text-[#F0B90B] font-semibold" : ""}>3. Duplicate Review</span>
+                <span className={step >= 3 ? "text-gold font-semibold" : ""}>3. Duplicate Review</span>
                 <span>→</span>
-                <span className={step >= 4 ? "text-[#F0B90B] font-semibold" : ""}>4. Done</span>
+                <span className={step >= 4 ? "text-gold font-semibold" : ""}>4. Done</span>
               </div>
             </div>
 
             <Dialog.Close asChild>
               <button
                 type="button"
-                className="text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
+                className="text-muted hover:text-main p-1 rounded-lg transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -152,7 +152,7 @@ export const ImportWizardDialog: React.FC<ImportWizardDialogProps> = ({
 
           <div className="mt-4">
             {errorMessage && (
-              <div className="mb-4 p-3 text-xs bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg">
+              <div className="mb-4 p-3 text-xs bg-[var(--negative-bg)] border border-[var(--negative-border)] text-[var(--negative)] rounded-lg">
                 {errorMessage}
               </div>
             )}
@@ -161,13 +161,13 @@ export const ImportWizardDialog: React.FC<ImportWizardDialogProps> = ({
             {step === 1 && (
               <div className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-main mb-1">
                     Target Account
                   </label>
                   <select
                     value={selectedAccountId}
                     onChange={(e) => setSelectedAccountId(e.target.value)}
-                    className="w-full bg-[#0b0e11] border border-[#2b313a] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#F0B90B]"
+                    className="w-full bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-main focus:outline-none focus:border-[var(--accent)]"
                   >
                     {spendableAccounts.map((a) => (
                       <option key={a.id} value={a.id}>
@@ -178,34 +178,34 @@ export const ImportWizardDialog: React.FC<ImportWizardDialogProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1">
+                  <label className="block text-xs font-medium text-main mb-1">
                     Select CSV Statement
                   </label>
-                  <div className="border-2 border-dashed border-[#2b313a] hover:border-[#F0B90B] rounded-xl p-6 text-center cursor-pointer bg-[#0b0e11]/60 transition-all relative">
+                  <div className="border-2 border-dashed border-[var(--border)] hover:border-[#F0B90B] rounded-xl p-6 text-center cursor-pointer bg-[var(--surface-raised)]/60 transition-all relative">
                     <input
                       type="file"
                       accept=".csv,text/csv"
                       onChange={handleFileSelect}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                     />
-                    <FileText className="w-8 h-8 mx-auto mb-2 text-[#F0B90B]" />
+                    <FileText className="w-8 h-8 mx-auto mb-2 text-gold" />
                     {file ? (
                       <div>
-                        <p className="text-sm font-semibold text-slate-200">{file.name}</p>
-                        <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>
+                        <p className="text-sm font-semibold text-main">{file.name}</p>
+                        <p className="text-xs text-faint">{(file.size / 1024).toFixed(1)} KB</p>
                       </div>
                     ) : (
                       <div>
-                        <p className="text-sm font-medium text-slate-200">
+                        <p className="text-sm font-medium text-main">
                           Click or drag and drop statement file
                         </p>
-                        <p className="text-xs text-slate-500">Supports standard CSV exports</p>
+                        <p className="text-xs text-faint">Supports standard CSV exports</p>
                       </div>
                     )}
                   </div>
                 </div>
 
-                <div className="flex justify-end pt-3 border-t border-[#2b313a]">
+                <div className="flex justify-end pt-3 border-t border-[var(--border)]">
                   <button
                     type="button"
                     disabled={!file}
@@ -222,9 +222,9 @@ export const ImportWizardDialog: React.FC<ImportWizardDialogProps> = ({
             {/* STEP 2: Column Mapping */}
             {step === 2 && (
               isUploading ? (
-                <div className="py-12 text-center text-slate-400">
+                <div className="py-12 text-center text-muted">
                   <div className="inline-block animate-spin rounded-full h-8 w-8 border-2 border-[#F0B90B] border-t-transparent mb-3" />
-                  <p className="text-sm font-medium text-slate-200">Staging records and checking for duplicates...</p>
+                  <p className="text-sm font-medium text-main">Staging records and checking for duplicates...</p>
                 </div>
               ) : (
                 <ColumnMappingStep
@@ -251,10 +251,10 @@ export const ImportWizardDialog: React.FC<ImportWizardDialogProps> = ({
             {step === 4 && job && (
               <div className="py-8 text-center space-y-3">
                 <CheckCircle2 className="w-12 h-12 mx-auto text-emerald-400" />
-                <h3 className="text-lg font-bold text-white">Import Complete!</h3>
-                <p className="text-sm text-slate-300">
+                <h3 className="text-lg font-bold text-main">Import Complete!</h3>
+                <p className="text-sm text-main">
                   Successfully imported{" "}
-                  <span className="font-bold text-[#F0B90B] font-mono">{job.imported_count}</span>{" "}
+                  <span className="font-bold text-gold font-mono">{job.imported_count}</span>{" "}
                   transactions into your account.
                 </p>
                 <div className="pt-4">

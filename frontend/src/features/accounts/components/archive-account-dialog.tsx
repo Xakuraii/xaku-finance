@@ -83,7 +83,7 @@ export const ArchiveAccountDialog: React.FC<ArchiveAccountDialogProps> = ({
         </div>
 
         {errorMessage && (
-          <div className="mb-4 rounded bg-red-950/50 border border-red-800 p-3 text-sm text-red-200">
+          <div className="mb-4 rounded bg-[var(--negative-bg)] border border-[var(--negative-border)] p-3 text-sm text-[var(--negative)]">
             {errorMessage}
           </div>
         )}
@@ -95,7 +95,7 @@ export const ArchiveAccountDialog: React.FC<ArchiveAccountDialogProps> = ({
           </p>
 
           {hasNonZeroBalance && (
-            <div className="rounded border border-amber-800/60 bg-amber-950/30 p-3 space-y-2">
+            <div className="rounded border border-[var(--warning-border)] bg-[var(--warning-bg)] p-3 space-y-2">
               <div className="flex items-center justify-between text-xs">
                 <span className="text-warning font-medium">Current Balance:</span>
                 <MoneyDisplay

@@ -216,8 +216,8 @@ export const SettingsPage: React.FC = () => {
     <div className="max-w-5xl mx-auto px-4 py-8 space-y-8 animate-in fade-in duration-150">
       {/* Page Title */}
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-foreground">Settings & Preferences</h1>
-        <p className="text-sm text-muted-foreground mt-1">
+        <h1 className="text-2xl font-bold tracking-tight text-[var(--text)]">Settings & Preferences</h1>
+        <p className="text-sm text-[var(--text-muted)] mt-1">
           Manage your personal profile, workspace defaults, and delivery preferences.
         </p>
       </div>
@@ -229,7 +229,7 @@ export const SettingsPage: React.FC = () => {
           className={`p-4 rounded-xl flex items-center justify-between text-sm ${
             feedback.type === "success"
               ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-              : "bg-destructive/10 text-destructive border border-destructive/20"
+              : "bg-[var(--negative-bg)]/10 text-[var(--negative)] border border-[var(--negative)]/20"
           }`}
         >
           <div className="flex items-center gap-2">
@@ -251,14 +251,14 @@ export const SettingsPage: React.FC = () => {
       )}
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-border pb-3">
+      <div className="flex items-center gap-2 border-b border-[var(--border)] pb-3 overflow-x-auto max-w-full">
         <button
           type="button"
           onClick={() => setActiveTab("profile")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "profile"
-              ? "bg-primary text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-xs"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
           }`}
         >
           <User className="w-4 h-4" />
@@ -268,10 +268,10 @@ export const SettingsPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("workspace")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "workspace"
-              ? "bg-primary text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-xs"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
           }`}
         >
           <Building className="w-4 h-4" />
@@ -281,10 +281,10 @@ export const SettingsPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("security")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "security"
-              ? "bg-primary text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-xs"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
           }`}
         >
           <Shield className="w-4 h-4" />
@@ -294,10 +294,10 @@ export const SettingsPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("privacy")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "privacy"
-              ? "bg-primary text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-xs"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
           }`}
         >
           <FileText className="w-4 h-4" />
@@ -307,10 +307,10 @@ export const SettingsPage: React.FC = () => {
         <button
           type="button"
           onClick={() => setActiveTab("notifications")}
-          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer whitespace-nowrap shrink-0 ${
             activeTab === "notifications"
-              ? "bg-primary text-primary-foreground shadow-xs"
-              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              ? "bg-[var(--accent)] text-[var(--on-accent)] shadow-xs"
+              : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
           }`}
         >
           <Bell className="w-4 h-4" />
@@ -321,13 +321,13 @@ export const SettingsPage: React.FC = () => {
       {/* TAB CONTENT: PROFILE */}
       {activeTab === "profile" && (
         <form onSubmit={handleProfileSubmit} className="space-y-6 max-w-xl">
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-4">
             <h2 className="text-base font-semibold flex items-center gap-2">
-              <User className="w-4 h-4 text-primary" /> Personal Profile
+              <User className="w-4 h-4 text-[var(--accent)]" /> Personal Profile
             </h2>
 
             <div>
-              <label htmlFor="display_name" className="block text-xs font-medium text-muted-foreground mb-1">
+              <label htmlFor="display_name" className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                 Display Name
               </label>
               <input
@@ -336,12 +336,12 @@ export const SettingsPage: React.FC = () => {
                 value={profileForm.display_name ?? ""}
                 onChange={(e) => setProfileForm({ ...profileForm, display_name: e.target.value })}
                 required
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-background text-[var(--text)] text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
               />
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-xs font-medium text-muted-foreground mb-1">
+              <label htmlFor="email" className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                 Account Email
               </label>
               <input
@@ -349,16 +349,16 @@ export const SettingsPage: React.FC = () => {
                 type="email"
                 value={meData?.email ?? ""}
                 disabled
-                className="w-full px-3 py-2 rounded-lg border border-border bg-muted/40 text-muted-foreground text-sm cursor-not-allowed"
+                className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)]/40 text-[var(--text-muted)] text-sm cursor-not-allowed"
               />
-              <span className="text-[11px] text-muted-foreground mt-1 block">
+              <span className="text-[11px] text-[var(--text-muted)] mt-1 block">
                 {meData?.is_email_verified ? "Verified email address" : "Email pending verification"}
               </span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="timezone" className="block text-xs font-medium text-muted-foreground mb-1">
+                <label htmlFor="timezone" className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                   Timezone
                 </label>
                 <input
@@ -366,12 +366,12 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   value={profileForm.timezone ?? ""}
                   onChange={(e) => setProfileForm({ ...profileForm, timezone: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-background text-[var(--text)] text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div>
-                <label htmlFor="locale" className="block text-xs font-medium text-muted-foreground mb-1">
+                <label htmlFor="locale" className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                   Locale
                 </label>
                 <input
@@ -379,13 +379,13 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   value={profileForm.locale ?? ""}
                   onChange={(e) => setProfileForm({ ...profileForm, locale: e.target.value })}
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-background text-[var(--text)] text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
               </div>
             </div>
 
             <div className="pt-2">
-              <label className="block text-xs font-medium text-muted-foreground mb-2">
+              <label className="block text-xs font-medium text-[var(--text-muted)] mb-2">
                 Color Theme
               </label>
               <ThemeToggle
@@ -398,7 +398,7 @@ export const SettingsPage: React.FC = () => {
           <button
             type="submit"
             disabled={updateMeMutation.isPending || isMeLoading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--on-accent)] text-sm font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{updateMeMutation.isPending ? "Saving..." : "Save Profile"}</span>
@@ -410,13 +410,13 @@ export const SettingsPage: React.FC = () => {
       {activeTab === "workspace" && (
         <div className="space-y-8 max-w-3xl">
           <form onSubmit={handleWsSubmit} className="space-y-6 max-w-xl">
-            <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+            <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-4">
               <h2 className="text-base font-semibold flex items-center gap-2">
-                <Building className="w-4 h-4 text-primary" /> Workspace Configuration
+                <Building className="w-4 h-4 text-[var(--accent)]" /> Workspace Configuration
               </h2>
 
               <div>
-                <label htmlFor="ws_name" className="block text-xs font-medium text-muted-foreground mb-1">
+                <label htmlFor="ws_name" className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                   Workspace Name
                 </label>
                 <input
@@ -425,13 +425,13 @@ export const SettingsPage: React.FC = () => {
                   value={wsForm.name ?? ""}
                   onChange={(e) => setWsForm({ ...wsForm, name: e.target.value })}
                   required
-                  className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-background text-[var(--text)] text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                 />
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="reporting_currency" className="block text-xs font-medium text-muted-foreground mb-1">
+                  <label htmlFor="reporting_currency" className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                     Reporting Currency
                   </label>
                   <input
@@ -441,22 +441,22 @@ export const SettingsPage: React.FC = () => {
                     onChange={(e) =>
                       setWsForm({ ...wsForm, reporting_currency: e.target.value.toUpperCase() })
                     }
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-hidden focus:ring-2 focus:ring-primary uppercase"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-background text-[var(--text)] text-sm focus:outline-hidden focus:ring-2 focus:ring-primary uppercase"
                   />
-                  <span className="text-[11px] text-muted-foreground mt-1 block">
+                  <span className="text-[11px] text-[var(--text-muted)] mt-1 block">
                     Base currency for analytics and net worth.
                   </span>
                 </div>
 
                 <div>
-                  <label htmlFor="week_start" className="block text-xs font-medium text-muted-foreground mb-1">
+                  <label htmlFor="week_start" className="block text-xs font-medium text-[var(--text-muted)] mb-1">
                     First Day of Week
                   </label>
                   <select
                     id="week_start"
                     value={wsForm.week_start ?? 1}
                     onChange={(e) => setWsForm({ ...wsForm, week_start: Number(e.target.value) })}
-                    className="w-full px-3 py-2 rounded-lg border border-border bg-background text-foreground text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
+                    className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-background text-[var(--text)] text-sm focus:outline-hidden focus:ring-2 focus:ring-primary"
                   >
                     <option value={1}>Monday (ISO)</option>
                     <option value={7}>Sunday</option>
@@ -469,7 +469,7 @@ export const SettingsPage: React.FC = () => {
             <button
               type="submit"
               disabled={updateWsMutation.isPending || isWsLoading}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--on-accent)] text-sm font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer disabled:opacity-50"
             >
               <Save className="w-4 h-4" />
               <span>{updateWsMutation.isPending ? "Saving..." : "Save Workspace"}</span>
@@ -478,34 +478,34 @@ export const SettingsPage: React.FC = () => {
 
           {/* Diagnostic Workspace Summary */}
           {summaryData && (
-            <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
-              <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
-                <Layers className="w-4 h-4 text-primary" /> Workspace Diagnostics
+            <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-4">
+              <h3 className="text-sm font-semibold flex items-center gap-2 text-[var(--text)]">
+                <Layers className="w-4 h-4 text-[var(--accent)]" /> Workspace Diagnostics
               </h3>
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-                <div className="p-3 rounded-xl bg-muted/30 border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Accounts</span>
-                  <span className="text-lg font-bold text-foreground">{summaryData.accounts_count}</span>
+                <div className="p-3 rounded-xl bg-[var(--surface-raised)]/30 border border-[var(--border)]">
+                  <span className="text-[11px] text-[var(--text-muted)] block">Accounts</span>
+                  <span className="text-lg font-bold text-[var(--text)]">{summaryData.accounts_count}</span>
                 </div>
-                <div className="p-3 rounded-xl bg-muted/30 border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Transactions</span>
-                  <span className="text-lg font-bold text-foreground">
+                <div className="p-3 rounded-xl bg-[var(--surface-raised)]/30 border border-[var(--border)]">
+                  <span className="text-[11px] text-[var(--text-muted)] block">Transactions</span>
+                  <span className="text-lg font-bold text-[var(--text)]">
                     {summaryData.transactions_count}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-muted/30 border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Budgets</span>
-                  <span className="text-lg font-bold text-foreground">{summaryData.budgets_count}</span>
+                <div className="p-3 rounded-xl bg-[var(--surface-raised)]/30 border border-[var(--border)]">
+                  <span className="text-[11px] text-[var(--text-muted)] block">Budgets</span>
+                  <span className="text-lg font-bold text-[var(--text)]">{summaryData.budgets_count}</span>
                 </div>
-                <div className="p-3 rounded-xl bg-muted/30 border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Savings Goals</span>
-                  <span className="text-lg font-bold text-foreground">
+                <div className="p-3 rounded-xl bg-[var(--surface-raised)]/30 border border-[var(--border)]">
+                  <span className="text-[11px] text-[var(--text-muted)] block">Savings Goals</span>
+                  <span className="text-lg font-bold text-[var(--text)]">
                     {summaryData.savings_goals_count}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-muted/30 border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Ledger Sequence</span>
-                  <span className="text-lg font-bold text-foreground">{summaryData.ledger_seq}</span>
+                <div className="p-3 rounded-xl bg-[var(--surface-raised)]/30 border border-[var(--border)]">
+                  <span className="text-[11px] text-[var(--text-muted)] block">Ledger Sequence</span>
+                  <span className="text-lg font-bold text-[var(--text)]">{summaryData.ledger_seq}</span>
                 </div>
               </div>
             </div>
@@ -517,13 +517,13 @@ export const SettingsPage: React.FC = () => {
       {activeTab === "security" && (
         <div className="space-y-6 max-w-2xl">
           {/* 2FA Card */}
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-5">
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-5">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-base font-semibold flex items-center gap-2">
-                  <Shield className="w-4 h-4 text-primary" /> Two-Factor Authentication (TOTP)
+                  <Shield className="w-4 h-4 text-[var(--accent)]" /> Two-Factor Authentication (TOTP)
                 </h2>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-[var(--text-muted)] mt-1">
                   Add an extra layer of protection to your workspace using an authenticator app (Google Authenticator, 1Password, etc.).
                 </p>
               </div>
@@ -542,8 +542,8 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             {meData?.two_factor_enabled ? (
-              <div className="space-y-4 pt-2 border-t border-border">
-                <p className="text-xs text-muted-foreground">
+              <div className="space-y-4 pt-2 border-t border-[var(--border)]">
+                <p className="text-xs text-[var(--text-muted)]">
                   Your account is protected with two-factor authentication. You will be prompted for a 6-digit one-time code each time you sign in.
                 </p>
 
@@ -551,31 +551,31 @@ export const SettingsPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsRecoveryOpen(true)}
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-raised)] text-xs font-medium text-[var(--text)] transition-colors cursor-pointer"
                   >
-                    <KeyRound className="w-3.5 h-3.5 text-primary" />
+                    <KeyRound className="w-3.5 h-3.5 text-[var(--accent)]" />
                     <span>Regenerate Recovery Codes</span>
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setIsDisableOpen(true)}
-                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-xs font-medium text-destructive transition-colors cursor-pointer"
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-[var(--negative)]/30 bg-[var(--negative-bg)]/5 hover:bg-[var(--negative-bg)]/10 text-xs font-medium text-[var(--negative)] transition-colors cursor-pointer"
                   >
                     <span>Disable 2FA</span>
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="space-y-4 pt-2 border-t border-border">
-                <p className="text-xs text-muted-foreground">
+              <div className="space-y-4 pt-2 border-t border-[var(--border)]">
+                <p className="text-xs text-[var(--text-muted)]">
                   When enabled, you will need your password and a verification code from your mobile device to sign in.
                 </p>
 
                 <button
                   type="button"
                   onClick={() => setIsSetupOpen(true)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer"
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--on-accent)] text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer"
                 >
                   <Shield className="w-3.5 h-3.5" />
                   <span>Enable Two-Factor Authentication</span>
@@ -585,11 +585,11 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Session & Password Policy Card */}
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
-            <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
-              <Lock className="w-4 h-4 text-primary" /> Security & Re-authentication Policy
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-[var(--text)]">
+              <Lock className="w-4 h-4 text-[var(--accent)]" /> Security & Re-authentication Policy
             </h3>
-            <div className="space-y-3 text-xs text-muted-foreground leading-relaxed">
+            <div className="space-y-3 text-xs text-[var(--text-muted)] leading-relaxed">
               <p>
                 • <strong>Step-Up Re-authentication:</strong> Sensitive operations such as exporting financial data, modifying two-factor settings, and requesting account deletion require confirming your password within the past 10 minutes.
               </p>
@@ -605,13 +605,13 @@ export const SettingsPage: React.FC = () => {
       {activeTab === "privacy" && (
         <div className="space-y-6 max-w-3xl">
           {/* Data Export Card */}
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-4">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h2 className="text-base font-semibold flex items-center gap-2">
-                  <Download className="w-4 h-4 text-primary" /> Data Export & Portability
+                  <Download className="w-4 h-4 text-[var(--accent)]" /> Data Export & Portability
                 </h2>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-[var(--text-muted)] mt-1">
                   Export your entire workspace data or select specific datasets in JSON or CSV format. Requires password re-authentication.
                 </p>
               </div>
@@ -619,7 +619,7 @@ export const SettingsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsExportOpen(true)}
-                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer shrink-0"
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-[var(--accent)] text-[var(--on-accent)] text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer shrink-0"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span>Export Data</span>
@@ -627,15 +627,15 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             {exportsList.length > 0 && (
-              <div className="space-y-2 pt-2 border-t border-border">
-                <span className="text-xs font-semibold text-foreground block">Recent Exports</span>
+              <div className="space-y-2 pt-2 border-t border-[var(--border)]">
+                <span className="text-xs font-semibold text-[var(--text)] block">Recent Exports</span>
                 <div className="divide-y divide-border">
                   {exportsList.map((job) => (
                     <div key={job.id} className="py-2.5 flex items-center justify-between text-xs">
                       <div>
-                        <span className="font-semibold text-foreground uppercase">{job.format}</span>
-                        <span className="text-muted-foreground ml-2 capitalize">({job.scope})</span>
-                        <span className="text-[11px] text-muted-foreground block">
+                        <span className="font-semibold text-[var(--text)] uppercase">{job.format}</span>
+                        <span className="text-[var(--text-muted)] ml-2 capitalize">({job.scope})</span>
+                        <span className="text-[11px] text-[var(--text-muted)] block">
                           {new Date(job.created_at).toLocaleDateString()} • {(job.file_size_bytes / 1024).toFixed(1)} KB
                         </span>
                       </div>
@@ -644,13 +644,13 @@ export const SettingsPage: React.FC = () => {
                         <a
                           href={job.download_url}
                           download
-                          className="px-3 py-1 rounded-lg border border-border bg-card hover:bg-muted font-medium text-foreground flex items-center gap-1 transition-colors"
+                          className="px-3 py-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-raised)] font-medium text-[var(--text)] flex items-center gap-1 transition-colors"
                         >
                           <Download className="w-3.5 h-3.5" />
                           <span>Download</span>
                         </a>
                       ) : (
-                        <span className="text-muted-foreground capitalize">{job.status}</span>
+                        <span className="text-[var(--text-muted)] capitalize">{job.status}</span>
                       )}
                     </div>
                   ))}
@@ -660,25 +660,25 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Transparency Data Map */}
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-4">
             <h2 className="text-base font-semibold flex items-center gap-2">
-              <FileText className="w-4 h-4 text-primary" /> Data Transparency Map
+              <FileText className="w-4 h-4 text-[var(--accent)]" /> Data Transparency Map
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-[var(--text-muted)]">
               What data we store, the purposes for which it is processed, and our retention schedules.
             </p>
 
             <div className="space-y-3 pt-2">
               {dataMap.map((item, i) => (
-                <div key={i} className="p-3.5 rounded-xl bg-muted/30 border border-border space-y-1.5 text-xs">
+                <div key={i} className="p-3.5 rounded-xl bg-[var(--surface-raised)]/30 border border-[var(--border)] space-y-1.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-semibold text-foreground">{item.category}</span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground font-mono">
+                    <span className="font-semibold text-[var(--text)]">{item.category}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-raised)] text-[var(--text-muted)] font-mono">
                       {item.lawful_basis}
                     </span>
                   </div>
-                  <p className="text-muted-foreground leading-relaxed">{item.description}</p>
-                  <div className="pt-1 text-[11px] text-primary flex items-center gap-1.5">
+                  <p className="text-[var(--text-muted)] leading-relaxed">{item.description}</p>
+                  <div className="pt-1 text-[11px] text-[var(--accent)] flex items-center gap-1.5">
                     <strong>Retention:</strong>
                     <span>{item.retention}</span>
                   </div>
@@ -688,14 +688,14 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           {/* Danger Zone: Account Deletion */}
-          <div className="bg-card p-6 rounded-2xl border border-destructive/30 shadow-xs space-y-4">
-            <h2 className="text-base font-semibold flex items-center gap-2 text-destructive">
-              <ShieldAlert className="w-4 h-4 text-destructive" /> Danger Zone: Account Deletion
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--negative)]/30 shadow-xs space-y-4">
+            <h2 className="text-base font-semibold flex items-center gap-2 text-[var(--negative)]">
+              <ShieldAlert className="w-4 h-4 text-[var(--negative)]" /> Danger Zone: Account Deletion
             </h2>
 
             {deletionRequest && deletionRequest.status === "requested" ? (
-              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30 space-y-3">
-                <div className="text-xs text-destructive space-y-1">
+              <div className="p-4 rounded-xl bg-[var(--negative-bg)]/10 border border-[var(--negative)]/30 space-y-3">
+                <div className="text-xs text-[var(--negative)] space-y-1">
                   <p className="font-semibold">Account Deletion Scheduled</p>
                   <p>
                     Your account and all workspace data are scheduled for permanent deletion on{" "}
@@ -711,14 +711,14 @@ export const SettingsPage: React.FC = () => {
                   type="button"
                   disabled={cancelDeletionMutation.isPending}
                   onClick={() => cancelDeletionMutation.mutate()}
-                  className="px-3.5 py-2 rounded-xl bg-card border border-destructive/40 text-xs font-semibold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50"
+                  className="px-3.5 py-2 rounded-xl bg-[var(--surface)] border border-[var(--negative)]/40 text-xs font-semibold text-[var(--negative)] hover:bg-[var(--negative-bg)]/10 transition-colors cursor-pointer disabled:opacity-50"
                 >
                   {cancelDeletionMutation.isPending ? "Cancelling..." : "Cancel Deletion Request"}
                 </button>
               </div>
             ) : (
               <div className="flex items-start justify-between gap-4">
-                <div className="text-xs text-muted-foreground space-y-1">
+                <div className="text-xs text-[var(--text-muted)] space-y-1">
                   <p>
                     Permanently delete your account, workspace, ledger, and all financial transactions.
                   </p>
@@ -730,7 +730,7 @@ export const SettingsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setIsDeleteOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-destructive text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+                  className="px-4 py-2 rounded-xl bg-[var(--negative)] text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
                 >
                   Delete Account
                 </button>
@@ -743,13 +743,13 @@ export const SettingsPage: React.FC = () => {
       {/* TAB CONTENT: NOTIFICATIONS */}
       {activeTab === "notifications" && (
         <form onSubmit={handlePrefsSubmit} className="space-y-6 max-w-2xl">
-          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+          <div className="bg-[var(--surface)] p-6 rounded-2xl border border-[var(--border)] shadow-xs space-y-4">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-semibold flex items-center gap-2">
-                  <Bell className="w-4 h-4 text-primary" /> Delivery Channels
+                  <Bell className="w-4 h-4 text-[var(--accent)]" /> Delivery Channels
                 </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="text-xs text-[var(--text-muted)] mt-0.5">
                   Configure how alerts reach you. Security warnings are locked for safety.
                 </p>
               </div>
@@ -760,20 +760,20 @@ export const SettingsPage: React.FC = () => {
                 <div key={pref.id} className="py-3 flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     {pref.category === "security" ? (
-                      <div className="p-2 rounded-lg bg-destructive/10 text-destructive">
+                      <div className="p-2 rounded-lg bg-[var(--negative-bg)]/10 text-[var(--negative)]">
                         <Lock className="w-4 h-4" />
                       </div>
                     ) : (
-                      <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                      <div className="p-2 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)]">
                         <Bell className="w-4 h-4" />
                       </div>
                     )}
                     <div>
-                      <span className="text-sm font-semibold capitalize text-foreground">
+                      <span className="text-sm font-semibold capitalize text-[var(--text)]">
                         {pref.category === "bill" ? "Bills & Recurring" : pref.category}
                       </span>
                       {pref.category === "security" && (
-                        <span className="block text-[11px] text-destructive font-medium">
+                        <span className="block text-[11px] text-[var(--negative)] font-medium">
                           Security notifications are locked to active
                         </span>
                       )}
@@ -781,23 +781,23 @@ export const SettingsPage: React.FC = () => {
                   </div>
 
                   <div className="flex items-center gap-6">
-                    <label className="flex items-center gap-2 text-xs font-medium text-foreground cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs font-medium text-[var(--text)] cursor-pointer">
                       <input
                         type="checkbox"
                         checked={pref.in_app}
                         disabled={pref.locked || pref.category === "security"}
                         onChange={() => handlePrefToggle(pref.category, "in_app")}
-                        className="rounded border-border text-primary focus:ring-primary w-4 h-4 disabled:opacity-60"
+                        className="rounded border-[var(--border)] text-[var(--accent)] focus:ring-primary w-4 h-4 disabled:opacity-60"
                       />
                       <span>In-App</span>
                     </label>
 
-                    <label className="flex items-center gap-2 text-xs font-medium text-foreground cursor-pointer">
+                    <label className="flex items-center gap-2 text-xs font-medium text-[var(--text)] cursor-pointer">
                       <input
                         type="checkbox"
                         checked={pref.email}
                         onChange={() => handlePrefToggle(pref.category, "email")}
-                        className="rounded border-border text-primary focus:ring-primary w-4 h-4"
+                        className="rounded border-[var(--border)] text-[var(--accent)] focus:ring-primary w-4 h-4"
                       />
                       <span>Email</span>
                     </label>
@@ -810,7 +810,7 @@ export const SettingsPage: React.FC = () => {
           <button
             type="submit"
             disabled={updatePrefsMutation.isPending || isPrefsLoading}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer disabled:opacity-50"
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--accent)] text-[var(--on-accent)] text-sm font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer disabled:opacity-50"
           >
             <Save className="w-4 h-4" />
             <span>{updatePrefsMutation.isPending ? "Saving..." : "Save Preferences"}</span>

@@ -65,7 +65,7 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
         </button>
 
         <div className="flex items-center gap-3 mb-4">
-          <div className="p-2.5 rounded-xl bg-destructive/10 border border-destructive/30 text-destructive">
+          <div className="p-2.5 rounded-xl bg-[var(--negative-bg)]/10 border border-destructive/30 text-[var(--negative)]">
             <ShieldAlert className="w-5 h-5" />
           </div>
           <div>
@@ -74,7 +74,7 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-destructive/10 border border-destructive/20 text-xs text-destructive space-y-2 mb-4 leading-relaxed">
+        <div className="p-3.5 rounded-xl bg-[var(--negative-bg)]/10 border border-destructive/20 text-xs text-[var(--negative)] space-y-2 mb-4 leading-relaxed">
           <p className="font-semibold">Important Consequences:</p>
           <ul className="list-disc pl-4 space-y-1 text-[11px]">
             <li>All accounts, transactions, budgets, goals, and debts will be permanently deleted after 7 days.</li>
@@ -85,8 +85,8 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
         </div>
 
         {error && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl bg-destructive/10 border border-destructive/20 p-3 text-xs text-destructive">
-            <AlertCircle className="w-4 h-4 shrink-0 text-destructive" />
+          <div className="mb-4 flex items-center gap-2 rounded-xl bg-[var(--negative-bg)]/10 border border-destructive/20 p-3 text-xs text-[var(--negative)]">
+            <AlertCircle className="w-4 h-4 shrink-0 text-[var(--negative)]" />
             <span>{error}</span>
           </div>
         )}
@@ -123,7 +123,7 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
 
           <div>
             <label className="block text-xs font-medium text-muted mb-1">
-              Type <strong className="text-destructive font-mono">DELETE</strong> to confirm
+              Type <strong className="text-[var(--negative)] font-mono">DELETE</strong> to confirm
             </label>
             <input
               type="text"
@@ -146,7 +146,7 @@ export const AccountDeletionDialog: React.FC<AccountDeletionDialogProps> = ({
             <button
               type="submit"
               disabled={isLoading || confirmText !== "DELETE" || !password}
-              className="px-4 py-2 rounded-xl bg-destructive text-xs font-semibold text-white hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-[var(--negative)] text-xs font-semibold text-white hover:opacity-90 transition-opacity cursor-pointer disabled:opacity-50"
             >
               {isLoading ? "Scheduling Deletion..." : "Schedule Account Deletion"}
             </button>

@@ -33,7 +33,7 @@ export const EmergencyFundPage: React.FC = () => {
   if (isStatusLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--accent)]" />
       </div>
     );
   }
@@ -41,11 +41,11 @@ export const EmergencyFundPage: React.FC = () => {
   if (isStatusError || !status) {
     return (
       <div className="p-8 text-center space-y-3">
-        <Shield className="w-10 h-10 text-danger mx-auto" />
-        <h2 className="text-lg font-bold text-text-primary">
+        <Shield className="w-10 h-10 text-[var(--negative)] mx-auto" />
+        <h2 className="text-lg font-bold text-main">
           Unable to Load Emergency Fund
         </h2>
-        <p className="text-sm text-text-muted">
+        <p className="text-sm text-[var(--text-muted)]">
           There was an error retrieving your emergency fund data.
         </p>
       </div>
@@ -56,10 +56,10 @@ export const EmergencyFundPage: React.FC = () => {
     <div className="space-y-8 max-w-5xl mx-auto py-4">
       {/* Top Banner & Header */}
       <div>
-        <h1 className="text-2xl font-bold text-text-primary">
+        <h1 className="text-2xl font-bold text-main">
           Emergency Fund Planner
         </h1>
-        <p className="text-sm text-text-muted mt-1">
+        <p className="text-sm text-[var(--text-muted)] mt-1">
           Maintain an airtight financial safety net calibrated to your essential living expenses.
         </p>
       </div>

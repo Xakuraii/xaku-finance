@@ -52,7 +52,7 @@ export const StatementSheet: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <label className="flex items-center gap-2 text-xs text-muted cursor-pointer select-none">
             <input
               type="checkbox"
@@ -118,8 +118,8 @@ export const StatementSheet: React.FC = () => {
       {/* Statement Table */}
       <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-[var(--border)] bg-[var(--surface-raised)] text-[11px] font-medium text-muted uppercase tracking-wider">
+          <table className="w-full text-left text-sm min-w-[620px]">
+            <thead className="border-b border-[var(--border)] bg-[var(--surface-raised)] text-xs font-medium text-[var(--text-muted)]">
               <tr>
                 <th className="py-3 px-4">Account Name</th>
                 <th className="py-3 px-4">Type</th>
@@ -157,7 +157,7 @@ export const StatementSheet: React.FC = () => {
                       <div className="font-medium text-main flex items-center gap-2">
                         {acc.name}
                         {acc.is_archived && (
-                          <span className="text-[10px] rounded bg-gray-800 border border-gray-700 px-1.5 py-0.5 text-faint">
+                          <span className="text-[10px] rounded bg-[var(--surface-raised)] border border-[var(--border)] px-1.5 py-0.5 text-faint">
                             Archived
                           </span>
                         )}

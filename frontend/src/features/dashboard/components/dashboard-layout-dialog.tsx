@@ -72,20 +72,20 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 bg-black/50 z-50 animate-in fade-in" />
         <Dialog.Content
-          className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-card text-card-foreground p-6 rounded-xl shadow-xl z-50 border border-border animate-in zoom-in-95 duration-150"
+          className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-[var(--surface)] text-card-foreground p-6 rounded-xl shadow-xl z-50 border border-[var(--border)] animate-in zoom-in-95 duration-150"
           aria-describedby="customize-dashboard-description"
         >
-          <div className="flex items-center justify-between pb-3 border-b border-border">
+          <div className="flex items-center justify-between pb-3 border-b border-[var(--border)]">
             <div className="flex items-center gap-2">
-              <LayoutDashboard className="w-5 h-5 text-primary" />
+              <LayoutDashboard className="w-5 h-5 text-[var(--accent)]" />
               <Dialog.Title className="text-lg font-semibold">Customize Dashboard</Dialog.Title>
             </div>
-            <Dialog.Close className="p-1 rounded-md text-muted-foreground hover:bg-muted focus:ring-2 focus:ring-ring">
+            <Dialog.Close className="p-1 rounded-md text-[var(--text-muted)] hover:bg-[var(--surface-raised)] focus:ring-2 focus:ring-ring">
               <X className="w-5 h-5" />
             </Dialog.Close>
           </div>
 
-          <p id="customize-dashboard-description" className="text-xs text-muted-foreground mt-2">
+          <p id="customize-dashboard-description" className="text-xs text-[var(--text-muted)] mt-2">
             Reorder widgets or toggle their visibility. Changes are saved across your devices.
           </p>
 
@@ -95,8 +95,8 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
                 key={widget.key}
                 className={`flex items-center justify-between p-2.5 rounded-lg border transition-colors ${
                   widget.enabled
-                    ? "bg-accent/30 border-border"
-                    : "bg-muted/40 border-muted opacity-60"
+                    ? "bg-accent/30 border-[var(--border)]"
+                    : "bg-[var(--surface-raised)]/40 border-muted opacity-60"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
@@ -107,7 +107,7 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
                     onClick={() => toggleWidget(idx)}
                     className={`w-5 h-5 rounded flex items-center justify-center border transition-colors ${
                       widget.enabled
-                        ? "bg-primary border-primary text-primary-foreground"
+                        ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--accent)]-foreground"
                         : "border-muted-foreground bg-background"
                     }`}
                     title={widget.enabled ? "Hide widget" : "Show widget"}
@@ -122,7 +122,7 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
                     type="button"
                     onClick={() => moveWidget(idx, "up")}
                     disabled={idx === 0}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:pointer-events-none"
+                    className="p-1 rounded hover:bg-[var(--surface-raised)] text-[var(--text-muted)] disabled:opacity-30 disabled:pointer-events-none"
                     aria-label={`Move ${widget.title || widget.key} up`}
                   >
                     <ArrowUp className="w-4 h-4" />
@@ -131,7 +131,7 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
                     type="button"
                     onClick={() => moveWidget(idx, "down")}
                     disabled={idx === widgets.length - 1}
-                    className="p-1 rounded hover:bg-muted text-muted-foreground disabled:opacity-30 disabled:pointer-events-none"
+                    className="p-1 rounded hover:bg-[var(--surface-raised)] text-[var(--text-muted)] disabled:opacity-30 disabled:pointer-events-none"
                     aria-label={`Move ${widget.title || widget.key} down`}
                   >
                     <ArrowDown className="w-4 h-4" />
@@ -141,12 +141,12 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
             ))}
           </div>
 
-          <div className="mt-6 pt-3 border-t border-border flex items-center justify-between gap-3">
+          <div className="mt-6 pt-3 border-t border-[var(--border)] flex items-center justify-between gap-3">
             <button
               type="button"
               onClick={handleReset}
               disabled={isResetting || isSaving}
-              className="px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground flex items-center gap-1.5 rounded hover:bg-muted transition-colors"
+              className="px-3 py-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text)] flex items-center gap-1.5 rounded hover:bg-[var(--surface-raised)] transition-colors"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset to defaults
@@ -156,7 +156,7 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
               <button
                 type="button"
                 onClick={() => onOpenChange(false)}
-                className="px-3 py-1.5 text-xs font-medium border border-border rounded-lg hover:bg-muted"
+                className="px-3 py-1.5 text-xs font-medium border border-[var(--border)] rounded-lg hover:bg-[var(--surface-raised)]"
               >
                 Cancel
               </button>
@@ -164,7 +164,7 @@ export const DashboardLayoutDialog: React.FC<DashboardLayoutDialogProps> = ({
                 type="button"
                 onClick={handleSave}
                 disabled={isSaving || isResetting}
-                className="px-4 py-1.5 text-xs font-medium bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 disabled:opacity-50"
+                className="px-4 py-1.5 text-xs font-medium bg-[var(--accent)] text-[var(--accent)]-foreground rounded-lg hover:bg-[var(--accent)]/90 disabled:opacity-50"
               >
                 {isSaving ? "Saving..." : "Save Layout"}
               </button>
