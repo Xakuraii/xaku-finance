@@ -34,11 +34,11 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
 
   if (isLoading && !data) {
     return (
-      <div className="rounded-xl border border-[#2b313a] bg-[#181a20] p-6 text-slate-400 animate-pulse">
-        <div className="h-6 w-48 bg-slate-800 rounded mb-4" />
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 text-muted animate-pulse">
+        <div className="h-6 w-48 bg-[var(--surface-raised)] rounded mb-4" />
         <div className="space-y-3">
-          <div className="h-4 bg-slate-800 rounded w-full" />
-          <div className="h-4 bg-slate-800 rounded w-3/4" />
+          <div className="h-4 bg-[var(--surface-raised)] rounded w-full" />
+          <div className="h-4 bg-[var(--surface-raised)] rounded w-3/4" />
         </div>
       </div>
     );
@@ -76,7 +76,7 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
             onClick={() => setActiveTab("tags")}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               activeTab === "tags"
-                ? "bg-gold text-black shadow-xs font-semibold"
+                ? "bg-gold shadow-xs font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >
@@ -88,7 +88,7 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
             onClick={() => setActiveTab("necessity")}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               activeTab === "necessity"
-                ? "bg-gold text-black shadow-xs font-semibold"
+                ? "bg-gold shadow-xs font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >

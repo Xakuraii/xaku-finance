@@ -40,7 +40,7 @@ export const AnalyticsPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-[var(--border)] pb-4">
         <div>
           <h1 className="font-display text-2xl font-semibold text-main tracking-tight flex items-center gap-2">
             <BarChart3 className="w-6 h-6 text-gold" />
@@ -51,14 +51,14 @@ export const AnalyticsPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Section Tabs */}
-        <div className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs">
+        {/* Section Tabs - Responsive Horizontal Scroll */}
+        <div className="flex items-center gap-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs max-w-full overflow-x-auto">
           <button
             type="button"
             onClick={() => setActiveTab("net_worth")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "net_worth"
-                ? "bg-gold text-black font-semibold"
+                ? "bg-gold shadow-xs font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >
@@ -68,9 +68,9 @@ export const AnalyticsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab("pacing")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "pacing"
-                ? "bg-gold text-black font-semibold"
+                ? "bg-gold shadow-xs font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >
@@ -80,9 +80,9 @@ export const AnalyticsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab("reports")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "reports"
-                ? "bg-gold text-black font-semibold"
+                ? "bg-gold shadow-xs font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >
@@ -92,9 +92,9 @@ export const AnalyticsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveTab("spending")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
               activeTab === "spending"
-                ? "bg-gold text-black font-semibold"
+                ? "bg-gold shadow-xs font-semibold"
                 : "text-muted hover:text-main"
             }`}
           >
@@ -123,14 +123,14 @@ export const AnalyticsPage: React.FC = () => {
       {activeTab === "spending" && (
         <div className="space-y-6">
           <div className="flex justify-end">
-            <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs">
-              <Calendar className="w-3.5 h-3.5 text-muted ml-2 mr-1" />
+            <div className="flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs overflow-x-auto max-w-full">
+              <Calendar className="w-3.5 h-3.5 text-muted ml-2 mr-1 shrink-0" />
               <button
                 type="button"
                 onClick={() => setPeriod("30d")}
-                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
                   period === "30d"
-                    ? "bg-gold text-black font-semibold"
+                    ? "bg-gold shadow-xs font-semibold"
                     : "text-muted hover:text-main"
                 }`}
               >
@@ -139,9 +139,9 @@ export const AnalyticsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setPeriod("this_month")}
-                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
                   period === "this_month"
-                    ? "bg-gold text-black font-semibold"
+                    ? "bg-gold shadow-xs font-semibold"
                     : "text-muted hover:text-main"
                 }`}
               >
@@ -150,9 +150,9 @@ export const AnalyticsPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setPeriod("all")}
-                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer ${
+                className={`px-3 py-1 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
                   period === "all"
-                    ? "bg-gold text-black font-semibold"
+                    ? "bg-gold shadow-xs font-semibold"
                     : "text-muted hover:text-main"
                 }`}
               >

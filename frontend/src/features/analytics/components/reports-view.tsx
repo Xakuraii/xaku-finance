@@ -2,17 +2,17 @@ import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   FileText,
+  Calendar,
+  ArrowUpRight,
+  ArrowDownRight,
+  DollarSign,
   CheckCircle2,
   AlertTriangle,
-  ArrowDownRight,
-  ArrowUpRight,
-  DollarSign,
-  Calendar,
 } from "lucide-react";
 import {
-  fetchCategoryReport,
-  fetchCashFlowReport,
   fetchIncomeReport,
+  fetchCashFlowReport,
+  fetchCategoryReport,
 } from "../api/analytics-api";
 import { ReportResponse } from "../types";
 
@@ -61,16 +61,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   return (
     <div className="space-y-6">
       {/* Control bar */}
-      <div className="rounded-xl border border-[#2b313a] bg-[#181a20] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Report Kind Tabs */}
-        <div className="flex items-center gap-1 rounded-lg border border-[#2b313a] bg-slate-900/60 p-1 text-xs">
+        <div className="flex items-center gap-1 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] p-1 text-xs overflow-x-auto">
           <button
             type="button"
             onClick={() => setReportType("income_expense")}
-            className={`px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
               reportType === "income_expense"
-                ? "bg-amber-400 text-black font-semibold"
-                : "text-slate-400 hover:text-white"
+                ? "bg-gold shadow-xs"
+                : "text-muted hover:text-main"
             }`}
           >
             Income vs Expense
@@ -78,10 +78,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <button
             type="button"
             onClick={() => setReportType("cashflow")}
-            className={`px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
               reportType === "cashflow"
-                ? "bg-amber-400 text-black font-semibold"
-                : "text-slate-400 hover:text-white"
+                ? "bg-gold shadow-xs"
+                : "text-muted hover:text-main"
             }`}
           >
             Cash Flow Statement
@@ -89,10 +89,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <button
             type="button"
             onClick={() => setReportType("category")}
-            className={`px-3 py-1.5 rounded font-medium transition-colors cursor-pointer ${
+            className={`px-3 py-1.5 rounded font-medium transition-colors cursor-pointer whitespace-nowrap ${
               reportType === "category"
-                ? "bg-amber-400 text-black font-semibold"
-                : "text-slate-400 hover:text-white"
+                ? "bg-gold shadow-xs"
+                : "text-muted hover:text-main"
             }`}
           >
             Category Breakdown
@@ -101,21 +101,21 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
         {/* Date Filters */}
         <div className="flex items-center gap-2 text-xs">
-          <div className="flex items-center gap-1.5 bg-slate-900/60 border border-[#2b313a] rounded-lg px-2.5 py-1 text-slate-300">
-            <Calendar className="w-3.5 h-3.5 text-slate-400" />
+          <div className="flex items-center gap-1.5 bg-[var(--surface-raised)] border border-[var(--border)] rounded-lg px-2.5 py-1 text-main">
+            <Calendar className="w-3.5 h-3.5 text-muted" />
             <input
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="bg-transparent text-white focus:outline-none"
+              className="bg-transparent text-main focus:outline-none text-xs"
               aria-label="Report start date"
             />
-            <span className="text-slate-500">to</span>
+            <span className="text-muted">to</span>
             <input
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="bg-transparent text-white focus:outline-none"
+              className="bg-transparent text-main focus:outline-none text-xs"
               aria-label="Report end date"
             />
           </div>
@@ -125,17 +125,17 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       {/* Ledger Reconciliation Verification Banner */}
       {recon && (
         <div
-          className={`rounded-xl border p-4 text-xs flex items-center justify-between gap-3 ${
+          className={`rounded-xl border p-4 text-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${
             isReconciled
-              ? "border-emerald-500/20 bg-emerald-500/5 text-emerald-400"
-              : "border-rose-500/20 bg-rose-500/5 text-rose-400"
+              ? "border-[var(--positive-border)] bg-[var(--positive-bg)] text-[var(--positive)]"
+              : "border-[var(--negative-border)] bg-[var(--negative-bg)] text-[var(--negative)]"
           }`}
         >
           <div className="flex items-center gap-2">
             {isReconciled ? (
-              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle2 className="w-4 h-4 text-[var(--positive)] shrink-0" />
             ) : (
-              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+              <AlertTriangle className="w-4 h-4 text-[var(--negative)] shrink-0" />
             )}
             <span>
               <strong>Double-Entry Ledger Integrity:</strong>{" "}
@@ -144,7 +144,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 : `Discrepancy detected: ledger differs from reported transactions by ${recon.difference} ${displayCurrency}`}
             </span>
           </div>
-          <span className="font-mono text-[10px] text-slate-500 hidden sm:inline">
+          <span className="font-mono text-[10px] text-faint shrink-0">
             Checked: {recon.checked_at.slice(0, 19)}
           </span>
         </div>
@@ -154,34 +154,34 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {reportType === "income_expense" && (
           <>
-            <div className="rounded-xl border border-emerald-500/20 bg-[#181a20] p-4">
-              <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <div className="rounded-xl border border-[var(--positive-border)] bg-[var(--positive-bg)] p-4">
+              <div className="flex items-center justify-between text-xs text-muted mb-1">
                 <span>Total Income</span>
-                <ArrowUpRight className="w-4 h-4 text-emerald-400" />
+                <ArrowUpRight className="w-4 h-4 text-[var(--positive)]" />
               </div>
-              <div className="font-mono text-2xl font-bold text-emerald-400">
+              <div className="font-mono text-2xl font-bold text-[var(--positive)]">
                 {totals.income || "0.00"}{" "}
-                <span className="text-xs text-slate-500 font-sans">{displayCurrency}</span>
+                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
               </div>
             </div>
-            <div className="rounded-xl border border-rose-500/20 bg-[#181a20] p-4">
-              <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <div className="rounded-xl border border-[var(--negative-border)] bg-[var(--negative-bg)] p-4">
+              <div className="flex items-center justify-between text-xs text-muted mb-1">
                 <span>Total Expenses</span>
-                <ArrowDownRight className="w-4 h-4 text-rose-400" />
+                <ArrowDownRight className="w-4 h-4 text-[var(--negative)]" />
               </div>
-              <div className="font-mono text-2xl font-bold text-rose-400">
+              <div className="font-mono text-2xl font-bold text-[var(--negative)]">
                 {totals.expense || "0.00"}{" "}
-                <span className="text-xs text-slate-500 font-sans">{displayCurrency}</span>
+                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
               </div>
             </div>
-            <div className="rounded-xl border border-amber-500/20 bg-[#181a20] p-4">
-              <div className="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+              <div className="flex items-center justify-between text-xs text-muted mb-1">
                 <span>Net Savings</span>
-                <DollarSign className="w-4 h-4 text-amber-400" />
+                <DollarSign className="w-4 h-4 text-gold" />
               </div>
-              <div className="font-mono text-2xl font-bold text-white">
+              <div className="font-mono text-2xl font-bold text-main">
                 {totals.net || "0.00"}{" "}
-                <span className="text-xs text-slate-500 font-sans">{displayCurrency}</span>
+                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
               </div>
             </div>
           </>
@@ -189,61 +189,61 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
 
         {reportType === "cashflow" && (
           <>
-            <div className="rounded-xl border border-emerald-500/20 bg-[#181a20] p-4">
-              <div className="text-xs text-slate-400 mb-1">Operating Inflows</div>
-              <div className="font-mono text-2xl font-bold text-emerald-400">
+            <div className="rounded-xl border border-[var(--positive-border)] bg-[var(--positive-bg)] p-4">
+              <div className="text-xs text-muted mb-1">Operating Inflows</div>
+              <div className="font-mono text-2xl font-bold text-[var(--positive)]">
                 {totals.inflows || "0.00"}{" "}
-                <span className="text-xs text-slate-500 font-sans">{displayCurrency}</span>
+                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
               </div>
             </div>
-            <div className="rounded-xl border border-rose-500/20 bg-[#181a20] p-4">
-              <div className="text-xs text-slate-400 mb-1">Operating Outflows</div>
-              <div className="font-mono text-2xl font-bold text-rose-400">
+            <div className="rounded-xl border border-[var(--negative-border)] bg-[var(--negative-bg)] p-4">
+              <div className="text-xs text-muted mb-1">Operating Outflows</div>
+              <div className="font-mono text-2xl font-bold text-[var(--negative)]">
                 {totals.outflows || "0.00"}{" "}
-                <span className="text-xs text-slate-500 font-sans">{displayCurrency}</span>
+                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
               </div>
             </div>
-            <div className="rounded-xl border border-amber-500/20 bg-[#181a20] p-4">
-              <div className="text-xs text-slate-400 mb-1">Net Cash Movement</div>
-              <div className="font-mono text-2xl font-bold text-white">
+            <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+              <div className="text-xs text-muted mb-1">Net Cash Movement</div>
+              <div className="font-mono text-2xl font-bold text-main">
                 {totals.net_cash_flow || "0.00"}{" "}
-                <span className="text-xs text-slate-500 font-sans">{displayCurrency}</span>
+                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
               </div>
             </div>
           </>
         )}
 
         {reportType === "category" && (
-          <div className="sm:col-span-3 rounded-xl border border-amber-500/20 bg-[#181a20] p-4">
-            <div className="text-xs text-slate-400 mb-1">Total Category Spending</div>
-            <div className="font-mono text-2xl font-bold text-amber-300">
+          <div className="sm:col-span-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
+            <div className="text-xs text-muted mb-1">Total Category Spending</div>
+            <div className="font-mono text-2xl font-bold text-main">
               {totals.total_spending || "0.00"}{" "}
-              <span className="text-xs text-slate-500 font-sans">{displayCurrency}</span>
+              <span className="text-xs text-muted font-sans">{displayCurrency}</span>
             </div>
           </div>
         )}
       </div>
 
       {/* Main Statement Data Table */}
-      <div className="rounded-xl border border-[#2b313a] bg-[#181a20] p-6 shadow-sm">
-        <h3 className="text-sm font-semibold text-white tracking-tight mb-4 flex items-center gap-2">
-          <FileText className="w-4 h-4 text-amber-400" />
+      <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
+        <h3 className="text-sm font-semibold text-main tracking-tight mb-4 flex items-center gap-2">
+          <FileText className="w-4 h-4 text-gold" />
           Statement Breakdown
         </h3>
 
         {isLoading ? (
-          <div className="h-40 flex items-center justify-center text-slate-500 text-xs animate-pulse">
+          <div className="h-40 flex items-center justify-center text-muted text-xs animate-pulse">
             Loading statement data...
           </div>
         ) : tableData.length === 0 ? (
-          <div className="h-40 flex items-center justify-center text-slate-500 text-xs">
+          <div className="h-40 flex items-center justify-center text-muted text-xs">
             No transactions found for the selected period.
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs" aria-label="Statement Table">
+            <table className="w-full text-left text-xs min-w-[500px]" aria-label="Statement Table">
               <thead>
-                <tr className="border-b border-slate-800 text-slate-400 uppercase tracking-wider text-[10px]">
+                <tr className="border-b border-[var(--border)] text-muted uppercase tracking-wider text-[10px] bg-[var(--surface-raised)]">
                   {reportType === "income_expense" && (
                     <>
                       <th className="py-2.5 px-3 font-semibold">Period</th>
@@ -267,40 +267,40 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                   )}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-[var(--border)]">
                 {tableData.map((row, idx) => (
-                  <tr key={idx} className="hover:bg-slate-900/40">
+                  <tr key={idx} className="hover:bg-[var(--surface-raised)] transition-colors">
                     {reportType === "income_expense" && (
                       <>
-                        <td className="py-2.5 px-3 font-mono text-slate-200">{row.period}</td>
-                        <td className="py-2.5 px-3 font-mono text-right text-emerald-400">
+                        <td className="py-2.5 px-3 font-mono text-main">{row.period}</td>
+                        <td className="py-2.5 px-3 font-mono text-right text-[var(--positive)]">
                           {row.income}
                         </td>
-                        <td className="py-2.5 px-3 font-mono text-right text-rose-400">
+                        <td className="py-2.5 px-3 font-mono text-right text-[var(--negative)]">
                           {row.expense}
                         </td>
-                        <td className="py-2.5 px-3 font-mono text-right font-medium text-white">
+                        <td className="py-2.5 px-3 font-mono text-right font-medium text-main">
                           {row.net} {displayCurrency}
                         </td>
                       </>
                     )}
                     {reportType === "cashflow" && (
                       <>
-                        <td className="py-2.5 px-3 font-medium text-slate-200">{row.item}</td>
-                        <td className="py-2.5 px-3 font-mono text-right font-medium text-white">
+                        <td className="py-2.5 px-3 font-medium text-main">{row.item}</td>
+                        <td className="py-2.5 px-3 font-mono text-right font-medium text-main">
                           {row.amount} {displayCurrency}
                         </td>
                       </>
                     )}
                     {reportType === "category" && (
                       <>
-                        <td className="py-2.5 px-3 font-medium text-slate-200">
+                        <td className="py-2.5 px-3 font-medium text-main">
                           {row.category_name}
                         </td>
-                        <td className="py-2.5 px-3 font-mono text-right text-slate-400">
+                        <td className="py-2.5 px-3 font-mono text-right text-muted">
                           {row.percentage}%
                         </td>
-                        <td className="py-2.5 px-3 font-mono text-right font-medium text-amber-300">
+                        <td className="py-2.5 px-3 font-mono text-right font-medium text-main">
                           {row.amount} {displayCurrency}
                         </td>
                       </>
