@@ -11,6 +11,7 @@ export interface UserProfileData {
   reporting_currency: string;
   week_start: number;
   theme: "light" | "dark" | "system";
+  two_factor_enabled?: boolean;
   created_at: string;
 }
 

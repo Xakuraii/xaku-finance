@@ -9,6 +9,8 @@ import {
   AlertCircle,
   Lock,
   Layers,
+  Shield,
+  KeyRound,
 } from "lucide-react";
 import {
   getMe,
@@ -26,11 +28,17 @@ import {
 } from "@/features/notifications/api/notifications-api";
 import { ThemeToggle, ThemeMode } from "@/components/theme-toggle";
 import { queryKeys } from "@/lib/query-keys";
+import { TwoFactorSetupDialog } from "@/features/auth/components/two-factor-setup-dialog";
+import { TwoFactorDisableDialog } from "@/features/auth/components/two-factor-disable-dialog";
+import { RecoveryCodesDialog } from "@/features/auth/components/recovery-codes-dialog";
 
-type SettingsTab = "profile" | "workspace" | "notifications";
+type SettingsTab = "profile" | "workspace" | "security" | "notifications";
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+  const [isSetupOpen, setIsSetupOpen] = useState(false);
+  const [isDisableOpen, setIsDisableOpen] = useState(false);
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
     null
   );
@@ -229,6 +237,19 @@ export const SettingsPage: React.FC = () => {
         >
           <Building className="w-4 h-4" />
           <span>Workspace</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("security")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+            activeTab === "security"
+              ? "bg-primary text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <Shield className="w-4 h-4" />
+          <span>Security</span>
         </button>
 
         <button
@@ -440,6 +461,94 @@ export const SettingsPage: React.FC = () => {
         </div>
       )}
 
+      {/* TAB CONTENT: SECURITY */}
+      {activeTab === "security" && (
+        <div className="space-y-6 max-w-2xl">
+          {/* 2FA Card */}
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-primary" /> Two-Factor Authentication (TOTP)
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add an extra layer of protection to your workspace using an authenticator app (Google Authenticator, 1Password, etc.).
+                </p>
+              </div>
+
+              {meData?.two_factor_enabled ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                  Active
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  Disabled
+                </span>
+              )}
+            </div>
+
+            {meData?.two_factor_enabled ? (
+              <div className="space-y-4 pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground">
+                  Your account is protected with two-factor authentication. You will be prompted for a 6-digit one-time code each time you sign in.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsRecoveryOpen(true)}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-primary" />
+                    <span>Regenerate Recovery Codes</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsDisableOpen(true)}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-xs font-medium text-destructive transition-colors cursor-pointer"
+                  >
+                    <span>Disable 2FA</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground">
+                  When enabled, you will need your password and a verification code from your mobile device to sign in.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSetupOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Enable Two-Factor Authentication</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Session & Password Policy Card */}
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Lock className="w-4 h-4 text-primary" /> Security & Re-authentication Policy
+            </h3>
+            <div className="space-y-3 text-xs text-muted-foreground leading-relaxed">
+              <p>
+                • <strong>Step-Up Re-authentication:</strong> Sensitive operations such as exporting financial data, modifying two-factor settings, and requesting account deletion require confirming your password within the past 10 minutes.
+              </p>
+              <p>
+                • <strong>Session Privacy:</strong> Your active session tokens rotate automatically. IP addresses are hashed using HMAC-SHA256 and never logged or exposed in raw form.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* TAB CONTENT: NOTIFICATIONS */}
       {activeTab === "notifications" && (
         <form onSubmit={handlePrefsSubmit} className="space-y-6 max-w-2xl">
@@ -517,6 +626,36 @@ export const SettingsPage: React.FC = () => {
           </button>
         </form>
       )}
+
+      {/* 2FA Modals */}
+      <TwoFactorSetupDialog
+        isOpen={isSetupOpen}
+        onClose={() => setIsSetupOpen(false)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.settings.me });
+          setFeedback({
+            type: "success",
+            message: "Two-factor authentication has been enabled successfully!",
+          });
+        }}
+      />
+
+      <TwoFactorDisableDialog
+        isOpen={isDisableOpen}
+        onClose={() => setIsDisableOpen(false)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.settings.me });
+          setFeedback({
+            type: "success",
+            message: "Two-factor authentication has been disabled.",
+          });
+        }}
+      />
+
+      <RecoveryCodesDialog
+        isOpen={isRecoveryOpen}
+        onClose={() => setIsRecoveryOpen(false)}
+      />
     </div>
   );
 };

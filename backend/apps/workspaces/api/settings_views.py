@@ -18,6 +18,7 @@ from apps.common.models import Currency
 from apps.common.validators import validate_iana_timezone
 from apps.debts.models import Liability, LiabilityStatus
 from apps.identity.models import UserProfile
+from apps.identity.services import two_factor
 from apps.savings.models import SavingsGoal
 from apps.transactions.models import Transaction
 from apps.workspaces.api.serializers import (
@@ -78,6 +79,7 @@ class MeView(APIView):
             "reporting_currency": profile.reporting_currency_id,
             "week_start": profile.week_start,
             "theme": profile.theme,
+            "two_factor_enabled": two_factor.is_enabled(user),
             "created_at": user.created_at,
         }
         return Response(MeResponseSerializer(data).data, status=status.HTTP_200_OK)
@@ -142,6 +144,7 @@ class MeView(APIView):
             "reporting_currency": profile.reporting_currency_id,
             "week_start": profile.week_start,
             "theme": profile.theme,
+            "two_factor_enabled": two_factor.is_enabled(user),
             "created_at": user.created_at,
         }
         return Response(MeResponseSerializer(data).data, status=status.HTTP_200_OK)

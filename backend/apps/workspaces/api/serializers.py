@@ -76,6 +76,7 @@ class MeResponseSerializer(serializers.Serializer[Any]):
     reporting_currency = serializers.CharField()
     week_start = serializers.IntegerField()
     theme = serializers.CharField()
+    two_factor_enabled = serializers.BooleanField(default=False)
     created_at = serializers.DateTimeField()
 
 

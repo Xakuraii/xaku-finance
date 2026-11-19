@@ -15,12 +15,20 @@ export interface Workspace {
   timezone: string;
 }
 
+export interface LoginResult {
+  mfa_required?: boolean;
+  mfa_token?: string;
+  methods?: string[];
+  expires_in?: number;
+}
+
 export interface AuthContextType {
   user: User | null;
   workspace: Workspace | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<{ mfa_required?: boolean }>;
+  login: (email: string, password: string) => Promise<LoginResult>;
+  complete2FALogin: (mfa_token: string, code: string) => Promise<void>;
   register: (payload: {
     email: string;
     password: string;
@@ -63,16 +71,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     restoreSession();
   }, []);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string): Promise<LoginResult> => {
     const res = await api.post<{
       access?: string;
       user?: User;
       workspace?: Workspace;
       mfa_required?: boolean;
+      mfa_token?: string;
+      methods?: string[];
+      expires_in?: number;
     }>("/api/v1/auth/login/", { email, password });
 
     if (res.mfa_required) {
-      return { mfa_required: true };
+      return {
+        mfa_required: true,
+        mfa_token: res.mfa_token,
+        methods: res.methods,
+        expires_in: res.expires_in,
+      };
     }
 
     if (res.access) {
@@ -81,6 +97,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.workspace) setWorkspace(res.workspace);
     }
     return { mfa_required: false };
+  };
+
+  const complete2FALogin = async (mfa_token: string, code: string): Promise<void> => {
+    const res = await api.post<{
+      access: string;
+      user?: User;
+      workspace?: Workspace;
+    }>("/api/v1/auth/2fa/verify/", { mfa_token, code });
+
+    if (res.access) {
+      setAccessToken(res.access);
+      if (res.user) setUser(res.user);
+      if (res.workspace) setWorkspace(res.workspace);
+    }
   };
 
   const register = async (payload: {
@@ -120,6 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         login,
+        complete2FALogin,
         register,
         logout,
       }}

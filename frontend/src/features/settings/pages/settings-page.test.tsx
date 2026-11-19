@@ -164,4 +164,35 @@ describe("SettingsPage", () => {
       expect(screen.getByText("Security notifications are locked to active")).toBeInTheDocument();
     });
   });
+
+  it("switches to security tab and displays two-factor settings", async () => {
+    vi.spyOn(settingsApi, "getMe").mockResolvedValue({
+      ...mockMe,
+      two_factor_enabled: false,
+    });
+    vi.spyOn(settingsApi, "getWorkspaceSettings").mockResolvedValue(mockWs);
+    vi.spyOn(settingsApi, "getWorkspaceSummary").mockResolvedValue(mockSummary);
+    vi.spyOn(notificationsApi, "getNotificationPreferences").mockResolvedValue(mockPrefs);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <SettingsPage />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings & Preferences")).toBeInTheDocument();
+    });
+
+    const secTab = screen.getByRole("button", { name: "Security" });
+    fireEvent.click(secTab);
+
+    await waitFor(() => {
+      expect(screen.getByText("Two-Factor Authentication (TOTP)")).toBeInTheDocument();
+      expect(screen.getByText("Enable Two-Factor Authentication")).toBeInTheDocument();
+      expect(screen.getByText("Disabled")).toBeInTheDocument();
+    });
+  });
 });
