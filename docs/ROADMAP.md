@@ -341,8 +341,9 @@ matches the accounting worked example.
 ## Phase 6 — Security and release
 
 **Objective:** ship only what has been verified, backed up, and can be deleted on request.
+**Status:** complete on 2026-11-19. All acceptance criteria verified. Report in `docs/reports/SECURITY_AND_RELEASE_REPORT.md`.
 
-### Milestone 6.1 — 2FA and recovery
+### Milestone 6.1 — 2FA and recovery (Completed)
 
 - TOTP enrollment/confirm/disable, encrypted secrets, replay protection, recovery codes, reauth.
 - Frontend: security settings, QR provisioning, recovery code download/copy, login challenge.
@@ -351,7 +352,7 @@ matches the accounting worked example.
 **Exit:** 2FA cannot be enabled without proof of possession; recovery codes are single-use; disabling
 requires both factors.
 
-### Milestone 6.2 — Privacy, export, deletion
+### Milestone 6.2 — Privacy, export, deletion (Completed)
 
 - Full data export (async, signed URL), data map, deletion request with grace period and execution job.
 - Truthful backup-retention messaging.
@@ -359,7 +360,7 @@ requires both factors.
 
 **Exit:** deletion removes live data and states backup expiry truthfully; export requires reauth.
 
-### Milestone 6.3 — Backups and restore
+### Milestone 6.3 — Backups and restore (Completed)
 
 - Nightly encrypted `pg_dump`, checksums, retention, verification, failure alerting.
 - Manual user backup, restore into empty workspace, validation report, reconciliation gate.
@@ -368,7 +369,7 @@ requires both factors.
 
 **Exit:** a backup has been restored and reconciled in CI; corrupted archives are refused.
 
-### Milestone 6.4 — Hardening, load, and launch
+### Milestone 6.4 — Hardening, load, and launch (Completed)
 
 - SAST/DAST, dependency audit, header/CSP verification, rate-limit load test.
 - Performance tests at 50k transactions; index tuning.
