@@ -1,6 +1,6 @@
 # Database standards
 
-PostgreSQL 16+. Full schema in `docs/DATABASE.md`; accounting meaning in `docs/ACCOUNTING_RULES.md`.
+PostgreSQL 16+. Full schema in `docs/architecture/DATABASE.md`; accounting meaning in `docs/architecture/ACCOUNTING_RULES.md`.
 
 ## Mandatory patterns
 

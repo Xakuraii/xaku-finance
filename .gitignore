@@ -39,3 +39,5 @@ Thumbs.db
 # Test and build artifacts
 playwright-report/
 test-results/
+backups/
+*.enc

@@ -6,7 +6,7 @@ doubt, apply it.
 ## Before writing code
 
 1. Write the posting recipe (debit/credit lines) and confirm it sums to zero per currency.
-2. State which accounting rule numbers (`docs/ACCOUNTING_RULES.md` §1.4) are touched.
+2. State which accounting rule numbers (`docs/architecture/ACCOUNTING_RULES.md` §1.4) are touched.
 3. State the user-visible effect: what goes up, what goes down, what stays the same.
 4. Identify the transaction boundary and the rows to lock.
 5. Identify what happens on partial failure.
@@ -44,7 +44,7 @@ doubt, apply it.
 - Run `pytest` for the domain plus the financial integrity suite.
 - Run `check_ledger --fail-on-drift` on a seeded workspace.
 - Manually verify the UI shows the same numbers as the API and that "how calculated" copy is accurate.
-- Update `docs/ACCOUNTING_RULES.md` if a rule or recipe changed.
+- Update `docs/architecture/ACCOUNTING_RULES.md` if a rule or recipe changed.
 - Add a changelog entry; if a limitation exists, write it down rather than hiding it.
 
 ## Reject the change if

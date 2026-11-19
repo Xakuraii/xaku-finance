@@ -215,7 +215,7 @@ periods immutable.
 ## Phase 3 — Financial planning
 
 **Objective:** savings goals, debts, and the emergency fund, all tied to real money.
-**Status:** complete on 2026-11-18. All acceptance criteria verified. Report in `docs/PHASE_3_REPORT.md`.
+**Status:** complete on 2026-11-18. All acceptance criteria verified. Report in `docs/reports/PHASE_3_REPORT.md`.
 
 ### Milestone 3.1 — Savings goals and earmarks
 
@@ -252,7 +252,7 @@ matches the accounting worked example.
 ## Phase 4 — Financial intelligence (Completed)
 
 **Objective:** historical net worth, Safe-to-Spend, allowance, reports, and optional insights.
-**Report:** see [docs/PHASE_4_REPORT.md](PHASE_4_REPORT.md) for full verification certification.
+**Report:** see [docs/reports/PHASE_4_REPORT.md](reports/PHASE_4_REPORT.md) for full verification certification.
 
 ### Milestone 4.1 — Net worth and snapshots (Completed)
 
@@ -287,7 +287,7 @@ matches the accounting worked example.
 - OpenAPI 3.1 specification generated and validated with 0 errors.
 - Test suites: 271 backend tests passed (100%), 35 frontend tests passed (100%).
 - Code quality: ruff, mypy, tsc, and vite production build clean.
-- Phase 4 report: `docs/PHASE_4_REPORT.md`.
+- Phase 4 report: `docs/reports/PHASE_4_REPORT.md`.
 
 **Exit:** all Phase 4 acceptance criteria passed and verified. Optional on-demand AI insights gated behind flag.
 
@@ -296,7 +296,7 @@ matches the accounting worked example.
 ## Phase 5 — User experience (Completed)
 
 **Objective:** make the product pleasant, consistent, and accessible without adding accounting risk.
-**Report:** see [docs/PHASE_5_REPORT.md](PHASE_5_REPORT.md) for full verification certification.
+**Report:** see [docs/reports/PHASE_5_REPORT.md](reports/PHASE_5_REPORT.md) for full verification certification.
 
 ### Milestone 5.1 — Customizable dashboard (Completed)
 
@@ -332,7 +332,7 @@ matches the accounting worked example.
 - OpenAPI 3.1 specification generated and validated with 0 errors.
 - Test suites: 295 backend tests passed (100%), 43 frontend tests passed (100%).
 - Code quality: ruff, mypy, tsc, and vite production build clean.
-- Phase 5 report: `docs/PHASE_5_REPORT.md`.
+- Phase 5 report: `docs/reports/PHASE_5_REPORT.md`.
 
 **Exit:** all Phase 5 acceptance criteria passed and verified. Ready for Phase 6 (Security and Release).
 
@@ -341,8 +341,9 @@ matches the accounting worked example.
 ## Phase 6 — Security and release
 
 **Objective:** ship only what has been verified, backed up, and can be deleted on request.
+**Status:** complete on 2026-11-19. All acceptance criteria verified. Report in `docs/reports/SECURITY_AND_RELEASE_REPORT.md`.
 
-### Milestone 6.1 — 2FA and recovery
+### Milestone 6.1 — 2FA and recovery (Completed)
 
 - TOTP enrollment/confirm/disable, encrypted secrets, replay protection, recovery codes, reauth.
 - Frontend: security settings, QR provisioning, recovery code download/copy, login challenge.
@@ -351,7 +352,7 @@ matches the accounting worked example.
 **Exit:** 2FA cannot be enabled without proof of possession; recovery codes are single-use; disabling
 requires both factors.
 
-### Milestone 6.2 — Privacy, export, deletion
+### Milestone 6.2 — Privacy, export, deletion (Completed)
 
 - Full data export (async, signed URL), data map, deletion request with grace period and execution job.
 - Truthful backup-retention messaging.
@@ -359,7 +360,7 @@ requires both factors.
 
 **Exit:** deletion removes live data and states backup expiry truthfully; export requires reauth.
 
-### Milestone 6.3 — Backups and restore
+### Milestone 6.3 — Backups and restore (Completed)
 
 - Nightly encrypted `pg_dump`, checksums, retention, verification, failure alerting.
 - Manual user backup, restore into empty workspace, validation report, reconciliation gate.
@@ -368,7 +369,7 @@ requires both factors.
 
 **Exit:** a backup has been restored and reconciled in CI; corrupted archives are refused.
 
-### Milestone 6.4 — Hardening, load, and launch
+### Milestone 6.4 — Hardening, load, and launch (Completed)
 
 - SAST/DAST, dependency audit, header/CSP verification, rate-limit load test.
 - Performance tests at 50k transactions; index tuning.

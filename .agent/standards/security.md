@@ -1,6 +1,6 @@
 # Security standards
 
-Full model and residual risks: `docs/SECURITY.md`. These are the rules that matter in code review.
+Full model and residual risks: `docs/architecture/SECURITY.md`. These are the rules that matter in code review.
 
 ## Every endpoint
 

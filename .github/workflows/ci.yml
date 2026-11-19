@@ -59,7 +59,7 @@ jobs:
         run: pytest -q
 
       - name: Validate OpenAPI schema
-        run: python manage.py spectacular --file ../docs/openapi.yaml --validate
+        run: python manage.py spectacular --file ../docs/api/openapi.yaml --validate
 
   frontend:
     name: Frontend quality gates

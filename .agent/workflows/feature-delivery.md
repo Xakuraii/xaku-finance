@@ -4,7 +4,7 @@ Use this for every feature, fix, or refactor. It is deliberately small enough to
 
 ## 0. Frame
 
-- Identify the requirement ID(s) in `docs/SRS.md` and any ADR/accounting rule involved.
+- Identify the requirement ID(s) in `docs/specifications/SRS.md` and any ADR/accounting rule involved.
 - If the requirement is ambiguous, choose a documented default and add it to the SRS assumptions; do not
   stop for a question unless the decision is irreversible or financial behavior would be wrong either way.
 - If this is a new feature with UX, write three sentences of intent and the empty state before coding.
@@ -15,7 +15,7 @@ Use this for every feature, fix, or refactor. It is deliberately small enough to
 - Identify the transaction boundary, locks, and idempotency key.
 - Identify the DB constraints/indexes needed.
 - Identify the tests that will prove it, including failure and isolation cases.
-- For money changes, read `docs/ACCOUNTING_RULES.md` and write the posting recipe first.
+- For money changes, read `docs/architecture/ACCOUNTING_RULES.md` and write the posting recipe first.
 
 ## 2. Test first
 
@@ -28,7 +28,7 @@ Use this for every feature, fix, or refactor. It is deliberately small enough to
 - Service first, then serializer/view, then frontend.
 - Keep the app runnable and migrations applied.
 - No unrelated refactors in the same change; note them for later.
-- Update `docs/API_SPECIFICATION.md` and regenerate OpenAPI/client when contracts move.
+- Update `docs/api/API_SPECIFICATION.md` and regenerate OpenAPI/client when contracts move.
 
 ## 4. Verify
 
@@ -40,7 +40,7 @@ mypy apps
 pytest path/to/test.py -v
 pytest
 python manage.py check --deploy
-python manage.py spectacular --file docs/openapi.yaml --validate
+python manage.py spectacular --file docs/api/openapi.yaml --validate
 python manage.py check_ledger --fail-on-drift
 cd frontend && npm run typecheck && npm run lint && npm run test && npm run build
 ```
@@ -51,7 +51,7 @@ Report actual results. If something fails and is unrelated, say so and do not cl
 
 - Update the requirement's status/traceability.
 - Add a `docs/CHANGELOG.md` entry under Unreleased, with limitation notes.
-- Update `docs/DATABASE.md` in the same commit as a schema change.
+- Update `docs/architecture/DATABASE.md` in the same commit as a schema change.
 - Add or amend an ADR if a decision was made that a future reader would question.
 
 ## 6. Report

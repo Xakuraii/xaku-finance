@@ -9,6 +9,11 @@ import {
   AlertCircle,
   Lock,
   Layers,
+  Shield,
+  KeyRound,
+  FileText,
+  Download,
+  ShieldAlert,
 } from "lucide-react";
 import {
   getMe,
@@ -24,13 +29,29 @@ import {
   updateNotificationPreferences,
   NotificationPreferenceItem,
 } from "@/features/notifications/api/notifications-api";
+import {
+  getDataMap,
+  getExports,
+  getCurrentDeletionRequest,
+  cancelAccountDeletion,
+} from "@/features/privacy/api/privacy-api";
 import { ThemeToggle, ThemeMode } from "@/components/theme-toggle";
 import { queryKeys } from "@/lib/query-keys";
+import { TwoFactorSetupDialog } from "@/features/auth/components/two-factor-setup-dialog";
+import { TwoFactorDisableDialog } from "@/features/auth/components/two-factor-disable-dialog";
+import { RecoveryCodesDialog } from "@/features/auth/components/recovery-codes-dialog";
+import { DataExportDialog } from "@/features/privacy/components/data-export-dialog";
+import { AccountDeletionDialog } from "@/features/privacy/components/account-deletion-dialog";
 
-type SettingsTab = "profile" | "workspace" | "notifications";
+type SettingsTab = "profile" | "workspace" | "security" | "privacy" | "notifications";
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<SettingsTab>("profile");
+  const [isSetupOpen, setIsSetupOpen] = useState(false);
+  const [isDisableOpen, setIsDisableOpen] = useState(false);
+  const [isRecoveryOpen, setIsRecoveryOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const [feedback, setFeedback] = useState<{ type: "success" | "error"; message: string } | null>(
     null
   );
@@ -56,6 +77,32 @@ export const SettingsPage: React.FC = () => {
   const { data: notifPrefs = [], isLoading: isPrefsLoading } = useQuery({
     queryKey: queryKeys.notifications.preferences,
     queryFn: getNotificationPreferences,
+  });
+
+  const { data: dataMap = [] } = useQuery({
+    queryKey: ["privacy", "data-map"],
+    queryFn: getDataMap,
+  });
+
+  const { data: exportsList = [] } = useQuery({
+    queryKey: ["privacy", "exports"],
+    queryFn: getExports,
+  });
+
+  const { data: deletionRequest } = useQuery({
+    queryKey: ["privacy", "deletion-request"],
+    queryFn: getCurrentDeletionRequest,
+  });
+
+  const cancelDeletionMutation = useMutation({
+    mutationFn: cancelAccountDeletion,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["privacy", "deletion-request"] });
+      setFeedback({ type: "success", message: "Account deletion request has been cancelled." });
+    },
+    onError: () => {
+      setFeedback({ type: "error", message: "Failed to cancel account deletion request." });
+    },
   });
 
   // Local state for forms
@@ -229,6 +276,32 @@ export const SettingsPage: React.FC = () => {
         >
           <Building className="w-4 h-4" />
           <span>Workspace</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("security")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+            activeTab === "security"
+              ? "bg-primary text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <Shield className="w-4 h-4" />
+          <span>Security</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab("privacy")}
+          className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+            activeTab === "privacy"
+              ? "bg-primary text-primary-foreground shadow-xs"
+              : "text-muted-foreground hover:text-foreground hover:bg-muted"
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          <span>Privacy & Data</span>
         </button>
 
         <button
@@ -440,6 +513,233 @@ export const SettingsPage: React.FC = () => {
         </div>
       )}
 
+      {/* TAB CONTENT: SECURITY */}
+      {activeTab === "security" && (
+        <div className="space-y-6 max-w-2xl">
+          {/* 2FA Card */}
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-primary" /> Two-Factor Authentication (TOTP)
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Add an extra layer of protection to your workspace using an authenticator app (Google Authenticator, 1Password, etc.).
+                </p>
+              </div>
+
+              {meData?.two_factor_enabled ? (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20 shrink-0">
+                  <Check className="w-3.5 h-3.5" />
+                  Active
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-500/10 text-amber-500 border border-amber-500/20 shrink-0">
+                  <AlertCircle className="w-3.5 h-3.5" />
+                  Disabled
+                </span>
+              )}
+            </div>
+
+            {meData?.two_factor_enabled ? (
+              <div className="space-y-4 pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground">
+                  Your account is protected with two-factor authentication. You will be prompted for a 6-digit one-time code each time you sign in.
+                </p>
+
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsRecoveryOpen(true)}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-muted text-xs font-medium text-foreground transition-colors cursor-pointer"
+                  >
+                    <KeyRound className="w-3.5 h-3.5 text-primary" />
+                    <span>Regenerate Recovery Codes</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsDisableOpen(true)}
+                    className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-destructive/30 bg-destructive/5 hover:bg-destructive/10 text-xs font-medium text-destructive transition-colors cursor-pointer"
+                  >
+                    <span>Disable 2FA</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-2 border-t border-border">
+                <p className="text-xs text-muted-foreground">
+                  When enabled, you will need your password and a verification code from your mobile device to sign in.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => setIsSetupOpen(true)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Enable Two-Factor Authentication</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Session & Password Policy Card */}
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+            <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+              <Lock className="w-4 h-4 text-primary" /> Security & Re-authentication Policy
+            </h3>
+            <div className="space-y-3 text-xs text-muted-foreground leading-relaxed">
+              <p>
+                • <strong>Step-Up Re-authentication:</strong> Sensitive operations such as exporting financial data, modifying two-factor settings, and requesting account deletion require confirming your password within the past 10 minutes.
+              </p>
+              <p>
+                • <strong>Session Privacy:</strong> Your active session tokens rotate automatically. IP addresses are hashed using HMAC-SHA256 and never logged or exposed in raw form.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB CONTENT: PRIVACY & DATA */}
+      {activeTab === "privacy" && (
+        <div className="space-y-6 max-w-3xl">
+          {/* Data Export Card */}
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold flex items-center gap-2">
+                  <Download className="w-4 h-4 text-primary" /> Data Export & Portability
+                </h2>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Export your entire workspace data or select specific datasets in JSON or CSV format. Requires password re-authentication.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setIsExportOpen(true)}
+                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:opacity-90 shadow-xs transition-opacity cursor-pointer shrink-0"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Export Data</span>
+              </button>
+            </div>
+
+            {exportsList.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-border">
+                <span className="text-xs font-semibold text-foreground block">Recent Exports</span>
+                <div className="divide-y divide-border">
+                  {exportsList.map((job) => (
+                    <div key={job.id} className="py-2.5 flex items-center justify-between text-xs">
+                      <div>
+                        <span className="font-semibold text-foreground uppercase">{job.format}</span>
+                        <span className="text-muted-foreground ml-2 capitalize">({job.scope})</span>
+                        <span className="text-[11px] text-muted-foreground block">
+                          {new Date(job.created_at).toLocaleDateString()} • {(job.file_size_bytes / 1024).toFixed(1)} KB
+                        </span>
+                      </div>
+
+                      {job.download_url && job.status === "completed" ? (
+                        <a
+                          href={job.download_url}
+                          download
+                          className="px-3 py-1 rounded-lg border border-border bg-card hover:bg-muted font-medium text-foreground flex items-center gap-1 transition-colors"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                          <span>Download</span>
+                        </a>
+                      ) : (
+                        <span className="text-muted-foreground capitalize">{job.status}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Transparency Data Map */}
+          <div className="bg-card p-6 rounded-2xl border border-border shadow-xs space-y-4">
+            <h2 className="text-base font-semibold flex items-center gap-2">
+              <FileText className="w-4 h-4 text-primary" /> Data Transparency Map
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              What data we store, the purposes for which it is processed, and our retention schedules.
+            </p>
+
+            <div className="space-y-3 pt-2">
+              {dataMap.map((item, i) => (
+                <div key={i} className="p-3.5 rounded-xl bg-muted/30 border border-border space-y-1.5 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-semibold text-foreground">{item.category}</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-muted text-muted-foreground font-mono">
+                      {item.lawful_basis}
+                    </span>
+                  </div>
+                  <p className="text-muted-foreground leading-relaxed">{item.description}</p>
+                  <div className="pt-1 text-[11px] text-primary flex items-center gap-1.5">
+                    <strong>Retention:</strong>
+                    <span>{item.retention}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Danger Zone: Account Deletion */}
+          <div className="bg-card p-6 rounded-2xl border border-destructive/30 shadow-xs space-y-4">
+            <h2 className="text-base font-semibold flex items-center gap-2 text-destructive">
+              <ShieldAlert className="w-4 h-4 text-destructive" /> Danger Zone: Account Deletion
+            </h2>
+
+            {deletionRequest && deletionRequest.status === "requested" ? (
+              <div className="p-4 rounded-xl bg-destructive/10 border border-destructive/30 space-y-3">
+                <div className="text-xs text-destructive space-y-1">
+                  <p className="font-semibold">Account Deletion Scheduled</p>
+                  <p>
+                    Your account and all workspace data are scheduled for permanent deletion on{" "}
+                    <strong>{new Date(deletionRequest.execute_after).toLocaleString()}</strong>.
+                  </p>
+                  <p className="text-[11px]">
+                    Encrypted system backups containing your data will expire by{" "}
+                    <strong>{deletionRequest.backup_expiry_date}</strong>.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  disabled={cancelDeletionMutation.isPending}
+                  onClick={() => cancelDeletionMutation.mutate()}
+                  className="px-3.5 py-2 rounded-xl bg-card border border-destructive/40 text-xs font-semibold text-destructive hover:bg-destructive/10 transition-colors cursor-pointer disabled:opacity-50"
+                >
+                  {cancelDeletionMutation.isPending ? "Cancelling..." : "Cancel Deletion Request"}
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-start justify-between gap-4">
+                <div className="text-xs text-muted-foreground space-y-1">
+                  <p>
+                    Permanently delete your account, workspace, ledger, and all financial transactions.
+                  </p>
+                  <p className="text-[11px]">
+                    Includes a 7-day grace period. Truthful backup retention disclosure: Encrypted backups expire after 30 days.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setIsDeleteOpen(true)}
+                  className="px-4 py-2 rounded-xl bg-destructive text-white text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
+                >
+                  Delete Account
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* TAB CONTENT: NOTIFICATIONS */}
       {activeTab === "notifications" && (
         <form onSubmit={handlePrefsSubmit} className="space-y-6 max-w-2xl">
@@ -517,6 +817,62 @@ export const SettingsPage: React.FC = () => {
           </button>
         </form>
       )}
+
+      {/* 2FA Modals */}
+      <TwoFactorSetupDialog
+        isOpen={isSetupOpen}
+        onClose={() => setIsSetupOpen(false)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.settings.me });
+          setFeedback({
+            type: "success",
+            message: "Two-factor authentication has been enabled successfully!",
+          });
+        }}
+      />
+
+      <TwoFactorDisableDialog
+        isOpen={isDisableOpen}
+        onClose={() => setIsDisableOpen(false)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: queryKeys.settings.me });
+          setFeedback({
+            type: "success",
+            message: "Two-factor authentication has been disabled.",
+          });
+        }}
+      />
+
+      <RecoveryCodesDialog
+        isOpen={isRecoveryOpen}
+        onClose={() => setIsRecoveryOpen(false)}
+      />
+
+      {/* Privacy Modals */}
+      <DataExportDialog
+        isOpen={isExportOpen}
+        onClose={() => setIsExportOpen(false)}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["privacy", "exports"] });
+          setFeedback({
+            type: "success",
+            message: "Workspace data export generated successfully.",
+          });
+        }}
+      />
+
+      <AccountDeletionDialog
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        twoFactorEnabled={meData?.two_factor_enabled}
+        onSuccess={() => {
+          queryClient.invalidateQueries({ queryKey: ["privacy", "deletion-request"] });
+          setFeedback({
+            type: "success",
+            message: "Account deletion request has been registered with a 7-day grace period.",
+          });
+        }}
+      />
     </div>
   );
 };

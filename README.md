@@ -44,24 +44,27 @@ Rationale and rejected alternatives: `docs/adr/`.
 
 ## Documentation map
 
+The full documentation index is available at [`docs/README.md`](docs/README.md).
+
 | Document | Contents |
 |---|---|
-| [`docs/SRS.md`](docs/SRS.md) | Software Requirements Specification, requirement IDs, assumptions, gaps |
-| [`docs/FEATURE_MATRIX.md`](docs/FEATURE_MATRIX.md) | V1 required / V1 optional / deferred, with complexity and risk |
-| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | System, ledger, reporting, auth, background, backup, deployment architecture + Mermaid |
-| [`docs/DATABASE.md`](docs/DATABASE.md) | Entity specification, constraints, indexes, ERD |
-| [`docs/ACCOUNTING_RULES.md`](docs/ACCOUNTING_RULES.md) | Ledger model, posting recipes, money rules, reconciliation |
-| [`docs/API_SPECIFICATION.md`](docs/API_SPECIFICATION.md) | Endpoints, payloads, errors, pagination, idempotency |
-| [`docs/SECURITY.md`](docs/SECURITY.md) | Threat model, controls, privacy, deletion, backups |
-| [`docs/TESTING.md`](docs/TESTING.md) | Test pyramid, financial-integrity suite, gates |
-| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Six phases, milestones, dependencies, exit criteria |
-| [`docs/RISKS.md`](docs/RISKS.md) | Risks, dependencies, mitigations |
-| [`docs/ACCEPTANCE_CRITERIA.md`](docs/ACCEPTANCE_CRITERIA.md) | V1.0 release checklist |
-| [`docs/PLANNING_REVIEW.md`](docs/PLANNING_REVIEW.md) | Consistency, arithmetic, double-counting, and feasibility review |
-| [`docs/DESIGN_SYSTEM.md`](docs/DESIGN_SYSTEM.md) | Golden brand system, tokens, typography, charts, motion |
-| [`docs/REPOSITORY_STRUCTURE.md`](docs/REPOSITORY_STRUCTURE.md) | Full planned tree and ownership boundaries |
+| [`docs/specifications/SRS.md`](docs/specifications/SRS.md) | Software Requirements Specification, requirement IDs, assumptions, gaps |
+| [`docs/specifications/FEATURE_MATRIX.md`](docs/specifications/FEATURE_MATRIX.md) | V1 required / V1 optional / deferred, with complexity and risk |
+| [`docs/architecture/ARCHITECTURE.md`](docs/architecture/ARCHITECTURE.md) | System, ledger, reporting, auth, background, backup, deployment architecture + Mermaid |
+| [`docs/architecture/DATABASE.md`](docs/architecture/DATABASE.md) | Entity specification, constraints, indexes, ERD |
+| [`docs/architecture/ACCOUNTING_RULES.md`](docs/architecture/ACCOUNTING_RULES.md) | Ledger model, posting recipes, money rules, reconciliation |
+| [`docs/api/API_SPECIFICATION.md`](docs/api/API_SPECIFICATION.md) | Endpoints, payloads, errors, pagination, idempotency |
+| [`docs/architecture/SECURITY.md`](docs/architecture/SECURITY.md) | Threat model, controls, privacy, deletion, backups |
+| [`docs/specifications/TESTING.md`](docs/specifications/TESTING.md) | Test pyramid, financial-integrity suite, gates |
+| [`docs/ROADMAP.md`](docs/ROADMAP.md) | Delivery roadmap, milestones, dependencies, exit criteria |
+| [`docs/specifications/RISKS.md`](docs/specifications/RISKS.md) | Risks, dependencies, mitigations |
+| [`docs/specifications/ACCEPTANCE_CRITERIA.md`](docs/specifications/ACCEPTANCE_CRITERIA.md) | V1.0 release checklist |
+| [`docs/specifications/PLANNING_REVIEW.md`](docs/specifications/PLANNING_REVIEW.md) | Consistency, arithmetic, double-counting, and feasibility review |
+| [`docs/architecture/DESIGN_SYSTEM.md`](docs/architecture/DESIGN_SYSTEM.md) | Golden brand system, tokens, typography, charts, motion |
+| [`docs/architecture/REPOSITORY_STRUCTURE.md`](docs/architecture/REPOSITORY_STRUCTURE.md) | Full planned tree and ownership boundaries |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | Dated record of real changes |
 | [`docs/adr/`](docs/adr/) | Architecture Decision Records |
+| [`docs/reports/`](docs/reports/) | Milestone and verification reports |
 | [`GLOSSARY.md`](GLOSSARY.md) | Canonical domain vocabulary |
 | [`.AGENT.md`](.AGENT.md) | Operating instructions for coding agents |
 | [`.agent/`](.agent/) | Agent context, standards, workflows, checklists |

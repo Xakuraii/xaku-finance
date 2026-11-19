@@ -1,6 +1,6 @@
 # Decisions index
 
-Canonical decisions live in `docs/adr/` and `docs/ACCOUNTING_RULES.md`. This file is a quick index with
+Canonical decisions live in `docs/adr/` and `docs/architecture/ACCOUNTING_RULES.md`. This file is a quick index with
 the practical consequence of each decision. If this index and an ADR disagree, the ADR wins.
 
 | # | Decision | Practical consequence |
@@ -39,7 +39,7 @@ the practical consequence of each decision. If this index and an ADR disagree, t
 ## How to change a decision
 
 1. Write or amend an ADR with context, alternatives, and consequences.
-2. Update `docs/ACCOUNTING_RULES.md` if money behavior changes, plus its tests.
+2. Update `docs/architecture/ACCOUNTING_RULES.md` if money behavior changes, plus its tests.
 3. Update the SRS requirement and feature matrix.
 4. Update this index and `docs/CHANGELOG.md`.
 5. Only then change code.
