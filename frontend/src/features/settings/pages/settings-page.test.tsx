@@ -195,4 +195,32 @@ describe("SettingsPage", () => {
       expect(screen.getByText("Disabled")).toBeInTheDocument();
     });
   });
+
+  it("switches to privacy tab and displays export and transparency map", async () => {
+    vi.spyOn(settingsApi, "getMe").mockResolvedValue(mockMe);
+    vi.spyOn(settingsApi, "getWorkspaceSettings").mockResolvedValue(mockWs);
+    vi.spyOn(settingsApi, "getWorkspaceSummary").mockResolvedValue(mockSummary);
+    vi.spyOn(notificationsApi, "getNotificationPreferences").mockResolvedValue(mockPrefs);
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <SettingsPage />
+        </MemoryRouter>
+      </QueryClientProvider>
+    );
+
+    await waitFor(() => {
+      expect(screen.getByText("Settings & Preferences")).toBeInTheDocument();
+    });
+
+    const privTab = screen.getByRole("button", { name: "Privacy & Data" });
+    fireEvent.click(privTab);
+
+    await waitFor(() => {
+      expect(screen.getByText("Data Export & Portability")).toBeInTheDocument();
+      expect(screen.getByText("Data Transparency Map")).toBeInTheDocument();
+      expect(screen.getByText("Danger Zone: Account Deletion")).toBeInTheDocument();
+    });
+  });
 });

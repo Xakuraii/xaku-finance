@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "apps.debts",
     "apps.analytics",
     "apps.notifications",
+    "apps.privacy",
 ]
 
 MIDDLEWARE = [
