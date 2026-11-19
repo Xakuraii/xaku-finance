@@ -1,7 +1,6 @@
 """Integration tests for user data export endpoints and services."""
 
 import json
-from decimal import Decimal
 
 import pytest
 from django.utils import timezone
@@ -10,9 +9,12 @@ from apps.accounts.models import Account, AccountNature, AccountType
 from apps.categories.models import Category, CategoryKind
 from apps.common.models import Currency
 from apps.identity.services.sessions import RequestMeta, issue_tokens
-from apps.privacy.models import DataExportJob, ExportFormat, ExportScope, ExportStatus
-from apps.privacy.services.export import create_export_job, get_export_download_data
-from apps.transactions.models import Transaction, TransactionSplit, TransactionStatus, TransactionType
+from apps.transactions.models import (
+    Transaction,
+    TransactionSplit,
+    TransactionStatus,
+    TransactionType,
+)
 
 PASSWORD = "correct horse battery staple"
 

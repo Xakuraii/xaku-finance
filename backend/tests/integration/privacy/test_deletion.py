@@ -1,15 +1,14 @@
 """Integration tests for account deletion requests, grace period, and cancellation."""
 
-from datetime import timedelta
 
 import pytest
-from django.utils import timezone
 
 from apps.identity.models import User, UserSession
 from apps.identity.services import two_factor
 from apps.identity.services.sessions import RequestMeta, issue_tokens
 from apps.privacy.models import AccountDeletionRequest, DeletionRequestStatus
 from apps.privacy.services.deletion import execute_deletion, request_account_deletion
+from apps.workspaces.models import Workspace
 
 PASSWORD = "correct horse battery staple"
 
@@ -17,11 +16,10 @@ PASSWORD = "correct horse battery staple"
 @pytest.fixture
 def enrolled_user(user):
     two_factor.begin_enrollment(user)
-    # Get current TOTP code
-    config = two_factor._enabled_config(user, for_update=False) if hasattr(two_factor, "_enabled_config") else None
-    # We can use the test helper
     import hashlib
+
     import pyotp
+
     secret = two_factor._decrypt_secret(user.two_factor)
     totp = pyotp.TOTP(secret, digits=6, interval=30, digest=hashlib.sha1)
     code = totp.now()
@@ -66,7 +64,6 @@ def test_deletion_request_workflow_and_cancellation(api_client, user) -> None:
 
     api_client.credentials(HTTP_AUTHORIZATION=f"Bearer {tokens1.access}")
 
-    now = timezone.now()
     res = api_client.post(
         "/api/v1/privacy/deletion-requests/",
         {"password": PASSWORD, "confirm": "DELETE"},
@@ -127,3 +124,4 @@ def test_execute_deletion_removes_data(user) -> None:
     u = User.objects.get(id=user_id)
     assert u.is_active is False
     assert "@deleted.local" in u.email
+    assert not Workspace.objects.filter(id=ws_id).exists()

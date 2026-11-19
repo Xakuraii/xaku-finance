@@ -89,15 +89,22 @@ def request_account_deletion(
                 severity=NotificationSeverity.CRITICAL,
                 title="Account Deletion Scheduled",
                 body=(
-                    f"Your account deletion request is active. All live financial data will be permanently "
-                    f"deleted on {execute_after.strftime('%Y-%m-%d %H:%M UTC')}. Encrypted backups containing "
-                    f"your records expire by {backup_expiry_date.isoformat()}. You may cancel during this 7-day grace period."
+                    f"Your account deletion request is active. All live financial data will "
+                    f"be permanently deleted on {execute_after.strftime('%Y-%m-%d %H:%M UTC')}. "
+                    f"Encrypted backups containing your records expire by "
+                    f"{backup_expiry_date.isoformat()}. "
+                    "You may cancel during this 7-day grace period."
                 ),
                 dedupe_key=f"deletion_requested_{req.id}",
-                data={"deletion_request_id": str(req.id), "execute_after": execute_after.isoformat()},
+                data={
+                    "deletion_request_id": str(req.id),
+                    "execute_after": execute_after.isoformat(),
+                },
             )
 
-    logger.info("Account deletion requested for user %s, execution after %s", user.id, execute_after)
+    logger.info(
+        "Account deletion requested for user %s, execution after %s", user.id, execute_after
+    )
     return req
 
 
@@ -123,7 +130,10 @@ def cancel_account_deletion(*, user: User) -> AccountDeletionRequest:
             category=NotificationCategory.SECURITY,
             severity=NotificationSeverity.INFO,
             title="Account Deletion Cancelled",
-            body="Your account deletion request was cancelled. Your workspace and financial data remain active.",
+            body=(
+                "Your account deletion request was cancelled. "
+                "Your workspace and financial data remain active."
+            ),
             dedupe_key=f"deletion_cancelled_{req.id}_{int(now.timestamp())}",
         )
 

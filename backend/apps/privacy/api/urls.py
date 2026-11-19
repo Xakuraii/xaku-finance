@@ -18,7 +18,11 @@ urlpatterns = [
     path("exports/<uuid:pk>/download/", ExportDownloadView.as_view(), name="export-download"),
     path("exports/<uuid:pk>/cancel/", ExportCancelView.as_view(), name="export-cancel"),
     path("privacy/data-map/", DataMapView.as_view(), name="privacy-data-map"),
-    path("privacy/deletion-requests/", AccountDeletionView.as_view(), name="privacy-deletion-requests"),
+    path(
+        "privacy/deletion-requests/",
+        AccountDeletionView.as_view(),
+        name="privacy-deletion-requests",
+    ),
     path(
         "privacy/deletion-requests/current/",
         CurrentAccountDeletionView.as_view(),

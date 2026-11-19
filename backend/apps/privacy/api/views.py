@@ -149,7 +149,9 @@ class AccountDeletionView(APIView):
             "backup_expiry_date": req.backup_expiry_date,
             "consequences": DELETION_CONSEQUENCES,
         }
-        return Response(AccountDeletionResponseSerializer(resp_data).data, status=status.HTTP_200_OK)
+        return Response(
+            AccountDeletionResponseSerializer(resp_data).data, status=status.HTTP_200_OK
+        )
 
 
 class CurrentAccountDeletionView(APIView):
@@ -171,7 +173,9 @@ class CurrentAccountDeletionView(APIView):
             "backup_expiry_date": req.backup_expiry_date,
             "consequences": DELETION_CONSEQUENCES,
         }
-        return Response(AccountDeletionResponseSerializer(resp_data).data, status=status.HTTP_200_OK)
+        return Response(
+            AccountDeletionResponseSerializer(resp_data).data, status=status.HTTP_200_OK
+        )
 
     @extend_schema(
         responses={204: None, 404: dict},

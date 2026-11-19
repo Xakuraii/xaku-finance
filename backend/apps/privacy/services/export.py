@@ -38,8 +38,8 @@ def create_export_job(
     *,
     user: User,
     workspace: Workspace,
-    scope: str = ExportScope.ALL,
-    export_format: str = ExportFormat.JSON,
+    scope: str = "all",
+    export_format: str = "json",
 ) -> DataExportJob:
     """Create and immediately execute a data export job."""
     if scope not in ExportScope.values:
@@ -249,30 +249,46 @@ def _serialize_export(
         writer = csv.writer(out)
 
         if "transactions" in data:
-            writer.writerow(["Transaction ID", "Date", "Amount", "Currency", "Status", "Title", "Description", "Merchant", "Tags"])
+            writer.writerow(
+                [
+                    "Transaction ID",
+                    "Date",
+                    "Amount",
+                    "Currency",
+                    "Status",
+                    "Title",
+                    "Description",
+                    "Merchant",
+                    "Tags",
+                ]
+            )
             for tx in data.get("transactions", []):
-                writer.writerow([
-                    tx["id"],
-                    tx["date"],
-                    tx["amount"],
-                    tx["currency"],
-                    tx["status"],
-                    tx["title"],
-                    tx["description"],
-                    tx["merchant"],
-                    ", ".join(tx.get("tags", [])),
-                ])
+                writer.writerow(
+                    [
+                        tx["id"],
+                        tx["date"],
+                        tx["amount"],
+                        tx["currency"],
+                        tx["status"],
+                        tx["title"],
+                        tx["description"],
+                        tx["merchant"],
+                        ", ".join(tx.get("tags", [])),
+                    ]
+                )
         elif "accounts" in data:
             writer.writerow(["Account ID", "Name", "Type", "Currency", "Spendable", "Archived"])
             for acc in data.get("accounts", []):
-                writer.writerow([
-                    acc["id"],
-                    acc["name"],
-                    acc["account_type"],
-                    acc["currency"],
-                    acc["is_spendable"],
-                    acc["archived_at"],
-                ])
+                writer.writerow(
+                    [
+                        acc["id"],
+                        acc["name"],
+                        acc["account_type"],
+                        acc["currency"],
+                        acc["is_spendable"],
+                        acc["archived_at"],
+                    ]
+                )
         else:
             writer.writerow(["Key", "Value"])
             for k, v in data.items():

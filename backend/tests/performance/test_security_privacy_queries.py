@@ -10,7 +10,7 @@ from rest_framework.test import APIClient
 from apps.accounts.models import AccountType
 from apps.accounts.services import create_account
 from apps.categories.models import Category, CategoryKind
-from apps.privacy.models import ExportFormat, ExportScope, ExportStatus, DataExportJob
+from apps.privacy.models import DataExportJob, ExportFormat, ExportScope, ExportStatus
 from apps.transactions.models import Transaction, TransactionStatus, TransactionType
 from apps.transactions.services.opening import create_opening_balance
 from tests.factories.users import UserFactory
@@ -57,7 +57,7 @@ def security_populated_workspace():
             occurred_on=date.today() - timedelta(days=i),
         )
 
-    for i in range(3):
+    for _i in range(3):
         DataExportJob.objects.create(
             user=user,
             workspace=ws,
@@ -116,8 +116,10 @@ def test_account_deletion_status_query_budget(
         assert response.status_code == 404
 
     # When an active deletion request exists, queries request within <= 5 queries
-    from apps.privacy.models import AccountDeletionRequest, DeletionRequestStatus
     from django.utils import timezone
+
+    from apps.privacy.models import AccountDeletionRequest, DeletionRequestStatus
+
     AccountDeletionRequest.objects.create(
         user=user,
         workspace=user.workspace,
