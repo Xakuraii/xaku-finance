@@ -18,7 +18,7 @@ from apps.analytics.emergency_fund import update_emergency_fund_config
 from apps.analytics.models import ObligationCadence, ObligationKind, RecurringObligation
 from apps.analytics.net_worth import get_or_create_snapshot
 from apps.budgets.services.create import create_budget
-from apps.categories.models import Category, CategoryKind
+from apps.categories.models import Category
 from apps.categories.services import create_category
 from apps.common.models import Currency
 from apps.common.money import Money
@@ -110,7 +110,8 @@ class Command(BaseCommand):
             if Account.objects.filter(workspace=ws, is_archived=False).exists():
                 self.stdout.write(
                     self.style.WARNING(
-                        "Workspace already contains active accounts. Re-run with --reset to rebuild."
+                        "Workspace already contains active accounts. "
+                        "Re-run with --reset to rebuild."
                     )
                 )
                 return
@@ -217,38 +218,155 @@ class Command(BaseCommand):
                 sort_order=order,
             )
 
-        cat_salary = get_cat("Monthly Salary", CategoryKind.INCOME, "briefcase", "#10B981", 1)
-        cat_consulting = get_cat("Product Consulting", CategoryKind.INCOME, "laptop", "#38BDF8", 2)
-        cat_retainer_khr = get_cat("Local Studio Retainer", CategoryKind.INCOME, "sparkles", "#F0B90B", 3)
-        cat_dividends = get_cat("Dividends & Yield", CategoryKind.INCOME, "trending-up", "#A78BFA", 4)
+        cat_salary = get_cat("Monthly Salary", "income", "briefcase", "#10B981", 1)
+        cat_consulting = get_cat("Product Consulting", "income", "laptop", "#38BDF8", 2)
+        cat_retainer_khr = get_cat("Local Studio Retainer", "income", "sparkles", "#F0B90B", 3)
+        cat_dividends = get_cat("Dividends & Yield", "income", "trending-up", "#A78BFA", 4)
 
-        cat_housing = get_cat("Housing & Rent", CategoryKind.EXPENSE, "home", "#F0B90B", 10)
-        cat_groceries = get_cat("Groceries & Market", CategoryKind.EXPENSE, "shopping-cart", "#10B981", 11)
-        cat_dining = get_cat("Coffee & Dining", CategoryKind.EXPENSE, "coffee", "#FB923C", 12)
-        cat_transport = get_cat("Transport & Grab", CategoryKind.EXPENSE, "car", "#38BDF8", 13)
-        cat_utilities = get_cat("Utilities & Fiber", CategoryKind.EXPENSE, "zap", "#A78BFA", 14)
-        cat_software = get_cat("Cloud & SaaS Tools", CategoryKind.EXPENSE, "cpu", "#60A5FA", 15)
-        cat_health = get_cat("Healthcare & Pharmacy", CategoryKind.EXPENSE, "heart-pulse", "#F43F5E", 16)
-        cat_travel = get_cat("Travel & Getaways", CategoryKind.EXPENSE, "plane", "#14B8A6", 17)
+        cat_housing = get_cat("Housing & Rent", "expense", "home", "#F0B90B", 10)
+        cat_groceries = get_cat("Groceries & Market", "expense", "shopping-cart", "#10B981", 11)
+        cat_dining = get_cat("Coffee & Dining", "expense", "coffee", "#FB923C", 12)
+        cat_transport = get_cat("Transport & Grab", "expense", "car", "#38BDF8", 13)
+        cat_utilities = get_cat("Utilities & Fiber", "expense", "zap", "#A78BFA", 14)
+        cat_software = get_cat("Cloud & SaaS Tools", "expense", "cpu", "#60A5FA", 15)
+        cat_health = get_cat("Healthcare & Pharmacy", "expense", "heart-pulse", "#F43F5E", 16)
+        cat_travel = get_cat("Travel & Getaways", "expense", "plane", "#14B8A6", 17)
 
         # 4. Varied 6-month Income & Expense Activity (USD + KHR)
         def clamp_date(days_ago: int) -> date:
             return today - timedelta(days=max(0, days_ago))
 
         income_schedule = [
-            (168, aba_checking, "USD", "3420.18", "Engineering Payroll - Month 1", cat_salary, "Vannak Tech Co", ["salary", "payroll"]),
-            (152, aba_checking, "USD", "685.40", "UX Design Sprint Advisory", cat_consulting, "Studio K", ["consulting", "work"]),
-            (138, aba_checking, "USD", "3485.62", "Engineering Payroll - Month 2", cat_salary, "Vannak Tech Co", ["salary", "payroll"]),
-            (126, wing_khr, "KHR", "1850000.00", "Phnom Penh Boutique Retainer", cat_retainer_khr, "Mekong Retail", ["retainer", "khmer"]),
-            (108, aba_checking, "USD", "3610.40", "Engineering Payroll & Bonus", cat_salary, "Vannak Tech Co", ["salary", "payroll"]),
-            (96, etf_portfolio, "USD", "164.35", "Quarterly Index ETF Dividend", cat_dividends, "Vanguard VOO", ["dividend", "passive"]),
-            (78, aba_checking, "USD", "3420.18", "Engineering Payroll - Month 4", cat_salary, "Vannak Tech Co", ["salary", "payroll"]),
-            (64, aba_checking, "USD", "1120.25", "API Architecture Audit", cat_consulting, "FinCore Asia", ["consulting", "work"]),
-            (48, aba_checking, "USD", "3795.90", "Engineering Payroll & On-Call", cat_salary, "Vannak Tech Co", ["salary", "payroll"]),
-            (32, wing_khr, "KHR", "2140000.00", "Cambodia Storefront Consultation", cat_retainer_khr, "Sovann Group", ["retainer", "khmer"]),
-            (18, aba_checking, "USD", "3540.75", "Engineering Payroll - Current", cat_salary, "Vannak Tech Co", ["salary", "payroll"]),
-            (9, aba_checking, "USD", "845.60", "Mobile Checkout Audit Milestone", cat_consulting, "Kiri Pay", ["consulting", "work"]),
-            (4, etf_portfolio, "USD", "178.92", "Monthly Yield Reinvestment", cat_dividends, "Vanguard VOO", ["dividend", "passive"]),
+            (
+                168,
+                aba_checking,
+                "USD",
+                "3420.18",
+                "Engineering Payroll - Month 1",
+                cat_salary,
+                "Vannak Tech Co",
+                ["salary", "payroll"],
+            ),
+            (
+                152,
+                aba_checking,
+                "USD",
+                "685.40",
+                "UX Design Sprint Advisory",
+                cat_consulting,
+                "Studio K",
+                ["consulting", "work"],
+            ),
+            (
+                138,
+                aba_checking,
+                "USD",
+                "3485.62",
+                "Engineering Payroll - Month 2",
+                cat_salary,
+                "Vannak Tech Co",
+                ["salary", "payroll"],
+            ),
+            (
+                126,
+                wing_khr,
+                "KHR",
+                "1850000.00",
+                "Phnom Penh Boutique Retainer",
+                cat_retainer_khr,
+                "Mekong Retail",
+                ["retainer", "khmer"],
+            ),
+            (
+                108,
+                aba_checking,
+                "USD",
+                "3610.40",
+                "Engineering Payroll & Bonus",
+                cat_salary,
+                "Vannak Tech Co",
+                ["salary", "payroll"],
+            ),
+            (
+                96,
+                etf_portfolio,
+                "USD",
+                "164.35",
+                "Quarterly Index ETF Dividend",
+                cat_dividends,
+                "Vanguard VOO",
+                ["dividend", "passive"],
+            ),
+            (
+                78,
+                aba_checking,
+                "USD",
+                "3420.18",
+                "Engineering Payroll - Month 4",
+                cat_salary,
+                "Vannak Tech Co",
+                ["salary", "payroll"],
+            ),
+            (
+                64,
+                aba_checking,
+                "USD",
+                "1120.25",
+                "API Architecture Audit",
+                cat_consulting,
+                "FinCore Asia",
+                ["consulting", "work"],
+            ),
+            (
+                48,
+                aba_checking,
+                "USD",
+                "3795.90",
+                "Engineering Payroll & On-Call",
+                cat_salary,
+                "Vannak Tech Co",
+                ["salary", "payroll"],
+            ),
+            (
+                32,
+                wing_khr,
+                "KHR",
+                "2140000.00",
+                "Cambodia Storefront Consultation",
+                cat_retainer_khr,
+                "Sovann Group",
+                ["retainer", "khmer"],
+            ),
+            (
+                18,
+                aba_checking,
+                "USD",
+                "3540.75",
+                "Engineering Payroll - Current",
+                cat_salary,
+                "Vannak Tech Co",
+                ["salary", "payroll"],
+            ),
+            (
+                9,
+                aba_checking,
+                "USD",
+                "845.60",
+                "Mobile Checkout Audit Milestone",
+                cat_consulting,
+                "Kiri Pay",
+                ["consulting", "work"],
+            ),
+            (
+                4,
+                etf_portfolio,
+                "USD",
+                "178.92",
+                "Monthly Yield Reinvestment",
+                cat_dividends,
+                "Vanguard VOO",
+                ["dividend", "passive"],
+            ),
         ]
 
         for days_ago, acct, curr, amt, title, cat, merchant, tags in income_schedule:
@@ -270,40 +388,360 @@ class Command(BaseCommand):
         # Realistic, non-repetitive USD and KHR expenses spread across 175 days + current month
         expense_schedule = [
             # Month -5 to -3 historical baseline
-            (164, aba_checking, "USD", "725.00", "Apartment Lease - BKK1", cat_housing, "BKK1 Residences", "essential", ["recurring", "housing"]),
-            (160, wing_khr, "KHR", "236000.00", "Lucky Market Weekly Produce", cat_groceries, "Lucky Supermarket", "essential", ["grocery", "phnom-penh"]),
-            (155, cash_khr, "KHR", "18500.00", "Brown Iced Latte & Croissant", cat_dining, "Brown Coffee", "lifestyle", ["coffee"]),
-            (149, aba_checking, "USD", "68.42", "Ezecom Fiber & EDC Electric", cat_utilities, "Ezecom", "essential", ["recurring", "utilities"]),
-            (134, aba_checking, "USD", "725.00", "Apartment Lease - BKK1", cat_housing, "BKK1 Residences", "essential", ["recurring", "housing"]),
-            (131, wing_khr, "KHR", "194500.00", "Aeon Supermarket Fresh Haul", cat_groceries, "Aeon Mall 1", "essential", ["grocery", "phnom-penh"]),
-            (122, aba_checking, "USD", "41.80", "AWS + Cloud Backups", cat_software, "Amazon Web Services", "important", ["saas", "work"]),
-            (114, cash_khr, "KHR", "24500.00", "Grab Rides & Tuk-Tuk", cat_transport, "Grab Cambodia", "important", ["transport"]),
-            (104, aba_checking, "USD", "740.00", "Apartment Lease + Parking", cat_housing, "BKK1 Residences", "essential", ["recurring", "housing"]),
-            (99, wing_khr, "KHR", "218000.00", "Thai Huot Organic Groceries", cat_groceries, "Thai Huot", "essential", ["grocery"]),
-            (91, aba_checking, "USD", "186.35", "Kampot Weekend Riverside Stay", cat_travel, "Amber Kampot", "lifestyle", ["weekend", "travel"]),
-            (86, wing_khr, "KHR", "142000.00", "Royal Phnom Penh Checkup", cat_health, "Royal PP Hospital", "essential", ["health"]),
+            (
+                164,
+                aba_checking,
+                "USD",
+                "725.00",
+                "Apartment Lease - BKK1",
+                cat_housing,
+                "BKK1 Residences",
+                "essential",
+                ["recurring", "housing"],
+            ),
+            (
+                160,
+                wing_khr,
+                "KHR",
+                "236000.00",
+                "Lucky Market Weekly Produce",
+                cat_groceries,
+                "Lucky Supermarket",
+                "essential",
+                ["grocery", "phnom-penh"],
+            ),
+            (
+                155,
+                cash_khr,
+                "KHR",
+                "18500.00",
+                "Brown Iced Latte & Croissant",
+                cat_dining,
+                "Brown Coffee",
+                "lifestyle",
+                ["coffee"],
+            ),
+            (
+                149,
+                aba_checking,
+                "USD",
+                "68.42",
+                "Ezecom Fiber & EDC Electric",
+                cat_utilities,
+                "Ezecom",
+                "essential",
+                ["recurring", "utilities"],
+            ),
+            (
+                134,
+                aba_checking,
+                "USD",
+                "725.00",
+                "Apartment Lease - BKK1",
+                cat_housing,
+                "BKK1 Residences",
+                "essential",
+                ["recurring", "housing"],
+            ),
+            (
+                131,
+                wing_khr,
+                "KHR",
+                "194500.00",
+                "Aeon Supermarket Fresh Haul",
+                cat_groceries,
+                "Aeon Mall 1",
+                "essential",
+                ["grocery", "phnom-penh"],
+            ),
+            (
+                122,
+                aba_checking,
+                "USD",
+                "41.80",
+                "AWS + Cloud Backups",
+                cat_software,
+                "Amazon Web Services",
+                "important",
+                ["saas", "work"],
+            ),
+            (
+                114,
+                cash_khr,
+                "KHR",
+                "24500.00",
+                "Grab Rides & Tuk-Tuk",
+                cat_transport,
+                "Grab Cambodia",
+                "important",
+                ["transport"],
+            ),
+            (
+                104,
+                aba_checking,
+                "USD",
+                "740.00",
+                "Apartment Lease + Parking",
+                cat_housing,
+                "BKK1 Residences",
+                "essential",
+                ["recurring", "housing"],
+            ),
+            (
+                99,
+                wing_khr,
+                "KHR",
+                "218000.00",
+                "Thai Huot Organic Groceries",
+                cat_groceries,
+                "Thai Huot",
+                "essential",
+                ["grocery"],
+            ),
+            (
+                91,
+                aba_checking,
+                "USD",
+                "186.35",
+                "Kampot Weekend Riverside Stay",
+                cat_travel,
+                "Amber Kampot",
+                "lifestyle",
+                ["weekend", "travel"],
+            ),
+            (
+                86,
+                wing_khr,
+                "KHR",
+                "142000.00",
+                "Royal Phnom Penh Checkup",
+                cat_health,
+                "Royal PP Hospital",
+                "essential",
+                ["health"],
+            ),
             # Month -2 to -1
-            (74, aba_checking, "USD", "740.00", "Apartment Lease + Parking", cat_housing, "BKK1 Residences", "essential", ["recurring", "housing"]),
-            (70, aba_checking, "USD", "74.15", "EDC Electric & Water Utility", cat_utilities, "EDC Phnom Penh", "essential", ["recurring", "utilities"]),
-            (66, aba_checking, "USD", "91.74", "Super Duper Pantry Restock", cat_groceries, "Super Duper", "essential", ["grocery"]),
-            (61, cash_khr, "KHR", "16500.00", "Tube Coffee Morning", cat_dining, "Tube Coffee", "lifestyle", ["coffee"]),
-            (55, aba_checking, "USD", "218.40", "Siem Reap Flight & Boutique", cat_travel, "Cambodia Angkor Air", "lifestyle", ["travel", "weekend"]),
-            (45, aba_checking, "USD", "740.00", "Apartment Lease + Parking", cat_housing, "BKK1 Residences", "essential", ["recurring", "housing"]),
-            (41, wing_khr, "KHR", "274000.00", "Malis Khmer Fine Dining", cat_dining, "Malis Restaurant", "lifestyle", ["dining", "family"]),
-            (37, aba_checking, "USD", "38.99", "Figma + GitHub Copilot Pro", cat_software, "Figma Inc", "important", ["saas", "work"]),
-            (33, wing_khr, "KHR", "164500.00", "Makro Household & Produce", cat_groceries, "Makro Cambodia", "essential", ["grocery"]),
+            (
+                74,
+                aba_checking,
+                "USD",
+                "740.00",
+                "Apartment Lease + Parking",
+                cat_housing,
+                "BKK1 Residences",
+                "essential",
+                ["recurring", "housing"],
+            ),
+            (
+                70,
+                aba_checking,
+                "USD",
+                "74.15",
+                "EDC Electric & Water Utility",
+                cat_utilities,
+                "EDC Phnom Penh",
+                "essential",
+                ["recurring", "utilities"],
+            ),
+            (
+                66,
+                aba_checking,
+                "USD",
+                "91.74",
+                "Super Duper Pantry Restock",
+                cat_groceries,
+                "Super Duper",
+                "essential",
+                ["grocery"],
+            ),
+            (
+                61,
+                cash_khr,
+                "KHR",
+                "16500.00",
+                "Tube Coffee Morning",
+                cat_dining,
+                "Tube Coffee",
+                "lifestyle",
+                ["coffee"],
+            ),
+            (
+                55,
+                aba_checking,
+                "USD",
+                "218.40",
+                "Siem Reap Flight & Boutique",
+                cat_travel,
+                "Cambodia Angkor Air",
+                "lifestyle",
+                ["travel", "weekend"],
+            ),
+            (
+                45,
+                aba_checking,
+                "USD",
+                "740.00",
+                "Apartment Lease + Parking",
+                cat_housing,
+                "BKK1 Residences",
+                "essential",
+                ["recurring", "housing"],
+            ),
+            (
+                41,
+                wing_khr,
+                "KHR",
+                "274000.00",
+                "Malis Khmer Fine Dining",
+                cat_dining,
+                "Malis Restaurant",
+                "lifestyle",
+                ["dining", "family"],
+            ),
+            (
+                37,
+                aba_checking,
+                "USD",
+                "38.99",
+                "Figma + GitHub Copilot Pro",
+                cat_software,
+                "Figma Inc",
+                "important",
+                ["saas", "work"],
+            ),
+            (
+                33,
+                wing_khr,
+                "KHR",
+                "164500.00",
+                "Makro Household & Produce",
+                cat_groceries,
+                "Makro Cambodia",
+                "essential",
+                ["grocery"],
+            ),
             # Current month dense varied activity (< 28 days ago)
-            (22, aba_checking, "USD", "740.00", "Apartment Lease + Parking", cat_housing, "BKK1 Residences", "essential", ["recurring", "housing"]),
-            (19, aba_checking, "USD", "71.20", "Ezecom Fiber & Mobile Data", cat_utilities, "Ezecom", "essential", ["recurring", "utilities"]),
-            (16, wing_khr, "KHR", "188500.00", "Orussey & Lucky Fresh Market", cat_groceries, "Lucky Supermarket", "essential", ["grocery", "phnom-penh"]),
-            (14, cash_khr, "KHR", "22000.00", "Grab Car Airport Pickup", cat_transport, "Grab Cambodia", "important", ["transport"]),
-            (11, aba_checking, "USD", "87.50", "Dental Hygiene & Scaling", cat_health, "Roomchang Clinic", "important", ["health"]),
-            (9, aba_checking, "USD", "64.38", "Super Duper Cold Cuts & Olive Oil", cat_groceries, "Super Duper", "essential", ["grocery"]),
-            (7, wing_khr, "KHR", "96000.00", "KOI & Khmer Lunch with Team", cat_dining, "Eleven One Kitchen", "lifestyle", ["dining"]),
-            (5, aba_checking, "USD", "46.85", "Cloudflare + Linear + Hosting", cat_software, "Cloudflare", "important", ["saas", "work"]),
-            (3, cash_khr, "KHR", "19500.00", "Espresso & Pastries", cat_dining, "Brown Coffee", "lifestyle", ["coffee"]),
-            (2, aba_checking, "USD", "53.19", "Pharmacare Vitamins & First Aid", cat_health, "Ucare Pharmacy", "unplanned", ["health"]),
-            (1, wing_khr, "KHR", "48500.00", "PassApp & Petrol Refill", cat_transport, "Tela Station", "important", ["transport"]),
+            (
+                22,
+                aba_checking,
+                "USD",
+                "740.00",
+                "Apartment Lease + Parking",
+                cat_housing,
+                "BKK1 Residences",
+                "essential",
+                ["recurring", "housing"],
+            ),
+            (
+                19,
+                aba_checking,
+                "USD",
+                "71.20",
+                "Ezecom Fiber & Mobile Data",
+                cat_utilities,
+                "Ezecom",
+                "essential",
+                ["recurring", "utilities"],
+            ),
+            (
+                16,
+                wing_khr,
+                "KHR",
+                "188500.00",
+                "Orussey & Lucky Fresh Market",
+                cat_groceries,
+                "Lucky Supermarket",
+                "essential",
+                ["grocery", "phnom-penh"],
+            ),
+            (
+                14,
+                cash_khr,
+                "KHR",
+                "22000.00",
+                "Grab Car Airport Pickup",
+                cat_transport,
+                "Grab Cambodia",
+                "important",
+                ["transport"],
+            ),
+            (
+                11,
+                aba_checking,
+                "USD",
+                "87.50",
+                "Dental Hygiene & Scaling",
+                cat_health,
+                "Roomchang Clinic",
+                "important",
+                ["health"],
+            ),
+            (
+                9,
+                aba_checking,
+                "USD",
+                "64.38",
+                "Super Duper Cold Cuts & Olive Oil",
+                cat_groceries,
+                "Super Duper",
+                "essential",
+                ["grocery"],
+            ),
+            (
+                7,
+                wing_khr,
+                "KHR",
+                "96000.00",
+                "KOI & Khmer Lunch with Team",
+                cat_dining,
+                "Eleven One Kitchen",
+                "lifestyle",
+                ["dining"],
+            ),
+            (
+                5,
+                aba_checking,
+                "USD",
+                "46.85",
+                "Cloudflare + Linear + Hosting",
+                cat_software,
+                "Cloudflare",
+                "important",
+                ["saas", "work"],
+            ),
+            (
+                3,
+                cash_khr,
+                "KHR",
+                "19500.00",
+                "Espresso & Pastries",
+                cat_dining,
+                "Brown Coffee",
+                "lifestyle",
+                ["coffee"],
+            ),
+            (
+                2,
+                aba_checking,
+                "USD",
+                "53.19",
+                "Pharmacare Vitamins & First Aid",
+                cat_health,
+                "Ucare Pharmacy",
+                "unplanned",
+                ["health"],
+            ),
+            (
+                1,
+                wing_khr,
+                "KHR",
+                "48500.00",
+                "PassApp & Petrol Refill",
+                cat_transport,
+                "Tela Station",
+                "important",
+                ["transport"],
+            ),
         ]
 
         for days_ago, acct, curr, amt, title, cat, merchant, necessity, tags in expense_schedule:
@@ -337,8 +775,12 @@ class Command(BaseCommand):
             necessity="essential",
             tags=["grocery", "health"],
             splits=[
-                SplitInput(category_id=cat_groceries.id, amount="104.25", memo="Fresh produce & pantry"),
-                SplitInput(category_id=cat_health.id, amount="44.40", memo="Multivitamins & bandages"),
+                SplitInput(
+                    category_id=cat_groceries.id, amount="104.25", memo="Fresh produce & pantry"
+                ),
+                SplitInput(
+                    category_id=cat_health.id, amount="44.40", memo="Multivitamins & bandages"
+                ),
             ],
         )
         create_transaction(
@@ -354,7 +796,9 @@ class Command(BaseCommand):
             necessity="important",
             tags=["grocery", "dining", "phnom-penh"],
             splits=[
-                SplitInput(category_id=cat_groceries.id, amount="228000.00", memo="Weekly groceries"),
+                SplitInput(
+                    category_id=cat_groceries.id, amount="228000.00", memo="Weekly groceries"
+                ),
                 SplitInput(category_id=cat_dining.id, amount="84000.00", memo="Dinner court"),
             ],
         )
@@ -675,9 +1119,7 @@ class Command(BaseCommand):
 
         # 10. Precompute Historical Net Worth Snapshots (USD + KHR)
         ws.refresh_from_db()
-        snapshot_dates = sorted(
-            {_add_months_end(today, -m) for m in range(1, 6)} | {today}
-        )
+        snapshot_dates = sorted({_add_months_end(today, -m) for m in range(1, 6)} | {today})
         for snap_date in snapshot_dates:
             get_or_create_snapshot(ws, as_of=snap_date, currency_code="USD")
             get_or_create_snapshot(ws, as_of=snap_date, currency_code="KHR")
