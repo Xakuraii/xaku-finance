@@ -10,9 +10,16 @@ import { ImportWizardDialog } from "@/features/imports/components/import-wizard-
 import { MoneyDisplay } from "@/components/money";
 import { formatAccountType } from "@/lib/format";
 import { queryKeys } from "@/lib/query-keys";
+import {
+  convertMajorToUsdAndKhr,
+  formatKhr,
+  formatUsd,
+  useCurrency,
+} from "@/lib/currency-context";
 
 export const StatementSheet: React.FC = () => {
   const queryClient = useQueryClient();
+  const { usdToKhrRate } = useCurrency();
   const [includeArchived, setIncludeArchived] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
@@ -31,11 +38,17 @@ export const StatementSheet: React.FC = () => {
     },
   });
 
-  // Calculate totals by currency
+  // Calculate totals by currency and combined dual-currency portfolio
   const totalsByCurrency: Record<string, number> = {};
+  let combinedUsd = 0;
+  let combinedKhr = 0;
+
   accounts.forEach((acc) => {
     if (!acc.is_archived) {
       totalsByCurrency[acc.currency] = (totalsByCurrency[acc.currency] || 0) + acc.balance_minor;
+      const converted = convertMajorToUsdAndKhr(acc.balance_minor / 100, acc.currency, usdToKhrRate);
+      combinedUsd += converted.usd;
+      combinedKhr += converted.khr;
     }
   });
 
@@ -90,29 +103,64 @@ export const StatementSheet: React.FC = () => {
         </div>
       </div>
 
-      {/* Summary figures */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {Object.entries(totalsByCurrency).length > 0 ? (
-          Object.entries(totalsByCurrency).map(([curr, amountMinor]) => (
-            <div
-              key={curr}
-              className="rounded-lg bg-[var(--surface)] border border-[var(--border)] p-4"
-            >
-              <span className="text-xs text-muted uppercase tracking-wider">Total {curr} Assets</span>
-              <div className="mt-1">
-                <MoneyDisplay
-                  amountMinor={amountMinor}
-                  currency={curr}
-                  className="text-xl font-semibold text-gold"
-                />
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="col-span-full rounded-lg bg-[var(--surface)] border border-[var(--border)] p-4 text-xs text-muted">
-            No active balances. Create an account to begin tracking.
+      {/* Dual-Currency & Combined Portfolio Summary */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4 relative overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--accent)]" />
+          <div className="flex items-center justify-between text-xs text-muted">
+            <span>Combined Portfolio (USD)</span>
+            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)]">
+              $ USD
+            </span>
           </div>
-        )}
+          <div className="mt-1.5 font-mono text-2xl font-bold text-gold">
+            {formatUsd(combinedUsd)}
+          </div>
+          <div className="text-[11px] text-faint mt-1 font-mono">
+            All USD &amp; KHR accounts @ {usdToKhrRate.toLocaleString()} ៛/$
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4 relative overflow-hidden">
+          <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--positive)]" />
+          <div className="flex items-center justify-between text-xs text-muted">
+            <span>Combined Portfolio (Khmer Riel)</span>
+            <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)]">
+              ៛ KHR
+            </span>
+          </div>
+          <div className="mt-1.5 font-mono text-2xl font-bold text-[var(--positive)]">
+            {formatKhr(combinedKhr)}
+          </div>
+          <div className="text-[11px] text-faint mt-1 font-mono">
+            Dual-currency equivalent balance
+          </div>
+        </div>
+
+        <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4">
+          <div className="text-xs text-muted mb-2">Native Ledger Balances</div>
+          {Object.entries(totalsByCurrency).length > 0 ? (
+            <div className="space-y-1.5">
+              {Object.entries(totalsByCurrency).map(([curr, amountMinor]) => (
+                <div
+                  key={curr}
+                  className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] text-xs"
+                >
+                  <span className="font-mono font-semibold text-main">{curr}</span>
+                  <MoneyDisplay
+                    amountMinor={amountMinor}
+                    currency={curr}
+                    className="text-sm font-semibold text-main"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-xs text-faint py-2">
+              No active balances. Create an account to begin tracking.
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Statement Table */}

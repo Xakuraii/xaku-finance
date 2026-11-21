@@ -18,7 +18,6 @@ import {
   Menu,
   X,
   Search,
-  Command,
   PlusCircle,
   CheckCircle2,
   CornerDownLeft,
@@ -29,6 +28,7 @@ import { ImportWizardDialog } from "@/features/imports/components/import-wizard-
 import { useQuery } from "@tanstack/react-query";
 import { getAccounts } from "@/features/accounts/api";
 import { queryKeys } from "@/lib/query-keys";
+import { CurrencyDisplayMode, useCurrency } from "@/lib/currency-context";
 
 type NavItem = {
   to: string;
@@ -130,6 +130,7 @@ const navLinkClass = (isActive: boolean, collapsed: boolean) =>
 
 export const AuthenticatedLayout: React.FC = () => {
   const { user, workspace, isAuthenticated, isLoading, logout } = useAuth();
+  const { mode, setMode, usdToKhrRate } = useCurrency();
   const location = useLocation();
   const navigate = useNavigate();
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -450,6 +451,39 @@ export const AuthenticatedLayout: React.FC = () => {
 
             {/* Right controls */}
             <div className="flex items-center gap-2 sm:gap-2.5">
+              {/* Interactive Dual-Currency Switcher ($ USD | ៛ KHR | Both) */}
+              <div
+                className="inline-flex items-center rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] p-0.5 text-[11px]"
+                role="group"
+                aria-label="Currency display switcher"
+                title={`Exchange reference: $1 = ${usdToKhrRate.toLocaleString()} ៛`}
+              >
+                {(
+                  [
+                    { value: "USD", label: "$ USD", short: "$" },
+                    { value: "KHR", label: "៛ KHR", short: "៛" },
+                    { value: "BOTH", label: "$ + ៛ Both", short: "$+៛" },
+                  ] as Array<{ value: CurrencyDisplayMode; label: string; short: string }>
+                ).map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setMode(opt.value)}
+                    className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                      mode === opt.value
+                        ? "bg-gold shadow-xs font-semibold"
+                        : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                    }`}
+                  >
+                    <span className="hidden sm:inline">{opt.label}</span>
+                    <span className="sm:hidden">{opt.short}</span>
+                  </button>
+                ))}
+                <span className="hidden 2xl:inline-block px-2 text-[10px] font-mono text-[var(--text-faint)] border-l border-[var(--border)] ml-0.5">
+                  1$={usdToKhrRate.toLocaleString()}៛
+                </span>
+              </div>
+
               {/* Quick Command Palette Trigger */}
               <button
                 type="button"
@@ -461,8 +495,8 @@ export const AuthenticatedLayout: React.FC = () => {
                 title="Open Quick Command Palette (Ctrl/Cmd + K)"
               >
                 <Search className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Quick jump</span>
-                <kbd className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--text-faint)]">
+                <span className="hidden md:inline">Quick jump</span>
+                <kbd className="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--text-faint)]">
                   ⌘K
                 </kbd>
               </button>
@@ -492,52 +526,6 @@ export const AuthenticatedLayout: React.FC = () => {
         <main className="flex-1 px-4 sm:px-6 py-6 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
-
-        {/* Institutional 3-Zone Footer */}
-        <footer className="border-t border-[var(--border)] bg-[var(--surface)]/60 py-4 px-4 sm:px-6 text-[11px] text-[var(--text-faint)]">
-          <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
-              <span className="font-display font-semibold text-[var(--text)]">XakuFinance</span>
-              <span>·</span>
-              <span>Double-Entry Accounting Core · 0 Minor-Unit Drift</span>
-            </div>
-
-            <nav className="flex flex-wrap items-center justify-center gap-4 text-[var(--text-muted)]" aria-label="Footer Quick Links">
-              <Link to="/app/dashboard" className="hover:text-[var(--text)] transition-colors">
-                Dashboard
-              </Link>
-              <Link to="/app/transactions" className="hover:text-[var(--text)] transition-colors">
-                Transactions
-              </Link>
-              <Link to="/app/analytics" className="hover:text-[var(--text)] transition-colors">
-                Analytics
-              </Link>
-              <Link to="/app/settings" className="hover:text-[var(--text)] transition-colors">
-                Settings
-              </Link>
-            </nav>
-
-            <div className="flex items-center gap-2">
-              {workspace && (
-                <span className="font-mono px-2 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
-                  {workspace.reporting_currency}
-                </span>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  setCommandQuery("");
-                  setIsCommandOpen(true);
-                }}
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer font-mono"
-              >
-                <Command className="w-2.5 h-2.5" />
-                <span>K Quick Command</span>
-              </button>
-            </div>
-          </div>
-        </footer>
       </div>
 
       {/* Quick Action & Navigation Command Palette */}

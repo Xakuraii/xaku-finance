@@ -25,6 +25,7 @@ import {
 } from "../api/dashboard-api";
 import { DashboardLayoutDialog } from "../components/dashboard-layout-dialog";
 import { CreateTransactionDrawer } from "@/features/transactions/components/create-transaction-drawer";
+import { formatDualAmount, useCurrency } from "@/lib/currency-context";
 
 type PeriodOption = undefined | "current_month" | "last_30_days" | "last_90_days" | "ytd";
 
@@ -89,9 +90,24 @@ const WidgetValue: React.FC<{
 
 export const DashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [layoutOpen, setLayoutOpen] = useState(false);
   const [createTxOpen, setCreateTxOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption>(undefined);
+
+  const renderDualReadout = (amountStr: string | undefined, sourceCurr: string | undefined) => {
+    if (!isProviderMounted) return null;
+    const src = (sourceCurr || dashboard?.currency || "USD").toUpperCase();
+    const dual = formatDualAmount(amountStr || "0.00", src, mode, usdToKhrRate);
+    const alt = src === "KHR" ? dual.usdFormatted : dual.khrFormatted;
+    if (mode === "USD" && src !== "KHR") return null;
+    if (mode === "KHR" && src === "KHR") return null;
+    return (
+      <div className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">
+        {mode === "BOTH" ? `≈ ${alt}` : alt}
+      </div>
+    );
+  };
 
   const { data: dashboard, isLoading, error } = useQuery<DashboardResponse>({
     queryKey: selectedPeriod ? ["dashboard-data", selectedPeriod] : ["dashboard-data"],
@@ -164,6 +180,10 @@ export const DashboardPage: React.FC = () => {
                 {dashboard.converted_total?.currency || dashboard.currency}
               </span>
             </WidgetValue>
+            {renderDualReadout(
+              dashboard.converted_total?.amount,
+              dashboard.converted_total?.currency || dashboard.currency
+            )}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">Consolidated available</p>
             {dashboard.balances && dashboard.balances.length > 0 && (
               <div className="pt-3 mt-2 border-t border-[var(--border)] flex flex-wrap gap-1.5">
@@ -195,6 +215,10 @@ export const DashboardPage: React.FC = () => {
                 {dashboard.net_worth?.currency || dashboard.currency}
               </span>
             </WidgetValue>
+            {renderDualReadout(
+              dashboard.net_worth?.amount,
+              dashboard.net_worth?.currency || dashboard.currency
+            )}
             <div className="flex items-center justify-between mt-2">
               <p className="text-[11px] text-[var(--text-faint)]">
                 Assets {dashboard.net_worth?.assets || "0.00"} · Liabilities{" "}
@@ -231,6 +255,10 @@ export const DashboardPage: React.FC = () => {
                 {dashboard.safe_to_spend?.currency || dashboard.currency}
               </span>
             </WidgetValue>
+            {renderDualReadout(
+              dashboard.safe_to_spend?.display,
+              dashboard.safe_to_spend?.currency || dashboard.currency
+            )}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">
               After subtracting upcoming obligations
             </p>
@@ -256,6 +284,10 @@ export const DashboardPage: React.FC = () => {
               {dashboard.daily_allowance?.allowance || "0.00"}
               <span className="text-sm font-normal text-[var(--text-muted)] ml-1">/ day</span>
             </WidgetValue>
+            {renderDualReadout(
+              dashboard.daily_allowance?.allowance,
+              dashboard.daily_allowance?.currency || dashboard.currency
+            )}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">
               {dashboard.daily_allowance?.remaining_days || 0} days left in period
             </p>
@@ -303,6 +335,7 @@ export const DashboardPage: React.FC = () => {
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
                   {inflowStr}
                 </div>
+                {renderDualReadout(inflowStr, dashboard.currency)}
               </div>
               <div className="p-3.5 rounded-lg bg-[var(--negative-bg)] border border-[var(--negative-border)]">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--negative)] font-medium mb-2">
@@ -312,6 +345,7 @@ export const DashboardPage: React.FC = () => {
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
                   {outflowStr}
                 </div>
+                {renderDualReadout(outflowStr, dashboard.currency)}
               </div>
               <div className="p-3.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)]">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-medium mb-2">
@@ -321,6 +355,7 @@ export const DashboardPage: React.FC = () => {
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
                   {netStr}
                 </div>
+                {renderDualReadout(netStr, dashboard.currency)}
               </div>
             </div>
 
