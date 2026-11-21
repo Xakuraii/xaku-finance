@@ -1,6 +1,7 @@
 import React from "react";
 import { Shield, Settings, AlertTriangle, CheckCircle, Info } from "lucide-react";
 import { EmergencyFundStatus } from "../api/emergency-fund-api";
+import { formatDualAmount, useCurrency } from "@/lib/currency-context";
 
 interface EmergencyFundCardProps {
   status: EmergencyFundStatus;
@@ -11,7 +12,14 @@ export const EmergencyFundCard: React.FC<EmergencyFundCardProps> = ({
   status,
   onConfigure,
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const isFullyFunded = status.progress_percent >= 100;
+  const baseCurr = (status as { currency?: string }).currency || "USD";
+  const currentDual = formatDualAmount(status.current_savings, baseCurr, mode, usdToKhrRate);
+  const targetDual = formatDualAmount(status.target_amount, baseCurr, mode, usdToKhrRate);
+  const remainingDual = formatDualAmount(status.remaining_target, baseCurr, mode, usdToKhrRate);
+  const monthlyDual = formatDualAmount(status.monthly_essential_expense, baseCurr, mode, usdToKhrRate);
+  const computedDual = formatDualAmount(status.computed_monthly_expense, baseCurr, mode, usdToKhrRate);
 
   return (
     <div
@@ -62,14 +70,21 @@ export const EmergencyFundCard: React.FC<EmergencyFundCardProps> = ({
 
       {/* Progress & Target Section */}
       <div className="space-y-2">
-        <div className="flex items-baseline justify-between">
-          <div className="flex items-baseline gap-2">
-            <span className="text-2xl font-bold text-main">
-              ${status.current_savings}
-            </span>
-            <span className="text-sm text-[var(--text-muted)]">
-              of ${status.target_amount} target
-            </span>
+        <div className="flex items-baseline justify-between gap-2">
+          <div>
+            <div className="flex items-baseline gap-2 flex-wrap">
+              <span className="text-2xl font-bold font-mono text-main">
+                {isProviderMounted ? currentDual.primary : `$${status.current_savings}`}
+              </span>
+              <span className="text-sm text-[var(--text-muted)]">
+                of {isProviderMounted ? targetDual.primary : `$${status.target_amount}`} target
+              </span>
+            </div>
+            {isProviderMounted && currentDual.secondary && (
+              <div className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">
+                {currentDual.secondary} / {targetDual.secondary}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1 text-sm font-semibold">
             {isFullyFunded ? (
@@ -90,7 +105,7 @@ export const EmergencyFundCard: React.FC<EmergencyFundCardProps> = ({
           className="w-full bg-[var(--surface-raised)] rounded-full h-3 overflow-hidden border border-[var(--border)]/50"
         >
           <div
-            className={`h-full transition-all duration-500 ${
+            className={`h-full transition-all duration-500 animate-xaku-bar ${
               isFullyFunded ? "bg-[var(--positive)]" : "bg-[var(--accent)]"
             }`}
             style={{ width: `${Math.min(100, Math.max(0, status.progress_percent))}%` }}
@@ -98,7 +113,10 @@ export const EmergencyFundCard: React.FC<EmergencyFundCardProps> = ({
         </div>
 
         <div className="flex justify-between items-center text-xs text-[var(--text-muted)] pt-1">
-          <span>Remaining needed: ${status.remaining_target}</span>
+          <span>
+            Remaining needed:{" "}
+            {isProviderMounted ? remainingDual.primary : `$${status.remaining_target}`}
+          </span>
           <span>Coverage: {status.target_months} months</span>
         </div>
       </div>
@@ -107,10 +125,15 @@ export const EmergencyFundCard: React.FC<EmergencyFundCardProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2 border-t border-[var(--border)]/60">
         <div className="p-3 bg-[var(--surface-raised)]/50 border border-[var(--border)]/40 rounded-lg">
           <div className="text-xs text-[var(--text-muted)] mb-1">Monthly Essential Spend</div>
-          <div className="text-base font-semibold text-main">
-            ${status.monthly_essential_expense}
-            <span className="text-xs font-normal text-[var(--text-muted)]"> / mo</span>
+          <div className="text-base font-semibold font-mono text-main">
+            {isProviderMounted ? monthlyDual.primary : `$${status.monthly_essential_expense}`}
+            <span className="text-xs font-normal font-sans text-[var(--text-muted)]"> / mo</span>
           </div>
+          {isProviderMounted && monthlyDual.secondary && (
+            <div className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">
+              {monthlyDual.secondary} / mo
+            </div>
+          )}
           <div className="mt-1.5 flex items-center gap-1">
             <span
               data-testid="expense-source-badge"
@@ -143,10 +166,15 @@ export const EmergencyFundCard: React.FC<EmergencyFundCardProps> = ({
 
         <div className="p-3 bg-[var(--surface-raised)]/50 border border-[var(--border)]/40 rounded-lg">
           <div className="text-xs text-[var(--text-muted)] mb-1">Historical Analytics</div>
-          <div className="text-base font-semibold text-main">
-            ${status.computed_monthly_expense}
-            <span className="text-xs font-normal text-[var(--text-muted)]"> / mo</span>
+          <div className="text-base font-semibold font-mono text-main">
+            {isProviderMounted ? computedDual.primary : `$${status.computed_monthly_expense}`}
+            <span className="text-xs font-normal font-sans text-[var(--text-muted)]"> / mo</span>
           </div>
+          {isProviderMounted && computedDual.secondary && (
+            <div className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">
+              {computedDual.secondary} / mo
+            </div>
+          )}
           <div className="mt-1.5 flex items-center gap-1 text-[10px] text-[var(--text-muted)]">
             <Info className="w-3 h-3" />
             <span>Essential category filter ({status.lookback_days} days)</span>

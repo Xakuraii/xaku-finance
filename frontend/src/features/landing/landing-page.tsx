@@ -40,7 +40,7 @@ export const LandingPage: React.FC = () => {
   const monthlySavings = selectedCurrency === "USD" ? "+$650.00" : "+2,665,000 ៛";
 
   return (
-    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] selection:bg-[var(--accent)]/20 selection:text-[var(--accent)] transition-colors duration-300">
+    <div className="min-h-screen flex flex-col bg-[var(--bg)] text-[var(--text)] selection:bg-[var(--accent)]/20 selection:text-[var(--accent-text)] transition-colors duration-300">
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--surface)]/90 border-b border-[var(--border)] transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -86,7 +86,7 @@ export const LandingPage: React.FC = () => {
                 <button
                   onClick={handleInstantDemo}
                   disabled={isDemoLoggingIn}
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--accent)]/40 bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--accent)]/40 bg-[var(--accent)]/10 text-[var(--accent-text)] hover:bg-[var(--accent)]/20 text-xs font-medium transition-colors cursor-pointer disabled:opacity-50"
                   title="Log in directly with pre-seeded demo workspace"
                 >
                   <Sparkles className="w-3.5 h-3.5" />
@@ -119,7 +119,7 @@ export const LandingPage: React.FC = () => {
 
         <div className="max-w-6xl mx-auto px-4 sm:px-6 relative z-10">
           <div className="text-center max-w-3xl mx-auto space-y-6">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/5 text-[var(--accent)] text-xs font-medium shadow-xs">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/5 text-[var(--accent-text)] text-xs font-medium shadow-xs">
               <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)] animate-pulse" />
               <span>Zero Ledger Drift · True Double-Entry Precision</span>
             </div>
@@ -219,7 +219,7 @@ export const LandingPage: React.FC = () => {
               <div className="rounded-xl border border-[var(--border)] bg-[var(--surface-raised)] p-4">
                 <div className="flex items-center justify-between text-xs text-[var(--text-muted)] mb-1">
                   <span>Safe-to-Spend</span>
-                  <TrendingUp className="w-3.5 h-3.5 text-[var(--accent)]" />
+                  <TrendingUp className="w-3.5 h-3.5 text-[var(--accent-text)]" />
                 </div>
                 <div className="text-xl font-bold font-tabular text-[var(--text)]">
                   {safeToSpend}
@@ -262,7 +262,7 @@ export const LandingPage: React.FC = () => {
               <div className="space-y-2">
                 <div className="flex items-center justify-between p-3 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] text-xs">
                   <div className="flex items-center gap-3">
-                    <div className="w-7 h-7 rounded bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 font-bold text-[11px] shrink-0">
+                    <div className="w-7 h-7 rounded bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-[var(--accent-text)] font-bold text-[11px] shrink-0">
                       GF
                     </div>
                     <div>
@@ -318,7 +318,7 @@ export const LandingPage: React.FC = () => {
             {/* Large featured card — left */}
             <div className="md:col-span-2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-7 hover:border-[var(--accent)]/40 transition-colors group relative overflow-hidden">
               <div className="absolute right-0 top-0 w-40 h-40 bg-[var(--accent)]/3 rounded-full blur-3xl pointer-events-none" />
-              <div className="w-11 h-11 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-[var(--accent)] mb-5">
+              <div className="w-11 h-11 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-[var(--accent-text)] mb-5">
                 <BookOpen className="w-5 h-5" />
               </div>
               <h3 className="font-semibold text-lg text-[var(--text)] mb-2">
@@ -333,7 +333,7 @@ export const LandingPage: React.FC = () => {
                 {["Immutable entries", "Zero drift", "Audit trail"].map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--accent)]/8 text-[var(--accent)] border border-[var(--accent)]/20"
+                    className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-[var(--accent)]/8 text-[var(--accent-text)] border border-[var(--accent)]/20"
                   >
                     {tag}
                   </span>
@@ -361,7 +361,7 @@ export const LandingPage: React.FC = () => {
 
             {/* Bottom row: 3 equal */}
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 hover:border-[var(--accent)]/40 transition-colors group">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-[var(--accent)] mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-[var(--accent-text)] mb-4">
                 <Receipt className="w-5 h-5" />
               </div>
               <h3 className="font-semibold text-sm text-[var(--text)] mb-1.5">
@@ -385,7 +385,7 @@ export const LandingPage: React.FC = () => {
             </div>
 
             <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-6 hover:border-[var(--accent)]/40 transition-colors group">
-              <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-[var(--accent)] mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[var(--accent)]/10 border border-[var(--accent)]/20 flex items-center justify-center text-[var(--accent-text)] mb-4">
                 <FileSpreadsheet className="w-5 h-5" />
               </div>
               <h3 className="font-semibold text-sm text-[var(--text)] mb-1.5">
@@ -404,7 +404,7 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-5">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/5 text-[var(--accent)] text-xs font-medium">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/5 text-[var(--accent-text)] text-xs font-medium">
                 <Layers className="w-3.5 h-3.5" />
                 Ledger Engine
               </div>
@@ -436,7 +436,7 @@ export const LandingPage: React.FC = () => {
             <div className="rounded-xl border border-[var(--border)] bg-[var(--bg)] p-5 font-mono text-xs space-y-2 text-[var(--text-muted)]">
               <div className="text-[var(--text-faint)] text-[11px] mb-3">// Journal Entry Example</div>
               <div>
-                <span className="text-[var(--accent)]">DR</span>{" "}
+                <span className="text-[var(--accent-text)]">DR</span>{" "}
                 <span className="text-[var(--text)]">Expenses:Groceries</span>
                 <span className="ml-auto float-right text-[var(--text)]">$89.50</span>
               </div>
@@ -532,23 +532,109 @@ export const LandingPage: React.FC = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[var(--border)] py-8 text-xs text-[var(--text-muted)] bg-[var(--bg)]">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
-            <span className="font-display font-semibold text-[var(--text)]">XakuFinance</span>
-            <span className="text-[var(--text-faint)]">·</span>
-            <span className="text-[var(--text-faint)]">Ledger Integrity Standard</span>
+      {/* Institutional 4-Column Footer */}
+      <footer className="border-t border-[var(--border)] py-12 text-xs text-[var(--text-muted)] bg-[var(--bg)]">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold text-xs">
+                  <span className="font-display">X</span>
+                </div>
+                <span className="font-display font-bold text-sm text-[var(--text)]">
+                  XakuFinance
+                </span>
+              </div>
+              <p className="text-[11px] text-[var(--text-faint)] leading-relaxed">
+                Sovereign personal financial management built on an immutable double-entry ledger core with strict balance invariants.
+              </p>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="font-semibold text-[var(--text)]">Core Ledger Modules</div>
+              <ul className="space-y-1.5 text-[11px] text-[var(--text-faint)]">
+                <li>
+                  <a href="#features" className="hover:text-[var(--text)] transition-colors">
+                    Double-Entry Accounts
+                  </a>
+                </li>
+                <li>
+                  <a href="#features" className="hover:text-[var(--text)] transition-colors">
+                    Multi-Category Splits
+                  </a>
+                </li>
+                <li>
+                  <a href="#features" className="hover:text-[var(--text)] transition-colors">
+                    USD &amp; KHR FX Transfers
+                  </a>
+                </li>
+                <li>
+                  <a href="#features" className="hover:text-[var(--text)] transition-colors">
+                    Bank Statement CSV Import
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="font-semibold text-[var(--text)]">Planning &amp; Analytics</div>
+              <ul className="space-y-1.5 text-[11px] text-[var(--text-faint)]">
+                <li>
+                  <a href="#features" className="hover:text-[var(--text)] transition-colors">
+                    Positive-Only Budget Rollover
+                  </a>
+                </li>
+                <li>
+                  <a href="#architecture" className="hover:text-[var(--text)] transition-colors">
+                    Safe-to-Spend &amp; Pacing
+                  </a>
+                </li>
+                <li>
+                  <a href="#architecture" className="hover:text-[var(--text)] transition-colors">
+                    Savings Goals &amp; Debt Payoff
+                  </a>
+                </li>
+                <li>
+                  <a href="#architecture" className="hover:text-[var(--text)] transition-colors">
+                    Emergency Runway Planner
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div className="space-y-2.5">
+              <div className="font-semibold text-[var(--text)]">Security &amp; Access</div>
+              <ul className="space-y-1.5 text-[11px] text-[var(--text-faint)]">
+                <li>
+                  <a href="#security" className="hover:text-[var(--text)] transition-colors">
+                    RFC 6238 TOTP Two-Factor
+                  </a>
+                </li>
+                <li>
+                  <a href="#security" className="hover:text-[var(--text)] transition-colors">
+                    Emergency Recovery Codes
+                  </a>
+                </li>
+                <li>
+                  <Link to="/login" className="hover:text-[var(--text)] transition-colors">
+                    Sign In to Workspace
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/register" className="hover:text-[var(--text)] transition-colors">
+                    Create Workspace
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          <div className="flex items-center gap-6 text-[var(--text-faint)]">
-            <Link to="/login" className="hover:text-[var(--text)] transition-colors">
-              Sign In
-            </Link>
-            <Link to="/register" className="hover:text-[var(--text)] transition-colors">
-              Register
-            </Link>
+          <div className="pt-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[var(--text-faint)]">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+              <span>XakuFinance · Immutable Double-Entry Journal Architecture</span>
+            </div>
+            <div className="font-mono">0 Minor-Unit Drift Standard</div>
           </div>
         </div>
       </footer>

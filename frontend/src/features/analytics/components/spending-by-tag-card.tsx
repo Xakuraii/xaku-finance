@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Tag, Sparkles, PieChart, Layers } from "lucide-react";
 import { fetchTagAnalytics } from "../api/analytics-api";
@@ -11,12 +11,34 @@ interface SpendingByTagCardProps {
   currency?: string;
 }
 
-const NECESSITY_BADGES: Record<string, { label: string; color: string; bg: string }> = {
-  essential: { label: "Essential", color: "text-emerald-400", bg: "bg-emerald-500/10 border-emerald-500/20" },
-  important: { label: "Important", color: "text-sky-400", bg: "bg-sky-500/10 border-sky-500/20" },
-  lifestyle: { label: "Lifestyle", color: "text-purple-400", bg: "bg-purple-500/10 border-purple-500/20" },
-  unplanned: { label: "Unplanned", color: "text-amber-400", bg: "bg-amber-500/10 border-amber-500/20" },
+const NECESSITY_BADGES: Record<string, { label: string; color: string; bg: string; hex: string }> = {
+  essential: {
+    label: "Essential",
+    color: "text-emerald-600 dark:text-emerald-400",
+    bg: "bg-emerald-500/10 border-emerald-500/20",
+    hex: "#10B981",
+  },
+  important: {
+    label: "Important",
+    color: "text-sky-600 dark:text-sky-400",
+    bg: "bg-sky-500/10 border-sky-500/20",
+    hex: "#38BDF8",
+  },
+  lifestyle: {
+    label: "Lifestyle",
+    color: "text-purple-600 dark:text-purple-400",
+    bg: "bg-purple-500/10 border-purple-500/20",
+    hex: "#A78BFA",
+  },
+  unplanned: {
+    label: "Unplanned",
+    color: "text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-500/10 border-amber-500/20",
+    hex: "#F59E0B",
+  },
 };
+
+const TAG_PALETTE = ["#F0B90B", "#38BDF8", "#10B981", "#A78BFA", "#F43F5E", "#FB923C"];
 
 export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
   initialData,
@@ -25,12 +47,37 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
   currency,
 }) => {
   const [activeTab, setActiveTab] = useState<"tags" | "necessity">("tags");
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const { data, isLoading } = useQuery<TagAnalyticsResponse>({
     queryKey: ["analytics", "tags", from, to, currency],
     queryFn: () => fetchTagAnalytics({ from, to, currency }),
     initialData,
   });
+
+  const tagList = data?.by_tag || [];
+  const necessityList = data?.by_necessity || [];
+  const totalExpense = data?.total_expense || "0.00";
+  const displayCurrency = data?.currency || currency || "USD";
+
+  const donutSlices = useMemo(() => {
+    const items = activeTab === "tags" ? tagList : necessityList;
+    const R = 60;
+    const C = 2 * Math.PI * R;
+    let cumulative = 0;
+    return items.slice(0, 6).map((item, idx) => {
+      const pct = Math.max(0, Math.min(100, item.percentage));
+      const dashLen = (pct / 100) * C;
+      const offset = -((cumulative / 100) * C);
+      cumulative += pct;
+      const color =
+        activeTab === "tags"
+          ? TAG_PALETTE[idx % TAG_PALETTE.length]
+          : NECESSITY_BADGES[(item as typeof necessityList[number]).necessity]?.hex ||
+            TAG_PALETTE[idx % TAG_PALETTE.length];
+      return { idx, pct, color, dashArray: `${dashLen} ${C - dashLen}`, dashOffset: offset };
+    });
+  }, [activeTab, tagList, necessityList]);
 
   if (isLoading && !data) {
     return (
@@ -44,10 +91,11 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
     );
   }
 
-  const tagList = data?.by_tag || [];
-  const necessityList = data?.by_necessity || [];
-  const totalExpense = data?.total_expense || "0.00";
-  const displayCurrency = data?.currency || currency || "USD";
+  const activeCount = activeTab === "tags" ? tagList.length : necessityList.length;
+  const topSlicePct =
+    hoveredIdx !== null && donutSlices[hoveredIdx]
+      ? donutSlices[hoveredIdx].pct
+      : donutSlices[0]?.pct ?? 0;
 
   return (
     <div
@@ -73,7 +121,10 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
         <div className="flex items-center gap-1 bg-[var(--surface-raised)] p-1 rounded-lg border border-[var(--border)]">
           <button
             type="button"
-            onClick={() => setActiveTab("tags")}
+            onClick={() => {
+              setActiveTab("tags");
+              setHoveredIdx(null);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               activeTab === "tags"
                 ? "bg-gold shadow-xs font-semibold"
@@ -85,7 +136,10 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
           </button>
           <button
             type="button"
-            onClick={() => setActiveTab("necessity")}
+            onClick={() => {
+              setActiveTab("necessity");
+              setHoveredIdx(null);
+            }}
             className={`flex items-center gap-1.5 px-3 py-1 text-xs font-medium rounded-md transition-all cursor-pointer ${
               activeTab === "necessity"
                 ? "bg-gold shadow-xs font-semibold"
@@ -99,88 +153,154 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
       </div>
 
       {/* Content */}
-      <div className="pt-4">
-        {activeTab === "tags" ? (
-          tagList.length === 0 ? (
+      <div className="pt-5">
+        {activeCount === 0 ? (
+          activeTab === "tags" ? (
             <div className="py-8 text-center text-muted text-sm">
               <Tag className="w-8 h-8 mx-auto mb-2 opacity-50 text-gold" />
               No tagged expenses found in this period.
             </div>
           ) : (
-            <div className="space-y-4">
-              {tagList.map((item) => (
-                <div key={item.tag} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-medium text-main flex items-center gap-1.5">
-                      <span className="text-gold font-semibold">#</span>
-                      {item.tag}
-                      <span className="text-[10px] text-muted">
-                        ({item.count} {item.count === 1 ? "txn" : "txns"})
-                      </span>
-                    </span>
-                    <span className="text-main font-tabular font-medium">
-                      {item.amount} {displayCurrency}{" "}
-                      <span className="text-muted text-[11px]">({item.percentage}%)</span>
-                    </span>
-                  </div>
-                  <div className="h-2 w-full bg-[var(--surface-raised)] rounded-full overflow-hidden border border-[var(--border)]">
-                    <div
-                      className="h-full bg-gradient-to-r from-amber-500 to-[#F0B90B] rounded-full transition-all duration-500"
-                      style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+            <div className="py-8 text-center text-muted text-sm">
+              <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50 text-gold" />
+              No classified expenses recorded in this period.
             </div>
           )
-        ) : necessityList.length === 0 ? (
-          <div className="py-8 text-center text-muted text-sm">
-            <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-50 text-gold" />
-            No classified expenses recorded in this period.
-          </div>
         ) : (
-          <div className="space-y-4">
-            {necessityList.map((item) => {
-              const meta = NECESSITY_BADGES[item.necessity] || {
-                label: item.necessity,
-                color: "text-muted",
-                bg: "bg-[var(--surface-raised)] border-[var(--border)]",
-              };
-              return (
-                <div key={item.necessity} className="space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${meta.bg} ${meta.color}`}
-                      >
-                        {meta.label}
+          <div className="grid grid-cols-1 md:grid-cols-[190px_1fr] gap-6 items-center">
+            {/* SVG Donut Summary */}
+            <div className="relative flex items-center justify-center mx-auto">
+              <svg
+                viewBox="0 0 180 180"
+                className="w-40 h-40 -rotate-90"
+                role="img"
+                aria-label="Spending Concentration Donut"
+              >
+                <circle
+                  cx="90"
+                  cy="90"
+                  r="60"
+                  fill="none"
+                  stroke="var(--surface-raised)"
+                  strokeWidth="22"
+                />
+                {donutSlices.map((s) => (
+                  <circle
+                    key={s.idx}
+                    cx="90"
+                    cy="90"
+                    r="60"
+                    fill="none"
+                    stroke={s.color}
+                    strokeWidth={hoveredIdx === s.idx ? 26 : 22}
+                    strokeDasharray={s.dashArray}
+                    strokeDashoffset={s.dashOffset}
+                    className="animate-xaku-ring transition-all duration-300 cursor-pointer"
+                    onMouseEnter={() => setHoveredIdx(s.idx)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                  />
+                ))}
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                <span className="font-mono text-lg font-bold text-main">
+                  {topSlicePct.toFixed(0)}%
+                </span>
+                <span className="text-[10px] text-muted">
+                  {hoveredIdx !== null ? "Selected share" : "Top share"}
+                </span>
+              </div>
+            </div>
+
+            {/* Bars */}
+            {activeTab === "tags" ? (
+              <div className="space-y-4 animate-xaku-fade-up">
+                {tagList.map((item, idx) => (
+                  <div
+                    key={item.tag}
+                    className="space-y-1.5"
+                    onMouseEnter={() => setHoveredIdx(idx)}
+                    onMouseLeave={() => setHoveredIdx(null)}
+                  >
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-medium text-main flex items-center gap-1.5">
+                        <span
+                          className="w-2 h-2 rounded-full shrink-0"
+                          style={{ backgroundColor: TAG_PALETTE[idx % TAG_PALETTE.length] }}
+                        />
+                        <span className="text-gold font-semibold">#</span>
+                        {item.tag}
+                        <span className="text-[10px] text-muted">
+                          ({item.count} {item.count === 1 ? "txn" : "txns"})
+                        </span>
                       </span>
-                      <span className="text-[10px] text-muted">
-                        ({item.count} {item.count === 1 ? "txn" : "txns"})
+                      <span className="text-main font-tabular font-medium">
+                        {item.amount} {displayCurrency}{" "}
+                        <span className="text-muted text-[11px]">({item.percentage}%)</span>
                       </span>
                     </div>
-                    <span className="text-main font-tabular font-medium">
-                      {item.amount} {displayCurrency}{" "}
-                      <span className="text-muted text-[11px]">({item.percentage}%)</span>
-                    </span>
+                    <div className="h-2 w-full bg-[var(--surface-raised)] rounded-full overflow-hidden border border-[var(--border)]">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${Math.min(item.percentage, 100)}%`,
+                          backgroundColor: TAG_PALETTE[idx % TAG_PALETTE.length],
+                        }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-2 w-full bg-[var(--surface-raised)] rounded-full overflow-hidden border border-[var(--border)]">
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {necessityList.map((item, idx) => {
+                  const meta = NECESSITY_BADGES[item.necessity] || {
+                    label: item.necessity,
+                    color: "text-muted",
+                    bg: "bg-[var(--surface-raised)] border-[var(--border)]",
+                    hex: "#F59E0B",
+                  };
+                  return (
                     <div
-                      className={`h-full rounded-full transition-all duration-500 ${
-                        item.necessity === "essential"
-                          ? "bg-emerald-500"
-                          : item.necessity === "important"
-                          ? "bg-sky-500"
-                          : item.necessity === "lifestyle"
-                          ? "bg-purple-500"
-                          : "bg-amber-500"
-                      }`}
-                      style={{ width: `${Math.min(item.percentage, 100)}%` }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                      key={item.necessity}
+                      className="space-y-1.5"
+                      onMouseEnter={() => setHoveredIdx(idx)}
+                      onMouseLeave={() => setHoveredIdx(null)}
+                    >
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-0.5 text-[10px] font-semibold rounded border ${meta.bg} ${meta.color}`}
+                          >
+                            {meta.label}
+                          </span>
+                          <span className="text-[10px] text-muted">
+                            ({item.count} {item.count === 1 ? "txn" : "txns"})
+                          </span>
+                        </div>
+                        <span className="text-main font-tabular font-medium">
+                          {item.amount} {displayCurrency}{" "}
+                          <span className="text-muted text-[11px]">({item.percentage}%)</span>
+                        </span>
+                      </div>
+                      <div className="h-2 w-full bg-[var(--surface-raised)] rounded-full overflow-hidden border border-[var(--border)]">
+                        <div
+                          className={`h-full rounded-full transition-all duration-500 ${
+                            item.necessity === "essential"
+                              ? "bg-emerald-500"
+                              : item.necessity === "important"
+                              ? "bg-sky-500"
+                              : item.necessity === "lifestyle"
+                              ? "bg-purple-500"
+                              : "bg-amber-500"
+                          }`}
+                          style={{ width: `${Math.min(item.percentage, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

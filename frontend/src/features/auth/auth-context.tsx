@@ -28,6 +28,7 @@ export interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password: string) => Promise<LoginResult>;
+  loginWithGoogle?: (idToken: string) => Promise<LoginResult>;
   complete2FALogin: (mfa_token: string, code: string) => Promise<void>;
   register: (payload: {
     email: string;
@@ -99,6 +100,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { mfa_required: false };
   };
 
+  const loginWithGoogle = async (idToken: string): Promise<LoginResult> => {
+    const res = await api.post<{
+      access?: string;
+      user?: User;
+      workspace?: Workspace | null;
+      mfa_required?: boolean;
+      mfa_token?: string;
+      methods?: string[];
+      expires_in?: number;
+    }>("/api/v1/auth/google/", { id_token: idToken });
+
+    if (res.mfa_required) {
+      return {
+        mfa_required: true,
+        mfa_token: res.mfa_token,
+        methods: res.methods,
+        expires_in: res.expires_in,
+      };
+    }
+
+    if (res.access) {
+      setAccessToken(res.access);
+      if (res.user) setUser(res.user);
+      if (res.workspace) setWorkspace(res.workspace);
+    }
+    return { mfa_required: false };
+  };
+
   const complete2FALogin = async (mfa_token: string, code: string): Promise<void> => {
     const res = await api.post<{
       access: string;
@@ -150,6 +179,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         login,
+        loginWithGoogle,
         complete2FALogin,
         register,
         logout,

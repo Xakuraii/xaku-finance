@@ -1,5 +1,11 @@
 import React from "react";
 import { formatAmountOnly } from "@/lib/money";
+import {
+  convertMajorToUsdAndKhr,
+  formatKhr,
+  formatUsd,
+  useCurrency,
+} from "@/lib/currency-context";
 
 export interface MoneyProps {
   amountMinor: number;
@@ -18,6 +24,7 @@ export const MoneyDisplay: React.FC<MoneyProps> = ({
   className = "",
   colored = false,
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const isPositive = amountMinor > 0;
   const isNegative = amountMinor < 0;
 
@@ -36,13 +43,49 @@ export const MoneyDisplay: React.FC<MoneyProps> = ({
     else if (isNegative) colorClass = "text-negative";
   }
 
+  const majorSigned = amountMinor / 10 ** minorUnit;
+  const { usd, khr } = convertMajorToUsdAndKhr(Math.abs(majorSigned), currency, usdToKhrRate);
+  const usdStr = `${signStr}${formatUsd(usd)}`;
+  const khrStr = `${signStr}${formatKhr(khr)}`;
+
+  if (isProviderMounted) {
+    if (mode === "KHR") {
+      return (
+        <span className={`font-tabular inline-flex flex-wrap items-center gap-1.5 ${colorClass} ${className}`}>
+          <span>{khrStr}</span>
+          <span className="text-[11px] font-mono font-normal px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
+            {usdStr}
+          </span>
+        </span>
+      );
+    }
+
+    if (mode === "BOTH") {
+      return (
+        <span className={`font-tabular inline-flex flex-wrap items-center gap-1.5 ${colorClass} ${className}`}>
+          <span>{usdStr}</span>
+          <span className="text-[11px] font-mono font-normal px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
+            {khrStr}
+          </span>
+        </span>
+      );
+    }
+  }
+
   return (
-    <span className={`font-tabular inline-flex items-center gap-1 ${colorClass} ${className}`}>
-      <span>
-        {signStr}
-        {formatted}
+    <span className={`font-tabular inline-flex flex-wrap items-center gap-1.5 ${colorClass} ${className}`}>
+      <span className="inline-flex items-center gap-1">
+        <span>
+          {signStr}
+          {formatted}
+        </span>
+        <span className="text-muted text-xs tracking-wider font-normal">{currency}</span>
       </span>
-      <span className="text-muted text-xs tracking-wider font-normal">{currency}</span>
+      {isProviderMounted && mode === "USD" && currency.toUpperCase() === "KHR" && (
+        <span className="text-[11px] font-mono font-normal px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
+          ≈ {usdStr}
+        </span>
+      )}
     </span>
   );
 };

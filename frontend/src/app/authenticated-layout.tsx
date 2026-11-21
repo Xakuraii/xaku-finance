@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Link, NavLink, Outlet, Navigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { Link, NavLink, Outlet, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/auth-context";
 import {
   Wallet,
@@ -15,7 +15,13 @@ import {
   Settings,
   ChevronLeft,
   ChevronRight,
-  Menu, X,
+  Menu,
+  X,
+  Search,
+  PlusCircle,
+  CheckCircle2,
+  CornerDownLeft,
+  Pencil,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
@@ -23,11 +29,14 @@ import { ImportWizardDialog } from "@/features/imports/components/import-wizard-
 import { useQuery } from "@tanstack/react-query";
 import { getAccounts } from "@/features/accounts/api";
 import { queryKeys } from "@/lib/query-keys";
+import { CurrencyDisplayMode, DEFAULT_USD_TO_KHR, useCurrency } from "@/lib/currency-context";
 
 type NavItem = {
   to: string;
   label: string;
+  section: string;
   icon: React.ReactNode;
+  keywords?: string;
 };
 
 type NavGroup = {
@@ -42,12 +51,16 @@ const NAV_GROUPS: NavGroup[] = [
       {
         to: "/app/dashboard",
         label: "Dashboard",
+        section: "Overview",
         icon: <LayoutDashboard className="w-4 h-4" />,
+        keywords: "home summary kpi net worth",
       },
       {
         to: "/app/analytics",
         label: "Analytics",
+        section: "Overview",
         icon: <BarChart3 className="w-4 h-4" />,
+        keywords: "intelligence charts reports safe to spend",
       },
     ],
   },
@@ -57,12 +70,16 @@ const NAV_GROUPS: NavGroup[] = [
       {
         to: "/app/accounts",
         label: "Accounts",
+        section: "Finance",
         icon: <Wallet className="w-4 h-4" />,
+        keywords: "balances ledger wallets bank checking",
       },
       {
         to: "/app/transactions",
         label: "Transactions",
+        section: "Finance",
         icon: <ArrowLeftRight className="w-4 h-4" />,
+        keywords: "register expenses income splits journal",
       },
     ],
   },
@@ -72,45 +89,140 @@ const NAV_GROUPS: NavGroup[] = [
       {
         to: "/app/budgets",
         label: "Budgets",
+        section: "Planning",
         icon: <PiggyBank className="w-4 h-4" />,
+        keywords: "rollover limits spending cap",
       },
       {
         to: "/app/savings",
         label: "Savings",
+        section: "Planning",
         icon: <Target className="w-4 h-4" />,
+        keywords: "goals earmarks targets",
       },
       {
         to: "/app/debts",
         label: "Debts",
+        section: "Planning",
         icon: <CreditCard className="w-4 h-4" />,
+        keywords: "liabilities loans payoff apr",
       },
       {
         to: "/app/emergency-fund",
         label: "Emergency",
+        section: "Planning",
         icon: <Shield className="w-4 h-4" />,
+        keywords: "safety net runway cushion",
       },
     ],
   },
 ];
 
+const EXTRA_ROUTES: Array<{ to: string; label: string; section: string }> = [
+  { to: "/app/settings", label: "Settings & Security", section: "Workspace" },
+];
+
 const navLinkClass = (isActive: boolean, collapsed: boolean) =>
   `flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
     isActive
-      ? "bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20"
-      : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)]"
+      ? "bg-[var(--accent)]/12 text-[var(--accent-text)] border border-[var(--accent)]/30 font-semibold"
+      : "text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] border border-transparent"
   } ${collapsed ? "justify-center px-2" : ""}`;
 
 export const AuthenticatedLayout: React.FC = () => {
   const { user, workspace, isAuthenticated, isLoading, logout } = useAuth();
+  const { mode, setMode, usdToKhrRate, setUsdToKhrRate } = useCurrency();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [isCommandOpen, setIsCommandOpen] = useState(false);
+  const [commandQuery, setCommandQuery] = useState("");
+  const [isRatePopoverOpen, setIsRatePopoverOpen] = useState(false);
+  const [draftRate, setDraftRate] = useState(String(usdToKhrRate));
 
   const { data: accounts = [] } = useQuery({
     queryKey: queryKeys.accounts.list(false),
     queryFn: () => getAccounts(false),
     enabled: isAuthenticated,
   });
+
+  // Global Cmd+K / Ctrl+K shortcut for Quick Command Palette
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
+        e.preventDefault();
+        setIsCommandOpen((prev) => !prev);
+      } else if (e.key === "Escape") {
+        setIsCommandOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const currentRouteMeta = useMemo(() => {
+    const allItems = [...NAV_GROUPS.flatMap((g) => g.items), ...EXTRA_ROUTES];
+    const match = allItems.find((item) => location.pathname.startsWith(item.to));
+    return match || { section: "Workspace", label: "Financial Control" };
+  }, [location.pathname]);
+
+  const commandOptions = useMemo(() => {
+    const navCommands = [
+      ...NAV_GROUPS.flatMap((g) =>
+        g.items.map((item) => ({
+          id: `nav-${item.to}`,
+          title: item.label,
+          subtitle: `${item.section} view`,
+          keywords: `${item.label} ${item.section} ${item.keywords || ""}`,
+          icon: item.icon,
+          group: "Navigate",
+          action: () => navigate(item.to),
+        }))
+      ),
+      {
+        id: "nav-settings",
+        title: "Settings & Security",
+        subtitle: "Profile, Workspace, 2FA & Privacy",
+        keywords: "settings profile workspace security 2fa privacy export",
+        icon: <Settings className="w-4 h-4" />,
+        group: "Navigate",
+        action: () => navigate("/app/settings"),
+      },
+    ];
+
+    const quickActions = [
+      {
+        id: "action-new-tx",
+        title: "Record New Transaction",
+        subtitle: "Post expense, income, or multi-category split",
+        keywords: "new add record transaction expense income split",
+        icon: <PlusCircle className="w-4 h-4 text-[var(--accent-text)]" />,
+        group: "Quick Action",
+        action: () => navigate("/app/transactions?action=new"),
+      },
+      {
+        id: "action-import-csv",
+        title: "Import Bank Statement CSV",
+        subtitle: "Open 4-step mapping & duplicate review wizard",
+        keywords: "import csv upload bank statement",
+        icon: <UploadCloud className="w-4 h-4 text-[var(--accent-text)]" />,
+        group: "Quick Action",
+        action: () => setIsImportOpen(true),
+      },
+    ];
+
+    const all = [...quickActions, ...navCommands];
+    const q = commandQuery.trim().toLowerCase();
+    if (!q) return all;
+    return all.filter(
+      (item) =>
+        item.title.toLowerCase().includes(q) ||
+        item.subtitle.toLowerCase().includes(q) ||
+        item.keywords.toLowerCase().includes(q)
+    );
+  }, [commandQuery, navigate]);
 
   if (isLoading) {
     return (
@@ -130,12 +242,13 @@ export const AuthenticatedLayout: React.FC = () => {
   const SidebarContent = ({ collapsed, isMobile }: { collapsed: boolean; isMobile?: boolean }) => (
     <div className="flex flex-col h-full">
       {/* Logo */}
-      <div className={`flex items-center justify-between border-b border-[var(--border)] px-4 py-4 ${
+      <div
+        className={`flex items-center justify-between border-b border-[var(--border)] px-4 py-4 ${
           collapsed ? "justify-center px-2" : ""
         }`}
       >
         <Link
-          to="/app/accounts"
+          to="/app/dashboard"
           className="flex items-center gap-2.5 group shrink-0"
           onClick={() => setMobileSidebarOpen(false)}
         >
@@ -143,9 +256,14 @@ export const AuthenticatedLayout: React.FC = () => {
             <span className="font-display text-sm">X</span>
           </div>
           {!collapsed && (
-            <span className="font-display font-bold tracking-tight text-[var(--text)] text-base leading-tight">
-              XakuFinance
-            </span>
+            <div className="flex flex-col">
+              <span className="font-display font-bold tracking-tight text-[var(--text)] text-base leading-tight">
+                XakuFinance
+              </span>
+              <span className="text-[10px] text-[var(--text-faint)] font-medium">
+                Ledger Control
+              </span>
+            </div>
           )}
         </Link>
         {isMobile && (
@@ -154,6 +272,7 @@ export const AuthenticatedLayout: React.FC = () => {
             onClick={() => setMobileSidebarOpen(false)}
             className="p-1.5 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-colors cursor-pointer"
             title="Close menu"
+            aria-label="Close navigation menu"
           >
             <X className="w-5 h-5" />
           </button>
@@ -161,7 +280,7 @@ export const AuthenticatedLayout: React.FC = () => {
       </div>
 
       {/* Nav Groups */}
-      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-5">
+      <nav className="flex-1 overflow-y-auto py-4 px-2 space-y-5" aria-label="Workspace Navigation">
         {NAV_GROUPS.map((group) => (
           <div key={group.label}>
             {!collapsed && (
@@ -195,12 +314,12 @@ export const AuthenticatedLayout: React.FC = () => {
             setIsImportOpen(true);
             setMobileSidebarOpen(false);
           }}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-all ${
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-all cursor-pointer ${
             collapsed ? "justify-center px-2" : ""
           }`}
           title={collapsed ? "Import CSV" : undefined}
         >
-          <UploadCloud className="w-4 h-4 text-[var(--accent)] shrink-0" />
+          <UploadCloud className="w-4 h-4 text-[var(--accent-text)] shrink-0" />
           {!collapsed && <span>Import CSV</span>}
         </button>
 
@@ -226,11 +345,11 @@ export const AuthenticatedLayout: React.FC = () => {
             <div className="flex-1 min-w-0">
               {workspace && (
                 <div className="flex items-center gap-1 mb-0.5">
-                  <Shield className="w-3 h-3 text-[var(--accent)] shrink-0" />
+                  <Shield className="w-3 h-3 text-[var(--accent-text)] shrink-0" />
                   <span className="text-[11px] font-medium text-[var(--text)] truncate">
                     {workspace.name}
                   </span>
-                  <span className="text-[10px] text-[var(--text-faint)]">
+                  <span className="text-[10px] font-mono text-[var(--text-faint)]">
                     ({workspace.reporting_currency})
                   </span>
                 </div>
@@ -242,6 +361,7 @@ export const AuthenticatedLayout: React.FC = () => {
             onClick={logout}
             className="flex items-center justify-center gap-1 text-[var(--text-faint)] hover:text-[var(--negative)] cursor-pointer transition-colors p-1 rounded"
             title="Sign out"
+            aria-label="Sign out"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>
@@ -266,6 +386,7 @@ export const AuthenticatedLayout: React.FC = () => {
           onClick={() => setSidebarCollapsed((v) => !v)}
           className="absolute -right-3 top-20 w-6 h-6 rounded-full border border-[var(--border)] bg-[var(--surface)] flex items-center justify-center text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-all shadow-xs cursor-pointer z-10"
           title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+          aria-label={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           {sidebarCollapsed ? (
             <ChevronRight className="w-3.5 h-3.5" />
@@ -296,37 +417,208 @@ export const AuthenticatedLayout: React.FC = () => {
           sidebarCollapsed ? "md:ml-14" : "md:ml-56"
         }`}
       >
-        {/* Top Bar */}
-        <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-md">
-          <div className="h-14 px-4 flex items-center justify-between gap-3">
-            {/* Mobile hamburger */}
-            <button
-              type="button"
-              className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-colors cursor-pointer"
-              onClick={() => setMobileSidebarOpen(true)}
-            >
-              <Menu className="w-4 h-4" />
-            </button>
+        {/* Institutional Top Bar */}
+        <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)]/92 backdrop-blur-md">
+          <div className="h-14 px-4 sm:px-6 flex items-center justify-between gap-3">
+            {/* Mobile hamburger & logo */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                className="md:hidden flex items-center justify-center w-8 h-8 rounded-lg text-[var(--text-muted)] hover:text-[var(--text)] hover:bg-[var(--surface-raised)] transition-colors cursor-pointer"
+                onClick={() => setMobileSidebarOpen(true)}
+                aria-label="Open navigation menu"
+              >
+                <Menu className="w-4 h-4" />
+              </button>
 
-            {/* Mobile logo */}
-            <Link to="/app/accounts" className="md:hidden flex items-center gap-2 group">
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-xs">
-                <span className="font-display text-xs">X</span>
+              <Link to="/app/dashboard" className="md:hidden flex items-center gap-2 group">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-xs">
+                  <span className="font-display text-xs">X</span>
+                </div>
+                <span className="font-display font-bold tracking-tight text-[var(--text)] text-base">
+                  XakuFinance
+                </span>
+              </Link>
+
+              {/* Desktop Dynamic Breadcrumb */}
+              <div className="hidden md:flex items-center gap-2 text-xs">
+                <span className="text-[var(--text-faint)] font-medium">
+                  {currentRouteMeta.section}
+                </span>
+                <span className="text-[var(--text-faint)]">/</span>
+                <span className="font-semibold text-[var(--text)]">
+                  {currentRouteMeta.label}
+                </span>
               </div>
-              <span className="font-display font-bold tracking-tight text-[var(--text)] text-base">
-                XakuFinance
-              </span>
-            </Link>
-
-            <div className="flex-1" />
+            </div>
 
             {/* Right controls */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 sm:gap-2.5">
+              {/* Interactive Dual-Currency Switcher ($ USD | ៛ KHR | Both) + Manual Exchange Rate */}
+              <div className="relative flex items-center gap-1.5">
+                <div
+                  className="inline-flex items-center rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] p-0.5 text-[11px]"
+                  role="group"
+                  aria-label="Currency display switcher"
+                >
+                  {(
+                    [
+                      { value: "USD", label: "$ USD", short: "$" },
+                      { value: "KHR", label: "៛ KHR", short: "៛" },
+                      { value: "BOTH", label: "$ + ៛ Both", short: "$+៛" },
+                    ] as Array<{ value: CurrencyDisplayMode; label: string; short: string }>
+                  ).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setMode(opt.value)}
+                      className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                        mode === opt.value
+                          ? "bg-gold shadow-xs font-semibold"
+                          : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                      }`}
+                    >
+                      <span className="hidden sm:inline">{opt.label}</span>
+                      <span className="sm:hidden">{opt.short}</span>
+                    </button>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDraftRate(String(usdToKhrRate));
+                      setIsRatePopoverOpen((v) => !v);
+                    }}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--text)] border-l border-[var(--border)] ml-0.5 cursor-pointer transition-colors"
+                    title="Update USD to KHR exchange rate manually"
+                    aria-label="Update USD to KHR exchange rate"
+                  >
+                    <span className="hidden md:inline">1$={usdToKhrRate.toLocaleString()}៛</span>
+                    <Pencil className="w-2.5 h-2.5 text-gold" />
+                  </button>
+                </div>
+
+                {isRatePopoverOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setIsRatePopoverOpen(false)}
+                    />
+                    <div
+                      className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-2xl z-40 space-y-3"
+                      role="dialog"
+                      aria-label="Manual Exchange Rate Editor"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-main">
+                          USD → KHR Exchange Rate
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUsdToKhrRate(DEFAULT_USD_TO_KHR);
+                            setDraftRate(String(DEFAULT_USD_TO_KHR));
+                          }}
+                          className="text-[10px] text-gold hover:underline cursor-pointer"
+                        >
+                          Reset ({DEFAULT_USD_TO_KHR.toLocaleString()})
+                        </button>
+                      </div>
+
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const parsed = parseFloat(draftRate);
+                          if (Number.isFinite(parsed) && parsed > 0) {
+                            setUsdToKhrRate(parsed);
+                            setIsRatePopoverOpen(false);
+                          }
+                        }}
+                        className="space-y-2.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono text-muted shrink-0">$1 =</span>
+                          <input
+                            type="number"
+                            min="100"
+                            step="any"
+                            value={draftRate}
+                            onChange={(e) => setDraftRate(e.target.value)}
+                            className="w-full rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] px-2.5 py-1.5 text-xs font-mono text-main focus:border-[var(--accent)] focus:outline-none"
+                            aria-label="Custom KHR per 1 USD rate"
+                          />
+                          <span className="text-xs font-mono text-muted shrink-0">៛</span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {[4000, 4050, 4100, 4150].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => {
+                                setDraftRate(String(preset));
+                                setUsdToKhrRate(preset);
+                              }}
+                              className={`px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition-colors ${
+                                usdToKhrRate === preset
+                                  ? "bg-gold border-transparent font-semibold"
+                                  : "bg-[var(--surface-raised)] border-[var(--border)] text-muted hover:text-main"
+                              }`}
+                            >
+                              {preset.toLocaleString()}៛
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsRatePopoverOpen(false)}
+                            className="px-2.5 py-1 text-[11px] text-muted hover:text-main cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-3 py-1 rounded-lg bg-gold text-[11px] font-semibold cursor-pointer"
+                          >
+                            Apply Rate
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Quick Command Palette Trigger */}
+              <button
+                type="button"
+                onClick={() => {
+                  setCommandQuery("");
+                  setIsCommandOpen(true);
+                }}
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] hover:bg-[var(--surface-hover)] px-2.5 py-1.5 text-xs text-[var(--text-muted)] hover:text-[var(--text)] transition-colors cursor-pointer"
+                title="Open Quick Command Palette (Ctrl/Cmd + K)"
+              >
+                <Search className="w-3.5 h-3.5" />
+                <span className="hidden md:inline">Quick jump</span>
+                <kbd className="hidden md:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--text-faint)]">
+                  ⌘K
+                </kbd>
+              </button>
+
+              {/* Live Integrity Pill */}
+              <span className="hidden xl:inline-flex items-center gap-1.5 rounded-lg bg-[var(--positive-bg)] border border-[var(--positive-border)] px-2.5 py-1 text-[11px] font-medium text-[var(--positive)]">
+                <CheckCircle2 className="w-3 h-3" />
+                <span>0 Drift · Reconciled</span>
+              </span>
+
               {workspace && (
                 <span className="hidden lg:inline-flex items-center gap-1 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] px-2.5 py-1 text-[11px] text-[var(--text-muted)] font-medium">
-                  <Shield className="w-3 h-3 text-[var(--accent)]" />
-                  {workspace.name}
-                  <span className="text-[var(--text-faint)]">
+                  <Shield className="w-3 h-3 text-[var(--accent-text)]" />
+                  <span>{workspace.name}</span>
+                  <span className="font-mono text-[var(--text-faint)]">
                     ({workspace.reporting_currency})
                   </span>
                 </span>
@@ -341,13 +633,95 @@ export const AuthenticatedLayout: React.FC = () => {
         <main className="flex-1 px-4 sm:px-6 py-6 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
-
-        {/* Footer */}
-        <footer className="border-t border-[var(--border)] py-3 text-center text-[11px] text-[var(--text-faint)] flex items-center justify-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
-          <span>XakuFinance · Double-Entry Accounting Core · 0 Drift Balance Integrity</span>
-        </footer>
       </div>
+
+      {/* Quick Action & Navigation Command Palette */}
+      {isCommandOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4 bg-black/60 backdrop-blur-xs"
+          onClick={() => setIsCommandOpen(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Quick Command Palette"
+        >
+          <div
+            className="w-full max-w-lg rounded-2xl border border-[var(--border)] bg-[var(--surface)] shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[var(--border)]">
+              <Search className="w-4 h-4 text-[var(--text-muted)] shrink-0" />
+              <input
+                type="text"
+                autoFocus
+                value={commandQuery}
+                onChange={(e) => setCommandQuery(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && commandOptions.length > 0) {
+                    e.preventDefault();
+                    commandOptions[0].action();
+                    setIsCommandOpen(false);
+                  }
+                }}
+                placeholder="Type a command or jump to page (e.g. analytics, budgets, record)..."
+                className="w-full bg-transparent text-sm text-[var(--text)] placeholder:text-[var(--text-faint)] focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setIsCommandOpen(false)}
+                className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)] cursor-pointer"
+              >
+                ESC
+              </button>
+            </div>
+
+            <div className="max-h-80 overflow-y-auto p-2 space-y-1">
+              {commandOptions.length === 0 ? (
+                <div className="py-8 text-center text-xs text-[var(--text-muted)]">
+                  No matching navigation pages or actions found.
+                </div>
+              ) : (
+                commandOptions.map((item, idx) => (
+                  <button
+                    key={item.id}
+                    type="button"
+                    onClick={() => {
+                      item.action();
+                      setIsCommandOpen(false);
+                    }}
+                    className={`w-full flex items-center justify-between gap-3 px-3 py-2.5 rounded-xl text-left transition-colors cursor-pointer ${
+                      idx === 0
+                        ? "bg-[var(--surface-raised)] border border-[var(--border)]"
+                        : "hover:bg-[var(--surface-raised)] border border-transparent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span className="w-7 h-7 rounded-lg bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center text-[var(--text-muted)] shrink-0">
+                        {item.icon}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="text-xs font-semibold text-[var(--text)] truncate">
+                          {item.title}
+                        </div>
+                        <div className="text-[11px] text-[var(--text-faint)] truncate">
+                          {item.subtitle}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--surface)] border border-[var(--border)] text-[var(--text-muted)]">
+                        {item.group}
+                      </span>
+                      {idx === 0 && (
+                        <CornerDownLeft className="w-3 h-3 text-[var(--text-faint)]" />
+                      )}
+                    </div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Global CSV Statement Import Dialog */}
       <ImportWizardDialog

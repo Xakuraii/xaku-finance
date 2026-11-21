@@ -40,6 +40,7 @@ from apps.identity.api.serializers import (
     UserSummarySerializer,
     VerifyEmailResponseSerializer,
     VerifyEmailSerializer,
+    WorkspaceSummarySerializer,
 )
 from apps.identity.models import UserSession
 from apps.identity.services import two_factor
@@ -388,8 +389,15 @@ class GoogleLoginView(APIView):
             )
 
         tokens = issue_tokens(user, request_meta=RequestMeta.from_request(request))
+        ws = None
+        if user:
+            try:
+                ws = user.workspace
+            except Exception:
+                ws = None
         payload = {
             "user": UserSummarySerializer(user).data,
+            "workspace": WorkspaceSummarySerializer(ws).data if ws else None,
             **_token_payload(tokens),
         }
         response = Response(payload, status=status.HTTP_200_OK)

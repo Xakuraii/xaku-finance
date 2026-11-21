@@ -13,6 +13,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   TrendingDown,
+  Plus,
 } from "lucide-react";
 import {
   fetchDashboard,
@@ -23,6 +24,38 @@ import {
   WidgetLayoutItem,
 } from "../api/dashboard-api";
 import { DashboardLayoutDialog } from "../components/dashboard-layout-dialog";
+import { CreateTransactionDrawer } from "@/features/transactions/components/create-transaction-drawer";
+import {
+  convertMajorToUsdAndKhr,
+  formatDualAmount,
+  resolveModeReadout,
+  useCurrency,
+} from "@/lib/currency-context";
+
+type PeriodOption = undefined | "current_month" | "last_30_days" | "last_90_days" | "ytd";
+
+const PERIOD_PILLS: Array<{ label: string; value: PeriodOption }> = [
+  { label: "Current", value: undefined },
+  { label: "Month", value: "current_month" },
+  { label: "30D", value: "last_30_days" },
+  { label: "90D", value: "last_90_days" },
+  { label: "YTD", value: "ytd" },
+];
+
+const SPENDING_PALETTE = [
+  "#F0B90B",
+  "#38BDF8",
+  "#10B981",
+  "#A78BFA",
+  "#FB923C",
+];
+
+function parseNumericAmount(val: string | undefined): number {
+  if (!val) return 0;
+  const cleaned = val.replace(/,/g, "");
+  const parsed = parseFloat(cleaned);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
 
 // Reusable styled widget card
 const WidgetCard: React.FC<{
@@ -62,11 +95,29 @@ const WidgetValue: React.FC<{
 
 export const DashboardPage: React.FC = () => {
   const queryClient = useQueryClient();
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [layoutOpen, setLayoutOpen] = useState(false);
+  const [createTxOpen, setCreateTxOpen] = useState(false);
+  const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption>(undefined);
+
+  const getDualSummary = (amountStr: string | undefined, sourceCurr: string | undefined) => {
+    const src = (sourceCurr || dashboard?.currency || "USD").toUpperCase();
+    return formatDualAmount(amountStr || "0.00", src, mode, usdToKhrRate);
+  };
+
+  const renderSecondaryReadout = (secondaryText: string | null) => {
+    if (!isProviderMounted || !secondaryText) return null;
+    return (
+      <div className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">
+        {secondaryText}
+      </div>
+    );
+  };
 
   const { data: dashboard, isLoading, error } = useQuery<DashboardResponse>({
-    queryKey: ["dashboard-data"],
-    queryFn: () => fetchDashboard(),
+    queryKey: selectedPeriod ? ["dashboard-data", selectedPeriod] : ["dashboard-data"],
+    queryFn: () =>
+      selectedPeriod ? fetchDashboard({ period: selectedPeriod }) : fetchDashboard(),
   });
 
   const { data: layoutData } = useQuery<{ widgets: WidgetLayoutItem[] }>({
@@ -109,7 +160,7 @@ export const DashboardPage: React.FC = () => {
 
   if (error || !dashboard) {
     return (
-      <div className="p-4 bg-[var(--negative-bg)] border border-[var(--negative)]/30 rounded-xl text-[var(--negative)] text-sm">
+      <div className="p-4 bg-[var(--negative-bg)] border border-[var(--negative-border)] rounded-xl text-[var(--negative)] text-sm">
         Failed to load dashboard data. Please try refreshing the page.
       </div>
     );
@@ -119,21 +170,49 @@ export const DashboardPage: React.FC = () => {
 
   const renderWidget = (key: string) => {
     switch (key) {
-      case "total_balance":
+      case "total_balance": {
+        const balanceDual = (() => {
+          if (dashboard.balances && dashboard.balances.length > 0) {
+            const totals = dashboard.balances.reduce(
+              (acc, b) => {
+                const conv = convertMajorToUsdAndKhr(
+                  parseNumericAmount(b.total),
+                  b.currency,
+                  usdToKhrRate
+                );
+                return { usd: acc.usd + conv.usd, khr: acc.khr + conv.khr };
+              },
+              { usd: 0, khr: 0 }
+            );
+            return resolveModeReadout(totals.usd, totals.khr, mode);
+          }
+          return getDualSummary(
+            dashboard.converted_total?.amount,
+            dashboard.converted_total?.currency || dashboard.currency
+          );
+        })();
+
         return (
           <WidgetCard key="total_balance" accentColor="var(--accent)">
             <div className="flex items-center justify-between mb-3">
               <WidgetLabel>Account Balances</WidgetLabel>
-              <div className="w-7 h-7 rounded-lg bg-[var(--accent)]/10 flex items-center justify-center">
-                <Wallet className="w-3.5 h-3.5 text-[var(--accent)]" />
+              <div className="w-7 h-7 rounded-lg bg-[var(--accent)]/12 flex items-center justify-center">
+                <Wallet className="w-3.5 h-3.5 text-gold" />
               </div>
             </div>
             <WidgetValue>
-              {dashboard.converted_total?.amount || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
-                {dashboard.converted_total?.currency || dashboard.currency}
-              </span>
+              {isProviderMounted ? (
+                balanceDual.primary
+              ) : (
+                <>
+                  {dashboard.converted_total?.amount || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
+                    {dashboard.converted_total?.currency || dashboard.currency}
+                  </span>
+                </>
+              )}
             </WidgetValue>
+            {renderSecondaryReadout(balanceDual.secondary)}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">Consolidated available</p>
             {dashboard.balances && dashboard.balances.length > 0 && (
               <div className="pt-3 mt-2 border-t border-[var(--border)] flex flex-wrap gap-1.5">
@@ -149,8 +228,13 @@ export const DashboardPage: React.FC = () => {
             )}
           </WidgetCard>
         );
+      }
 
-      case "net_worth":
+      case "net_worth": {
+        const netWorthDual = getDualSummary(
+          dashboard.net_worth?.amount,
+          dashboard.net_worth?.currency || dashboard.currency
+        );
         return (
           <WidgetCard key="net_worth" accentColor="var(--positive)">
             <div className="flex items-center justify-between mb-3">
@@ -160,11 +244,18 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
             <WidgetValue color="var(--positive)">
-              {dashboard.net_worth?.amount || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
-                {dashboard.net_worth?.currency || dashboard.currency}
-              </span>
+              {isProviderMounted ? (
+                netWorthDual.primary
+              ) : (
+                <>
+                  {dashboard.net_worth?.amount || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
+                    {dashboard.net_worth?.currency || dashboard.currency}
+                  </span>
+                </>
+              )}
             </WidgetValue>
+            {renderSecondaryReadout(netWorthDual.secondary)}
             <div className="flex items-center justify-between mt-2">
               <p className="text-[11px] text-[var(--text-faint)]">
                 Assets {dashboard.net_worth?.assets || "0.00"} · Liabilities{" "}
@@ -172,20 +263,25 @@ export const DashboardPage: React.FC = () => {
               </p>
               <Link
                 to="/app/analytics"
-                className="text-[11px] text-[var(--accent)] hover:underline font-medium"
+                className="text-[11px] text-gold hover:underline font-medium"
               >
                 Trends
               </Link>
             </div>
           </WidgetCard>
         );
+      }
 
-      case "safe_to_spend":
+      case "safe_to_spend": {
+        const safeDual = getDualSummary(
+          dashboard.safe_to_spend?.display,
+          dashboard.safe_to_spend?.currency || dashboard.currency
+        );
         return (
           <WidgetCard key="safe_to_spend" accentColor="var(--info)">
             <div className="flex items-center justify-between mb-3">
               <WidgetLabel>Safe-to-Spend</WidgetLabel>
-              <div className="w-7 h-7 rounded-lg bg-[var(--info)]/10 flex items-center justify-center">
+              <div className="w-7 h-7 rounded-lg bg-[var(--info-bg)] flex items-center justify-center">
                 <ShieldCheck className="w-3.5 h-3.5 text-[var(--info)]" />
               </div>
             </div>
@@ -196,24 +292,36 @@ export const DashboardPage: React.FC = () => {
                   : "var(--info)"
               }
             >
-              {dashboard.safe_to_spend?.display || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
-                {dashboard.safe_to_spend?.currency || dashboard.currency}
-              </span>
+              {isProviderMounted ? (
+                safeDual.primary
+              ) : (
+                <>
+                  {dashboard.safe_to_spend?.display || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
+                    {dashboard.safe_to_spend?.currency || dashboard.currency}
+                  </span>
+                </>
+              )}
             </WidgetValue>
+            {renderSecondaryReadout(safeDual.secondary)}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">
               After subtracting upcoming obligations
             </p>
           </WidgetCard>
         );
+      }
 
-      case "daily_allowance":
+      case "daily_allowance": {
+        const dailyDual = getDualSummary(
+          dashboard.daily_allowance?.allowance,
+          dashboard.daily_allowance?.currency || dashboard.currency
+        );
         return (
           <WidgetCard key="daily_allowance" accentColor="#a78bfa">
             <div className="flex items-center justify-between mb-3">
               <WidgetLabel>Daily Allowance</WidgetLabel>
               <div className="w-7 h-7 rounded-lg bg-purple-500/10 flex items-center justify-center">
-                <Calendar className="w-3.5 h-3.5 text-purple-400" />
+                <Calendar className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             <WidgetValue
@@ -223,44 +331,81 @@ export const DashboardPage: React.FC = () => {
                   : "#a78bfa"
               }
             >
-              {dashboard.daily_allowance?.allowance || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1">/ day</span>
+              {isProviderMounted ? (
+                <>
+                  {dailyDual.primary}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1">/ day</span>
+                </>
+              ) : (
+                <>
+                  {dashboard.daily_allowance?.allowance || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1">/ day</span>
+                </>
+              )}
             </WidgetValue>
+            {renderSecondaryReadout(dailyDual.secondary ? `${dailyDual.secondary} / day` : null)}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">
               {dashboard.daily_allowance?.remaining_days || 0} days left in period
             </p>
           </WidgetCard>
         );
+      }
 
-      case "cash_flow":
+      case "cash_flow": {
+        const inflowStr = dashboard.cash_flow?.table?.[0]?.amount || "0.00";
+        const outflowStr = dashboard.cash_flow?.table?.[1]?.amount || "0.00";
+        const netStr = dashboard.cash_flow?.table?.[2]?.amount || "0.00";
+        const inflowDual = getDualSummary(inflowStr, dashboard.currency);
+        const outflowDual = getDualSummary(outflowStr, dashboard.currency);
+        const netDual = getDualSummary(netStr, dashboard.currency);
+        const inflowNum = Math.max(0, parseNumericAmount(inflowStr));
+        const outflowNum = Math.abs(parseNumericAmount(outflowStr));
+        const flowSum = inflowNum + outflowNum;
+        const inflowPct = flowSum > 0 ? (inflowNum / flowSum) * 100 : 50;
+        const outflowPct = flowSum > 0 ? (outflowNum / flowSum) * 100 : 50;
+        const savingsRate = inflowNum > 0 ? ((inflowNum - outflowNum) / inflowNum) * 100 : 0;
+
         return (
           <WidgetCard key="cash_flow" className="lg:col-span-2">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
               <div>
                 <h3 className="text-sm font-semibold text-[var(--text)]">Period Cash Flow</h3>
                 <p className="text-[11px] text-[var(--text-faint)] mt-0.5">
                   {dashboard.period.start} to {dashboard.period.end}
                 </p>
               </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-semibold bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
+                Savings Rate:{" "}
+                <span
+                  className={
+                    savingsRate >= 0 ? "text-[var(--positive)]" : "text-[var(--negative)]"
+                  }
+                >
+                  {savingsRate.toFixed(1)}%
+                </span>
+              </span>
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="p-3.5 rounded-lg bg-[var(--positive-bg)] border border-[var(--positive)]/20">
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+              <div className="p-3.5 rounded-lg bg-[var(--positive-bg)] border border-[var(--positive-border)]">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--positive)] font-medium mb-2">
                   <ArrowDownRight className="w-3.5 h-3.5" />
                   Inflows
                 </div>
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
-                  {dashboard.cash_flow?.table?.[0]?.amount || "0.00"}
+                  {isProviderMounted ? inflowDual.primary : inflowStr}
                 </div>
+                {renderSecondaryReadout(inflowDual.secondary)}
               </div>
-              <div className="p-3.5 rounded-lg bg-[var(--negative-bg)] border border-[var(--negative)]/20">
+              <div className="p-3.5 rounded-lg bg-[var(--negative-bg)] border border-[var(--negative-border)]">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--negative)] font-medium mb-2">
                   <ArrowUpRight className="w-3.5 h-3.5" />
                   Outflows
                 </div>
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
-                  {dashboard.cash_flow?.table?.[1]?.amount || "0.00"}
+                  {isProviderMounted ? outflowDual.primary : outflowStr}
                 </div>
+                {renderSecondaryReadout(outflowDual.secondary)}
               </div>
               <div className="p-3.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)]">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-medium mb-2">
@@ -268,12 +413,34 @@ export const DashboardPage: React.FC = () => {
                   Net
                 </div>
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
-                  {dashboard.cash_flow?.table?.[2]?.amount || "0.00"}
+                  {isProviderMounted ? netDual.primary : netStr}
                 </div>
+                {renderSecondaryReadout(netDual.secondary)}
+              </div>
+            </div>
+
+            {/* Proportional Cash Flow Bar */}
+            <div className="space-y-1.5">
+              <div className="h-2.5 w-full rounded-full bg-[var(--surface-raised)] overflow-hidden flex gap-0.5">
+                <div
+                  className="h-full bg-[var(--positive)] transition-all duration-500 rounded-l-full animate-xaku-bar"
+                  style={{ width: `${inflowPct}%` }}
+                  title={`Inflows: ${inflowPct.toFixed(1)}%`}
+                />
+                <div
+                  className="h-full bg-[var(--negative)] transition-all duration-500 rounded-r-full animate-xaku-bar"
+                  style={{ width: `${outflowPct}%` }}
+                  title={`Outflows: ${outflowPct.toFixed(1)}%`}
+                />
+              </div>
+              <div className="flex justify-between text-[10px] font-mono text-[var(--text-faint)]">
+                <span>Inflow mix {inflowPct.toFixed(0)}%</span>
+                <span>Outflow mix {outflowPct.toFixed(0)}%</span>
               </div>
             </div>
           </WidgetCard>
         );
+      }
 
       case "budget_overview":
         return (
@@ -282,7 +449,7 @@ export const DashboardPage: React.FC = () => {
               <h3 className="text-sm font-semibold text-[var(--text)]">Budget Health</h3>
               <Link
                 to="/app/budgets"
-                className="text-[11px] text-[var(--accent)] hover:underline font-medium"
+                className="text-[11px] text-gold hover:underline font-medium"
               >
                 View all
               </Link>
@@ -303,7 +470,7 @@ export const DashboardPage: React.FC = () => {
                     </div>
                     <div className="w-full h-1.5 bg-[var(--surface-raised)] rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${
+                        className={`h-full rounded-full transition-all animate-xaku-bar ${
                           b.is_over_budget
                             ? "bg-[var(--negative)]"
                             : "bg-gradient-to-r from-[#F0B90B] to-[#FCD535]"
@@ -328,7 +495,7 @@ export const DashboardPage: React.FC = () => {
               </div>
               <Link
                 to="/app/savings"
-                className="text-[11px] text-[var(--accent)] hover:underline font-medium"
+                className="text-[11px] text-gold hover:underline font-medium"
               >
                 View all
               </Link>
@@ -373,7 +540,7 @@ export const DashboardPage: React.FC = () => {
               </div>
               <Link
                 to="/app/transactions"
-                className="text-[11px] text-[var(--accent)] hover:underline font-medium"
+                className="text-[11px] text-gold hover:underline font-medium"
               >
                 See all
               </Link>
@@ -387,11 +554,24 @@ export const DashboardPage: React.FC = () => {
                 {dashboard.recent_transactions?.items?.map((tx) => (
                   <div
                     key={tx.id}
-                    className="py-2.5 flex items-center justify-between first:pt-0 last:pb-0"
+                    className="py-2.5 flex items-center justify-between gap-3 first:pt-0 last:pb-0"
                   >
                     <div className="min-w-0 flex-1">
-                      <div className="text-sm font-medium text-[var(--text)] truncate">
-                        {tx.title}
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-[var(--text)] truncate">
+                          {tx.title}
+                        </span>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.2 rounded border capitalize shrink-0 ${
+                            tx.status === "pending"
+                              ? "bg-[var(--warning-bg)] border-[var(--warning-border)] text-[var(--warning)]"
+                              : tx.status === "cancelled"
+                              ? "bg-[var(--surface-raised)] border-[var(--border)] text-[var(--text-faint)]"
+                              : "bg-[var(--positive-bg)] border-[var(--positive-border)] text-[var(--positive)]"
+                          }`}
+                        >
+                          {tx.status}
+                        </span>
                       </div>
                       <div className="text-[11px] text-[var(--text-faint)] mt-0.5">
                         {tx.occurred_on}
@@ -399,7 +579,7 @@ export const DashboardPage: React.FC = () => {
                         {tx.category_name && ` · ${tx.category_name}`}
                       </div>
                     </div>
-                    <div className="font-mono font-semibold text-sm ml-4 shrink-0 text-[var(--text)]">
+                    <div className="font-mono font-semibold text-sm ml-2 shrink-0 text-[var(--text)]">
                       {tx.amount} {tx.currency}
                     </div>
                   </div>
@@ -409,60 +589,123 @@ export const DashboardPage: React.FC = () => {
           </WidgetCard>
         );
 
-      case "spending_by_category":
+      case "spending_by_category": {
+        const categories = dashboard.spending_by_category?.categories || [];
+        const R = 42;
+        const C = 2 * Math.PI * R;
+        let offsetPct = 0;
+
         return (
           <WidgetCard key="spending_by_category">
             <div className="flex items-center justify-between mb-4">
               <div className="flex items-center gap-2">
-                <PieChart className="w-4 h-4 text-[var(--accent)]" />
+                <PieChart className="w-4 h-4 text-gold" />
                 <h3 className="text-sm font-semibold text-[var(--text)]">Top Spending</h3>
               </div>
               <Link
                 to="/app/analytics"
-                className="text-[11px] text-[var(--accent)] hover:underline font-medium"
+                className="text-[11px] text-gold hover:underline font-medium"
               >
                 Reports
               </Link>
             </div>
-            {dashboard.spending_by_category?.state === "empty" ? (
+            {dashboard.spending_by_category?.state === "empty" || categories.length === 0 ? (
               <p className="text-xs text-[var(--text-faint)] py-6 text-center">
                 No categorized expenses this period.
               </p>
             ) : (
-              <div className="space-y-3">
-                {dashboard.spending_by_category?.categories?.map((c, i) => {
-                  const hue = [
-                    "var(--accent)",
-                    "var(--info)",
-                    "var(--positive)",
-                    "#a78bfa",
-                    "var(--warning)",
-                  ][i % 5];
-                  return (
-                    <div key={c.category_name} className="space-y-1.5">
-                      <div className="flex justify-between items-baseline text-xs">
-                        <span className="text-[var(--text)]">{c.category_name}</span>
-                        <span className="font-medium font-tabular text-[var(--text-muted)]">
-                          {c.amount} ({c.percentage}%)
-                        </span>
-                      </div>
-                      <div className="w-full h-1.5 bg-[var(--surface-raised)] rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{
-                            width: `${Math.min(100, c.percentage)}%`,
-                            background: hue,
-                            opacity: 0.85,
-                          }}
-                        />
-                      </div>
+              <div className="space-y-4">
+                {/* Mini SVG Donut Ring */}
+                <div className="flex items-center gap-4 pb-3 border-b border-[var(--border)]">
+                  <div className="relative w-24 h-24 shrink-0">
+                    <svg viewBox="0 0 120 120" className="w-24 h-24 -rotate-90" aria-hidden="true">
+                      <circle
+                        cx="60"
+                        cy="60"
+                        r={R}
+                        fill="none"
+                        stroke="var(--surface-raised)"
+                        strokeWidth="16"
+                      />
+                      {categories.slice(0, 5).map((c, i) => {
+                        const pct = Math.max(0, Math.min(100, c.percentage));
+                        const dashLen = (pct / 100) * C;
+                        const dashOffset = -((offsetPct / 100) * C);
+                        offsetPct += pct;
+                        return (
+                          <circle
+                            key={c.category_name}
+                            cx="60"
+                            cy="60"
+                            r={R}
+                            fill="none"
+                            stroke={SPENDING_PALETTE[i % SPENDING_PALETTE.length]}
+                            strokeWidth="16"
+                            strokeDasharray={`${dashLen} ${C - dashLen}`}
+                            strokeDashoffset={dashOffset}
+                            className="animate-xaku-ring transition-all duration-500"
+                          />
+                        );
+                      })}
+                    </svg>
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                      <span className="font-mono text-xs font-bold text-[var(--text)]">
+                        {categories[0]?.percentage.toFixed(0)}%
+                      </span>
+                      <span className="text-[9px] text-[var(--text-faint)]">Top</span>
                     </div>
-                  );
-                })}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] text-[var(--text-faint)]">Period total</div>
+                    <div className="font-mono text-base font-bold text-[var(--text)] truncate">
+                      {dashboard.spending_by_category?.total_spending || "0.00"}{" "}
+                      <span className="text-xs font-normal text-[var(--text-muted)]">
+                        {dashboard.currency}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-[var(--text-muted)] mt-0.5 truncate">
+                      {categories.length} active categor{categories.length === 1 ? "y" : "ies"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Progress Bars */}
+                <div className="space-y-3">
+                  {categories.map((c, i) => {
+                    const hue = SPENDING_PALETTE[i % SPENDING_PALETTE.length];
+                    return (
+                      <div key={c.category_name} className="space-y-1.5">
+                        <div className="flex justify-between items-baseline text-xs">
+                          <span className="text-[var(--text)] flex items-center gap-1.5">
+                            <span
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: hue }}
+                            />
+                            {c.category_name}
+                          </span>
+                          <span className="font-medium font-tabular text-[var(--text-muted)]">
+                            {c.amount} ({c.percentage}%)
+                          </span>
+                        </div>
+                        <div className="w-full h-1.5 bg-[var(--surface-raised)] rounded-full overflow-hidden">
+                          <div
+                            className="h-full rounded-full transition-all"
+                            style={{
+                              width: `${Math.min(100, c.percentage)}%`,
+                              background: hue,
+                              opacity: 0.9,
+                            }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </WidgetCard>
         );
+      }
 
       default:
         return null;
@@ -472,7 +715,7 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
           <h1 className="font-display text-2xl font-bold text-[var(--text)] tracking-tight">
             Financial Dashboard
@@ -483,14 +726,50 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setLayoutOpen(true)}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-[var(--border)] rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-raised)] transition-colors shadow-xs text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
-        >
-          <SlidersHorizontal className="w-3.5 h-3.5" />
-          Customize Layout
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Period Selector Pills */}
+          <div
+            className="flex items-center gap-0.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] p-1 text-xs"
+            role="group"
+            aria-label="Dashboard Period Filter"
+          >
+            {PERIOD_PILLS.map((pill) => {
+              const isActive = selectedPeriod === pill.value;
+              return (
+                <button
+                  key={pill.label}
+                  type="button"
+                  onClick={() => setSelectedPeriod(pill.value)}
+                  className={`px-2.5 py-1 rounded font-medium transition-colors cursor-pointer ${
+                    isActive
+                      ? "bg-gold shadow-xs font-semibold"
+                      : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                  }`}
+                >
+                  {pill.label}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setCreateTxOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-gold shadow-xs cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Record Transaction
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setLayoutOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium border border-[var(--border)] rounded-lg bg-[var(--surface)] hover:bg-[var(--surface-raised)] transition-colors shadow-xs text-[var(--text-muted)] hover:text-[var(--text)] cursor-pointer"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+            Customize Layout
+          </button>
+        </div>
       </div>
 
       {/* Primary KPI Row */}
@@ -529,6 +808,14 @@ export const DashboardPage: React.FC = () => {
           onReset={async () => {
             await resetMutation.mutateAsync();
           }}
+        />
+      )}
+
+      {/* Quick Record Transaction Drawer */}
+      {createTxOpen && (
+        <CreateTransactionDrawer
+          isOpen={createTxOpen}
+          onClose={() => setCreateTxOpen(false)}
         />
       )}
     </div>
