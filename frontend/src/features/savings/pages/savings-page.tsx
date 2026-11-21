@@ -8,8 +8,14 @@ import { ContributeDialog } from "../components/contribute-dialog";
 import { GoalProjectionModal } from "../components/goal-projection-card";
 import { getAccounts } from "@/features/accounts/api";
 import { queryKeys } from "@/lib/query-keys";
+import {
+  convertMajorToUsdAndKhr,
+  resolveModeReadout,
+  useCurrency,
+} from "@/lib/currency-context";
 
 export const SavingsPage: React.FC = () => {
+  const { mode, usdToKhrRate } = useCurrency();
   const [includeArchived, setIncludeArchived] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState<SavingsGoal | null>(null);
@@ -27,9 +33,23 @@ export const SavingsPage: React.FC = () => {
     queryFn: () => getAccounts(false),
   });
 
-  // Metrics
-  const totalTargetMinor = goals.reduce((sum, g) => sum + g.target_amount_minor, 0);
-  const totalCurrentMinor = goals.reduce((sum, g) => sum + g.current_amount_minor, 0);
+  // Metrics (dual-currency aware)
+  let targetUsd = 0;
+  let targetKhr = 0;
+  let currentUsd = 0;
+  let currentKhr = 0;
+
+  for (const g of goals) {
+    const tConv = convertMajorToUsdAndKhr(g.target_amount_minor / 100, g.currency, usdToKhrRate);
+    const cConv = convertMajorToUsdAndKhr(g.current_amount_minor / 100, g.currency, usdToKhrRate);
+    targetUsd += tConv.usd;
+    targetKhr += tConv.khr;
+    currentUsd += cConv.usd;
+    currentKhr += cConv.khr;
+  }
+
+  const targetReadout = resolveModeReadout(targetUsd, targetKhr, mode);
+  const currentReadout = resolveModeReadout(currentUsd, currentKhr, mode);
   const activeCount = goals.filter((g) => g.status === "active").length;
   const achievedCount = goals.filter((g) => g.status === "achieved").length;
 
@@ -82,14 +102,24 @@ export const SavingsPage: React.FC = () => {
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-muted font-medium mb-1">Total Target</div>
           <div className="text-2xl font-bold text-main font-mono">
-            ${(totalTargetMinor / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {targetReadout.primary}
           </div>
+          {targetReadout.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {targetReadout.secondary}
+            </div>
+          )}
         </div>
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-muted font-medium mb-1">Total Saved</div>
           <div className="text-2xl font-bold text-gold font-mono">
-            ${(totalCurrentMinor / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {currentReadout.primary}
           </div>
+          {currentReadout.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {currentReadout.secondary}
+            </div>
+          )}
         </div>
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-muted font-medium mb-1">Active Goals</div>

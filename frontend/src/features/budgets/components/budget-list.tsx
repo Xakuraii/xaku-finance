@@ -5,6 +5,12 @@ import { fetchBudgetOverview, fetchBudgets } from "../api/budgets-api";
 import { BudgetCard } from "./budget-card";
 import { CreateBudgetDialog } from "./create-budget-dialog";
 import { Budget, BudgetOverview } from "../types";
+import {
+  convertMajorToUsdAndKhr,
+  formatDualAmount,
+  resolveModeReadout,
+  useCurrency,
+} from "@/lib/currency-context";
 
 interface BudgetListProps {
   categories?: Array<{ id: string; name: string; kind: string }>;
@@ -15,6 +21,7 @@ export const BudgetList: React.FC<BudgetListProps> = ({
   categories = [],
   defaultCurrency = "USD",
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
 
   const { data: budgets = [], isLoading: budgetsLoading } = useQuery<Budget[]>({
@@ -28,6 +35,47 @@ export const BudgetList: React.FC<BudgetListProps> = ({
   });
 
   const currency = overview?.currency || defaultCurrency;
+
+  const budgetDualTotals = (() => {
+    const activeBudgets = budgets.filter((b) => !b.is_archived);
+    if (activeBudgets.length > 0) {
+      let budgetedUsd = 0;
+      let budgetedKhr = 0;
+      let spentUsd = 0;
+      let spentKhr = 0;
+      let remainingUsd = 0;
+      let remainingKhr = 0;
+
+      for (const b of activeBudgets) {
+        const availMinor = b.current_period?.total_available_minor ?? b.base_amount_minor;
+        const spentMinor = b.current_period?.spent_minor ?? 0;
+        const remMinor = b.current_period?.remaining_minor ?? availMinor - spentMinor;
+
+        const aConv = convertMajorToUsdAndKhr(availMinor / 100, b.currency, usdToKhrRate);
+        const sConv = convertMajorToUsdAndKhr(spentMinor / 100, b.currency, usdToKhrRate);
+        const rConv = convertMajorToUsdAndKhr(remMinor / 100, b.currency, usdToKhrRate);
+
+        budgetedUsd += aConv.usd;
+        budgetedKhr += aConv.khr;
+        spentUsd += sConv.usd;
+        spentKhr += sConv.khr;
+        remainingUsd += rConv.usd;
+        remainingKhr += rConv.khr;
+      }
+
+      return {
+        budgeted: resolveModeReadout(budgetedUsd, budgetedKhr, mode),
+        spent: resolveModeReadout(spentUsd, spentKhr, mode),
+        remaining: resolveModeReadout(remainingUsd, remainingKhr, mode),
+      };
+    }
+
+    return {
+      budgeted: formatDualAmount(overview?.total_budgeted || "0.00", currency, mode, usdToKhrRate),
+      spent: formatDualAmount(overview?.total_spent || "0.00", currency, mode, usdToKhrRate),
+      remaining: formatDualAmount(overview?.total_remaining || "0.00", currency, mode, usdToKhrRate),
+    };
+  })();
 
   return (
     <div className="space-y-6">
@@ -61,9 +109,20 @@ export const BudgetList: React.FC<BudgetListProps> = ({
             Total Budgeted
           </div>
           <div className="text-2xl font-bold font-tabular text-main">
-            {overview?.total_budgeted || "0.00"}{" "}
-            <span className="text-xs font-sans text-muted">{currency}</span>
+            {isProviderMounted ? (
+              budgetDualTotals.budgeted.primary
+            ) : (
+              <>
+                {overview?.total_budgeted || "0.00"}{" "}
+                <span className="text-xs font-sans text-muted">{currency}</span>
+              </>
+            )}
           </div>
+          {isProviderMounted && budgetDualTotals.budgeted.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {budgetDualTotals.budgeted.secondary}
+            </div>
+          )}
         </div>
 
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-main shadow-xs">
@@ -72,9 +131,20 @@ export const BudgetList: React.FC<BudgetListProps> = ({
             Total Spent
           </div>
           <div className="text-2xl font-bold font-tabular text-main">
-            {overview?.total_spent || "0.00"}{" "}
-            <span className="text-xs font-sans text-muted">{currency}</span>
+            {isProviderMounted ? (
+              budgetDualTotals.spent.primary
+            ) : (
+              <>
+                {overview?.total_spent || "0.00"}{" "}
+                <span className="text-xs font-sans text-muted">{currency}</span>
+              </>
+            )}
           </div>
+          {isProviderMounted && budgetDualTotals.spent.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {budgetDualTotals.spent.secondary}
+            </div>
+          )}
         </div>
 
         <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 text-main shadow-xs">
@@ -83,9 +153,20 @@ export const BudgetList: React.FC<BudgetListProps> = ({
             Total Remaining
           </div>
           <div className="text-2xl font-bold font-tabular text-main">
-            {overview?.total_remaining || "0.00"}{" "}
-            <span className="text-xs font-sans text-muted">{currency}</span>
+            {isProviderMounted ? (
+              budgetDualTotals.remaining.primary
+            ) : (
+              <>
+                {overview?.total_remaining || "0.00"}{" "}
+                <span className="text-xs font-sans text-muted">{currency}</span>
+              </>
+            )}
           </div>
+          {isProviderMounted && budgetDualTotals.remaining.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {budgetDualTotals.remaining.secondary}
+            </div>
+          )}
         </div>
       </div>
 

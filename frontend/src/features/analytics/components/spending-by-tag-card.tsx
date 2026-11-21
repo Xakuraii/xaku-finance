@@ -195,7 +195,7 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
                     strokeWidth={hoveredIdx === s.idx ? 26 : 22}
                     strokeDasharray={s.dashArray}
                     strokeDashoffset={s.dashOffset}
-                    className="transition-all duration-200 cursor-pointer"
+                    className="animate-xaku-ring transition-all duration-300 cursor-pointer"
                     onMouseEnter={() => setHoveredIdx(s.idx)}
                     onMouseLeave={() => setHoveredIdx(null)}
                   />
@@ -213,7 +213,7 @@ export const SpendingByTagCard: React.FC<SpendingByTagCardProps> = ({
 
             {/* Bars */}
             {activeTab === "tags" ? (
-              <div className="space-y-4">
+              <div className="space-y-4 animate-xaku-fade-up">
                 {tagList.map((item, idx) => (
                   <div
                     key={item.tag}

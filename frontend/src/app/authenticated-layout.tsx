@@ -21,6 +21,7 @@ import {
   PlusCircle,
   CheckCircle2,
   CornerDownLeft,
+  Pencil,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
@@ -28,7 +29,7 @@ import { ImportWizardDialog } from "@/features/imports/components/import-wizard-
 import { useQuery } from "@tanstack/react-query";
 import { getAccounts } from "@/features/accounts/api";
 import { queryKeys } from "@/lib/query-keys";
-import { CurrencyDisplayMode, useCurrency } from "@/lib/currency-context";
+import { CurrencyDisplayMode, DEFAULT_USD_TO_KHR, useCurrency } from "@/lib/currency-context";
 
 type NavItem = {
   to: string;
@@ -130,7 +131,7 @@ const navLinkClass = (isActive: boolean, collapsed: boolean) =>
 
 export const AuthenticatedLayout: React.FC = () => {
   const { user, workspace, isAuthenticated, isLoading, logout } = useAuth();
-  const { mode, setMode, usdToKhrRate } = useCurrency();
+  const { mode, setMode, usdToKhrRate, setUsdToKhrRate } = useCurrency();
   const location = useLocation();
   const navigate = useNavigate();
   const [isImportOpen, setIsImportOpen] = useState(false);
@@ -138,6 +139,8 @@ export const AuthenticatedLayout: React.FC = () => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [isCommandOpen, setIsCommandOpen] = useState(false);
   const [commandQuery, setCommandQuery] = useState("");
+  const [isRatePopoverOpen, setIsRatePopoverOpen] = useState(false);
+  const [draftRate, setDraftRate] = useState(String(usdToKhrRate));
 
   const { data: accounts = [] } = useQuery({
     queryKey: queryKeys.accounts.list(false),
@@ -451,37 +454,141 @@ export const AuthenticatedLayout: React.FC = () => {
 
             {/* Right controls */}
             <div className="flex items-center gap-2 sm:gap-2.5">
-              {/* Interactive Dual-Currency Switcher ($ USD | ៛ KHR | Both) */}
-              <div
-                className="inline-flex items-center rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] p-0.5 text-[11px]"
-                role="group"
-                aria-label="Currency display switcher"
-                title={`Exchange reference: $1 = ${usdToKhrRate.toLocaleString()} ៛`}
-              >
-                {(
-                  [
-                    { value: "USD", label: "$ USD", short: "$" },
-                    { value: "KHR", label: "៛ KHR", short: "៛" },
-                    { value: "BOTH", label: "$ + ៛ Both", short: "$+៛" },
-                  ] as Array<{ value: CurrencyDisplayMode; label: string; short: string }>
-                ).map((opt) => (
+              {/* Interactive Dual-Currency Switcher ($ USD | ៛ KHR | Both) + Manual Exchange Rate */}
+              <div className="relative flex items-center gap-1.5">
+                <div
+                  className="inline-flex items-center rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] p-0.5 text-[11px]"
+                  role="group"
+                  aria-label="Currency display switcher"
+                >
+                  {(
+                    [
+                      { value: "USD", label: "$ USD", short: "$" },
+                      { value: "KHR", label: "៛ KHR", short: "៛" },
+                      { value: "BOTH", label: "$ + ៛ Both", short: "$+៛" },
+                    ] as Array<{ value: CurrencyDisplayMode; label: string; short: string }>
+                  ).map((opt) => (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setMode(opt.value)}
+                      className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer whitespace-nowrap ${
+                        mode === opt.value
+                          ? "bg-gold shadow-xs font-semibold"
+                          : "text-[var(--text-muted)] hover:text-[var(--text)]"
+                      }`}
+                    >
+                      <span className="hidden sm:inline">{opt.label}</span>
+                      <span className="sm:hidden">{opt.short}</span>
+                    </button>
+                  ))}
+
                   <button
-                    key={opt.value}
                     type="button"
-                    onClick={() => setMode(opt.value)}
-                    className={`px-2 py-1 rounded-md font-medium transition-colors cursor-pointer whitespace-nowrap ${
-                      mode === opt.value
-                        ? "bg-gold shadow-xs font-semibold"
-                        : "text-[var(--text-muted)] hover:text-[var(--text)]"
-                    }`}
+                    onClick={() => {
+                      setDraftRate(String(usdToKhrRate));
+                      setIsRatePopoverOpen((v) => !v);
+                    }}
+                    className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-mono text-[var(--text-muted)] hover:text-[var(--text)] border-l border-[var(--border)] ml-0.5 cursor-pointer transition-colors"
+                    title="Update USD to KHR exchange rate manually"
+                    aria-label="Update USD to KHR exchange rate"
                   >
-                    <span className="hidden sm:inline">{opt.label}</span>
-                    <span className="sm:hidden">{opt.short}</span>
+                    <span className="hidden md:inline">1$={usdToKhrRate.toLocaleString()}៛</span>
+                    <Pencil className="w-2.5 h-2.5 text-gold" />
                   </button>
-                ))}
-                <span className="hidden 2xl:inline-block px-2 text-[10px] font-mono text-[var(--text-faint)] border-l border-[var(--border)] ml-0.5">
-                  1$={usdToKhrRate.toLocaleString()}៛
-                </span>
+                </div>
+
+                {isRatePopoverOpen && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-30"
+                      onClick={() => setIsRatePopoverOpen(false)}
+                    />
+                    <div
+                      className="absolute right-0 top-full mt-2 w-72 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-2xl z-40 space-y-3"
+                      role="dialog"
+                      aria-label="Manual Exchange Rate Editor"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-semibold text-main">
+                          USD → KHR Exchange Rate
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUsdToKhrRate(DEFAULT_USD_TO_KHR);
+                            setDraftRate(String(DEFAULT_USD_TO_KHR));
+                          }}
+                          className="text-[10px] text-gold hover:underline cursor-pointer"
+                        >
+                          Reset ({DEFAULT_USD_TO_KHR.toLocaleString()})
+                        </button>
+                      </div>
+
+                      <form
+                        onSubmit={(e) => {
+                          e.preventDefault();
+                          const parsed = parseFloat(draftRate);
+                          if (Number.isFinite(parsed) && parsed > 0) {
+                            setUsdToKhrRate(parsed);
+                            setIsRatePopoverOpen(false);
+                          }
+                        }}
+                        className="space-y-2.5"
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-mono text-muted shrink-0">$1 =</span>
+                          <input
+                            type="number"
+                            min="100"
+                            step="any"
+                            value={draftRate}
+                            onChange={(e) => setDraftRate(e.target.value)}
+                            className="w-full rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] px-2.5 py-1.5 text-xs font-mono text-main focus:border-[var(--accent)] focus:outline-none"
+                            aria-label="Custom KHR per 1 USD rate"
+                          />
+                          <span className="text-xs font-mono text-muted shrink-0">៛</span>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5">
+                          {[4000, 4050, 4100, 4150].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => {
+                                setDraftRate(String(preset));
+                                setUsdToKhrRate(preset);
+                              }}
+                              className={`px-2 py-0.5 rounded text-[10px] font-mono border cursor-pointer transition-colors ${
+                                usdToKhrRate === preset
+                                  ? "bg-gold border-transparent font-semibold"
+                                  : "bg-[var(--surface-raised)] border-[var(--border)] text-muted hover:text-main"
+                              }`}
+                            >
+                              {preset.toLocaleString()}៛
+                            </button>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => setIsRatePopoverOpen(false)}
+                            className="px-2.5 py-1 text-[11px] text-muted hover:text-main cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                          <button
+                            type="submit"
+                            className="px-3 py-1 rounded-lg bg-gold text-[11px] font-semibold cursor-pointer"
+                          >
+                            Apply Rate
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Quick Command Palette Trigger */}

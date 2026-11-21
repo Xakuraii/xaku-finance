@@ -25,7 +25,12 @@ import {
 } from "../api/dashboard-api";
 import { DashboardLayoutDialog } from "../components/dashboard-layout-dialog";
 import { CreateTransactionDrawer } from "@/features/transactions/components/create-transaction-drawer";
-import { formatDualAmount, useCurrency } from "@/lib/currency-context";
+import {
+  convertMajorToUsdAndKhr,
+  formatDualAmount,
+  resolveModeReadout,
+  useCurrency,
+} from "@/lib/currency-context";
 
 type PeriodOption = undefined | "current_month" | "last_30_days" | "last_90_days" | "ytd";
 
@@ -95,16 +100,16 @@ export const DashboardPage: React.FC = () => {
   const [createTxOpen, setCreateTxOpen] = useState(false);
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodOption>(undefined);
 
-  const renderDualReadout = (amountStr: string | undefined, sourceCurr: string | undefined) => {
-    if (!isProviderMounted) return null;
+  const getDualSummary = (amountStr: string | undefined, sourceCurr: string | undefined) => {
     const src = (sourceCurr || dashboard?.currency || "USD").toUpperCase();
-    const dual = formatDualAmount(amountStr || "0.00", src, mode, usdToKhrRate);
-    const alt = src === "KHR" ? dual.usdFormatted : dual.khrFormatted;
-    if (mode === "USD" && src !== "KHR") return null;
-    if (mode === "KHR" && src === "KHR") return null;
+    return formatDualAmount(amountStr || "0.00", src, mode, usdToKhrRate);
+  };
+
+  const renderSecondaryReadout = (secondaryText: string | null) => {
+    if (!isProviderMounted || !secondaryText) return null;
     return (
       <div className="text-[11px] font-mono text-[var(--text-muted)] mt-0.5">
-        {mode === "BOTH" ? `≈ ${alt}` : alt}
+        {secondaryText}
       </div>
     );
   };
@@ -165,7 +170,28 @@ export const DashboardPage: React.FC = () => {
 
   const renderWidget = (key: string) => {
     switch (key) {
-      case "total_balance":
+      case "total_balance": {
+        const balanceDual = (() => {
+          if (dashboard.balances && dashboard.balances.length > 0) {
+            const totals = dashboard.balances.reduce(
+              (acc, b) => {
+                const conv = convertMajorToUsdAndKhr(
+                  parseNumericAmount(b.total),
+                  b.currency,
+                  usdToKhrRate
+                );
+                return { usd: acc.usd + conv.usd, khr: acc.khr + conv.khr };
+              },
+              { usd: 0, khr: 0 }
+            );
+            return resolveModeReadout(totals.usd, totals.khr, mode);
+          }
+          return getDualSummary(
+            dashboard.converted_total?.amount,
+            dashboard.converted_total?.currency || dashboard.currency
+          );
+        })();
+
         return (
           <WidgetCard key="total_balance" accentColor="var(--accent)">
             <div className="flex items-center justify-between mb-3">
@@ -175,15 +201,18 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
             <WidgetValue>
-              {dashboard.converted_total?.amount || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
-                {dashboard.converted_total?.currency || dashboard.currency}
-              </span>
+              {isProviderMounted ? (
+                balanceDual.primary
+              ) : (
+                <>
+                  {dashboard.converted_total?.amount || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
+                    {dashboard.converted_total?.currency || dashboard.currency}
+                  </span>
+                </>
+              )}
             </WidgetValue>
-            {renderDualReadout(
-              dashboard.converted_total?.amount,
-              dashboard.converted_total?.currency || dashboard.currency
-            )}
+            {renderSecondaryReadout(balanceDual.secondary)}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">Consolidated available</p>
             {dashboard.balances && dashboard.balances.length > 0 && (
               <div className="pt-3 mt-2 border-t border-[var(--border)] flex flex-wrap gap-1.5">
@@ -199,8 +228,13 @@ export const DashboardPage: React.FC = () => {
             )}
           </WidgetCard>
         );
+      }
 
-      case "net_worth":
+      case "net_worth": {
+        const netWorthDual = getDualSummary(
+          dashboard.net_worth?.amount,
+          dashboard.net_worth?.currency || dashboard.currency
+        );
         return (
           <WidgetCard key="net_worth" accentColor="var(--positive)">
             <div className="flex items-center justify-between mb-3">
@@ -210,15 +244,18 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
             <WidgetValue color="var(--positive)">
-              {dashboard.net_worth?.amount || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
-                {dashboard.net_worth?.currency || dashboard.currency}
-              </span>
+              {isProviderMounted ? (
+                netWorthDual.primary
+              ) : (
+                <>
+                  {dashboard.net_worth?.amount || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
+                    {dashboard.net_worth?.currency || dashboard.currency}
+                  </span>
+                </>
+              )}
             </WidgetValue>
-            {renderDualReadout(
-              dashboard.net_worth?.amount,
-              dashboard.net_worth?.currency || dashboard.currency
-            )}
+            {renderSecondaryReadout(netWorthDual.secondary)}
             <div className="flex items-center justify-between mt-2">
               <p className="text-[11px] text-[var(--text-faint)]">
                 Assets {dashboard.net_worth?.assets || "0.00"} · Liabilities{" "}
@@ -233,8 +270,13 @@ export const DashboardPage: React.FC = () => {
             </div>
           </WidgetCard>
         );
+      }
 
-      case "safe_to_spend":
+      case "safe_to_spend": {
+        const safeDual = getDualSummary(
+          dashboard.safe_to_spend?.display,
+          dashboard.safe_to_spend?.currency || dashboard.currency
+        );
         return (
           <WidgetCard key="safe_to_spend" accentColor="var(--info)">
             <div className="flex items-center justify-between mb-3">
@@ -250,22 +292,30 @@ export const DashboardPage: React.FC = () => {
                   : "var(--info)"
               }
             >
-              {dashboard.safe_to_spend?.display || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
-                {dashboard.safe_to_spend?.currency || dashboard.currency}
-              </span>
+              {isProviderMounted ? (
+                safeDual.primary
+              ) : (
+                <>
+                  {dashboard.safe_to_spend?.display || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1.5">
+                    {dashboard.safe_to_spend?.currency || dashboard.currency}
+                  </span>
+                </>
+              )}
             </WidgetValue>
-            {renderDualReadout(
-              dashboard.safe_to_spend?.display,
-              dashboard.safe_to_spend?.currency || dashboard.currency
-            )}
+            {renderSecondaryReadout(safeDual.secondary)}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">
               After subtracting upcoming obligations
             </p>
           </WidgetCard>
         );
+      }
 
-      case "daily_allowance":
+      case "daily_allowance": {
+        const dailyDual = getDualSummary(
+          dashboard.daily_allowance?.allowance,
+          dashboard.daily_allowance?.currency || dashboard.currency
+        );
         return (
           <WidgetCard key="daily_allowance" accentColor="#a78bfa">
             <div className="flex items-center justify-between mb-3">
@@ -281,23 +331,33 @@ export const DashboardPage: React.FC = () => {
                   : "#a78bfa"
               }
             >
-              {dashboard.daily_allowance?.allowance || "0.00"}
-              <span className="text-sm font-normal text-[var(--text-muted)] ml-1">/ day</span>
+              {isProviderMounted ? (
+                <>
+                  {dailyDual.primary}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1">/ day</span>
+                </>
+              ) : (
+                <>
+                  {dashboard.daily_allowance?.allowance || "0.00"}
+                  <span className="text-sm font-normal text-[var(--text-muted)] ml-1">/ day</span>
+                </>
+              )}
             </WidgetValue>
-            {renderDualReadout(
-              dashboard.daily_allowance?.allowance,
-              dashboard.daily_allowance?.currency || dashboard.currency
-            )}
+            {renderSecondaryReadout(dailyDual.secondary ? `${dailyDual.secondary} / day` : null)}
             <p className="text-[11px] text-[var(--text-faint)] mt-1">
               {dashboard.daily_allowance?.remaining_days || 0} days left in period
             </p>
           </WidgetCard>
         );
+      }
 
       case "cash_flow": {
         const inflowStr = dashboard.cash_flow?.table?.[0]?.amount || "0.00";
         const outflowStr = dashboard.cash_flow?.table?.[1]?.amount || "0.00";
         const netStr = dashboard.cash_flow?.table?.[2]?.amount || "0.00";
+        const inflowDual = getDualSummary(inflowStr, dashboard.currency);
+        const outflowDual = getDualSummary(outflowStr, dashboard.currency);
+        const netDual = getDualSummary(netStr, dashboard.currency);
         const inflowNum = Math.max(0, parseNumericAmount(inflowStr));
         const outflowNum = Math.abs(parseNumericAmount(outflowStr));
         const flowSum = inflowNum + outflowNum;
@@ -333,9 +393,9 @@ export const DashboardPage: React.FC = () => {
                   Inflows
                 </div>
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
-                  {inflowStr}
+                  {isProviderMounted ? inflowDual.primary : inflowStr}
                 </div>
-                {renderDualReadout(inflowStr, dashboard.currency)}
+                {renderSecondaryReadout(inflowDual.secondary)}
               </div>
               <div className="p-3.5 rounded-lg bg-[var(--negative-bg)] border border-[var(--negative-border)]">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--negative)] font-medium mb-2">
@@ -343,9 +403,9 @@ export const DashboardPage: React.FC = () => {
                   Outflows
                 </div>
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
-                  {outflowStr}
+                  {isProviderMounted ? outflowDual.primary : outflowStr}
                 </div>
-                {renderDualReadout(outflowStr, dashboard.currency)}
+                {renderSecondaryReadout(outflowDual.secondary)}
               </div>
               <div className="p-3.5 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)]">
                 <div className="flex items-center gap-1.5 text-xs text-[var(--text-muted)] font-medium mb-2">
@@ -353,9 +413,9 @@ export const DashboardPage: React.FC = () => {
                   Net
                 </div>
                 <div className="text-base font-semibold font-tabular text-[var(--text)]">
-                  {netStr}
+                  {isProviderMounted ? netDual.primary : netStr}
                 </div>
-                {renderDualReadout(netStr, dashboard.currency)}
+                {renderSecondaryReadout(netDual.secondary)}
               </div>
             </div>
 
@@ -363,12 +423,12 @@ export const DashboardPage: React.FC = () => {
             <div className="space-y-1.5">
               <div className="h-2.5 w-full rounded-full bg-[var(--surface-raised)] overflow-hidden flex gap-0.5">
                 <div
-                  className="h-full bg-[var(--positive)] transition-all duration-500 rounded-l-full"
+                  className="h-full bg-[var(--positive)] transition-all duration-500 rounded-l-full animate-xaku-bar"
                   style={{ width: `${inflowPct}%` }}
                   title={`Inflows: ${inflowPct.toFixed(1)}%`}
                 />
                 <div
-                  className="h-full bg-[var(--negative)] transition-all duration-500 rounded-r-full"
+                  className="h-full bg-[var(--negative)] transition-all duration-500 rounded-r-full animate-xaku-bar"
                   style={{ width: `${outflowPct}%` }}
                   title={`Outflows: ${outflowPct.toFixed(1)}%`}
                 />
@@ -410,7 +470,7 @@ export const DashboardPage: React.FC = () => {
                     </div>
                     <div className="w-full h-1.5 bg-[var(--surface-raised)] rounded-full overflow-hidden">
                       <div
-                        className={`h-full rounded-full transition-all ${
+                        className={`h-full rounded-full transition-all animate-xaku-bar ${
                           b.is_over_budget
                             ? "bg-[var(--negative)]"
                             : "bg-gradient-to-r from-[#F0B90B] to-[#FCD535]"
@@ -583,6 +643,7 @@ export const DashboardPage: React.FC = () => {
                             strokeWidth="16"
                             strokeDasharray={`${dashLen} ${C - dashLen}`}
                             strokeDashoffset={dashOffset}
+                            className="animate-xaku-ring transition-all duration-500"
                           />
                         );
                       })}

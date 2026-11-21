@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { fetchSafeToSpend } from "../api/analytics-api";
 import { SafeToSpendResponse } from "../types";
+import { formatDualAmount, useCurrency } from "@/lib/currency-context";
 
 interface SafeToSpendCardProps {
   initialData?: SafeToSpendResponse;
@@ -20,6 +21,7 @@ export const SafeToSpendCard: React.FC<SafeToSpendCardProps> = ({
   initialData,
   currency,
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [horizonDays, setHorizonDays] = useState<number | undefined>(undefined);
   const [showDetails, setShowDetails] = useState(false);
 
@@ -63,6 +65,7 @@ export const SafeToSpendCard: React.FC<SafeToSpendCardProps> = ({
   const comp = data.components;
   const accounts = data.accounts || [];
   const excluded = data.excluded_accounts || [];
+  const safeDual = formatDualAmount(data.display, data.currency, mode, usdToKhrRate);
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
@@ -120,15 +123,20 @@ export const SafeToSpendCard: React.FC<SafeToSpendCardProps> = ({
       <div className="mb-6">
         <div className="flex flex-wrap items-baseline gap-3">
           <span className="font-mono text-3xl sm:text-4xl font-bold tracking-tight text-main">
-            {data.display}
+            {isProviderMounted ? safeDual.primary : data.display}
           </span>
-          <span className="text-sm font-semibold text-muted">{data.currency}</span>
+          {!isProviderMounted && (
+            <span className="text-sm font-semibold text-muted">{data.currency}</span>
+          )}
           {data.is_negative && (
             <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-[var(--negative-bg)] text-[var(--negative)] border border-[var(--negative-border)]">
               Raw: {data.raw} {data.currency} (Overcommitted)
             </span>
           )}
         </div>
+        {isProviderMounted && safeDual.secondary && (
+          <div className="text-xs font-mono text-muted mt-1">{safeDual.secondary}</div>
+        )}
         <div className="flex items-center gap-1.5 mt-2 text-xs text-muted">
           <Clock className="w-3.5 h-3.5 text-gold" />
           <span>Calculated for horizon: {data.horizon.label} ({data.horizon.start} to {data.horizon.end})</span>

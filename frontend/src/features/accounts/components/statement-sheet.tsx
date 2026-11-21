@@ -14,12 +14,13 @@ import {
   convertMajorToUsdAndKhr,
   formatKhr,
   formatUsd,
+  resolveModeReadout,
   useCurrency,
 } from "@/lib/currency-context";
 
 export const StatementSheet: React.FC = () => {
   const queryClient = useQueryClient();
-  const { usdToKhrRate } = useCurrency();
+  const { mode, usdToKhrRate } = useCurrency();
   const [includeArchived, setIncludeArchived] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isTransferOpen, setIsTransferOpen] = useState(false);
@@ -38,10 +39,12 @@ export const StatementSheet: React.FC = () => {
     },
   });
 
-  // Calculate totals by currency and combined dual-currency portfolio
+  // Calculate totals by currency, combined dual-currency portfolio, and spendable liquidity
   const totalsByCurrency: Record<string, number> = {};
   let combinedUsd = 0;
   let combinedKhr = 0;
+  let spendableUsd = 0;
+  let spendableKhr = 0;
 
   accounts.forEach((acc) => {
     if (!acc.is_archived) {
@@ -49,8 +52,15 @@ export const StatementSheet: React.FC = () => {
       const converted = convertMajorToUsdAndKhr(acc.balance_minor / 100, acc.currency, usdToKhrRate);
       combinedUsd += converted.usd;
       combinedKhr += converted.khr;
+      if (acc.is_spendable) {
+        spendableUsd += converted.usd;
+        spendableKhr += converted.khr;
+      }
     }
   });
+
+  const portfolioReadout = resolveModeReadout(combinedUsd, combinedKhr, mode);
+  const spendableReadout = resolveModeReadout(spendableUsd, spendableKhr, mode);
 
   return (
     <div className="space-y-6">
@@ -108,33 +118,51 @@ export const StatementSheet: React.FC = () => {
         <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4 relative overflow-hidden">
           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--accent)]" />
           <div className="flex items-center justify-between text-xs text-muted">
-            <span>Combined Portfolio (USD)</span>
+            <span>
+              {mode === "BOTH"
+                ? "Combined Portfolio (USD + KHR)"
+                : mode === "KHR"
+                ? "Total Portfolio (KHR)"
+                : "Total Portfolio (USD)"}
+            </span>
             <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)]">
-              $ USD
+              {mode === "BOTH" ? "$ + ៛ BOTH" : mode === "KHR" ? "៛ KHR" : "$ USD"}
             </span>
           </div>
           <div className="mt-1.5 font-mono text-2xl font-bold text-gold">
-            {formatUsd(combinedUsd)}
+            {portfolioReadout.primary}
           </div>
-          <div className="text-[11px] text-faint mt-1 font-mono">
-            All USD &amp; KHR accounts @ {usdToKhrRate.toLocaleString()} ៛/$
-          </div>
+          {portfolioReadout.secondary ? (
+            <div className="text-xs text-muted mt-0.5 font-mono">
+              {portfolioReadout.secondary}
+            </div>
+          ) : (
+            <div className="text-[11px] text-faint mt-1 font-mono">
+              Rate: 1 USD = {usdToKhrRate.toLocaleString()} ៛
+            </div>
+          )}
         </div>
 
         <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4 relative overflow-hidden">
           <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--positive)]" />
           <div className="flex items-center justify-between text-xs text-muted">
-            <span>Combined Portfolio (Khmer Riel)</span>
+            <span>Spendable Liquidity</span>
             <span className="font-mono text-[10px] px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)]">
-              ៛ KHR
+              Liquid
             </span>
           </div>
           <div className="mt-1.5 font-mono text-2xl font-bold text-[var(--positive)]">
-            {formatKhr(combinedKhr)}
+            {spendableReadout.primary}
           </div>
-          <div className="text-[11px] text-faint mt-1 font-mono">
-            Dual-currency equivalent balance
-          </div>
+          {spendableReadout.secondary ? (
+            <div className="text-xs text-muted mt-0.5 font-mono">
+              {spendableReadout.secondary}
+            </div>
+          ) : (
+            <div className="text-[11px] text-faint mt-1 font-mono">
+              {formatKhr(spendableKhr)} / {formatUsd(spendableUsd)}
+            </div>
+          )}
         </div>
 
         <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4">

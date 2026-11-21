@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { fetchNetWorth } from "../api/analytics-api";
 import { NetWorthResponse } from "../types";
+import { formatDualAmount, useCurrency } from "@/lib/currency-context";
 
 interface NetWorthCardProps {
   initialData?: NetWorthResponse;
@@ -25,6 +26,7 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
   asOf,
   currency,
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [showBreakdown, setShowBreakdown] = useState(false);
 
   const { data, isLoading, isError } = useQuery<NetWorthResponse>({
@@ -61,6 +63,9 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
   const change = data.change;
   const assetItems = data.breakdown.assets || [];
   const liabilityItems = data.breakdown.liabilities || [];
+  const netWorthDual = formatDualAmount(data.net_worth, data.currency, mode, usdToKhrRate);
+  const assetsDual = formatDualAmount(data.assets, data.currency, mode, usdToKhrRate);
+  const liabilitiesDual = formatDualAmount(data.liabilities, data.currency, mode, usdToKhrRate);
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
@@ -98,10 +103,15 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
               isNegative ? "text-[var(--negative)]" : "text-main"
             }`}
           >
-            {data.net_worth}
+            {isProviderMounted ? netWorthDual.primary : data.net_worth}
           </span>
-          <span className="text-sm font-semibold text-muted">{data.currency}</span>
+          {!isProviderMounted && (
+            <span className="text-sm font-semibold text-muted">{data.currency}</span>
+          )}
         </div>
+        {isProviderMounted && netWorthDual.secondary && (
+          <div className="text-xs font-mono text-muted mt-1">{netWorthDual.secondary}</div>
+        )}
 
         {/* Change indicator */}
         {change && (
@@ -136,8 +146,17 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
             Total Assets
           </div>
           <div className="font-mono text-xl font-bold text-main">
-            {data.assets} <span className="text-xs text-muted font-sans">{data.currency}</span>
+            {isProviderMounted ? (
+              assetsDual.primary
+            ) : (
+              <>
+                {data.assets} <span className="text-xs text-muted font-sans">{data.currency}</span>
+              </>
+            )}
           </div>
+          {isProviderMounted && assetsDual.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">{assetsDual.secondary}</div>
+          )}
           <div className="text-[11px] text-muted mt-1">
             {assetItems.length} active asset account{assetItems.length === 1 ? "" : "s"}
           </div>
@@ -148,9 +167,18 @@ export const NetWorthCard: React.FC<NetWorthCardProps> = ({
             Total Liabilities
           </div>
           <div className="font-mono text-xl font-bold text-main">
-            {data.liabilities}{" "}
-            <span className="text-xs text-muted font-sans">{data.currency}</span>
+            {isProviderMounted ? (
+              liabilitiesDual.primary
+            ) : (
+              <>
+                {data.liabilities}{" "}
+                <span className="text-xs text-muted font-sans">{data.currency}</span>
+              </>
+            )}
           </div>
+          {isProviderMounted && liabilitiesDual.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">{liabilitiesDual.secondary}</div>
+          )}
           <div className="text-[11px] text-muted mt-1">
             {liabilityItems.length} active obligation{liabilityItems.length === 1 ? "" : "s"}
           </div>

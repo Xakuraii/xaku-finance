@@ -4,6 +4,14 @@ export type CurrencyDisplayMode = "USD" | "KHR" | "BOTH";
 
 export const DEFAULT_USD_TO_KHR = 4100;
 
+export function parseNumeric(raw: string | number | undefined | null): number {
+  if (typeof raw === "number") return Number.isFinite(raw) ? raw : 0;
+  if (!raw) return 0;
+  const cleaned = String(raw).replace(/[^0-9.-]/g, "");
+  const parsed = parseFloat(cleaned);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
 export function convertMajorToUsdAndKhr(
   amount: number,
   sourceCurrency: string = "USD",
@@ -47,6 +55,53 @@ export function formatKhr(khrAmount: number): string {
   return `${safe < 0 ? "-" : ""}${formatted} ៛`;
 }
 
+/**
+ * Resolve exact Primary + Secondary currency readouts from USD & KHR sums/equivalents:
+ * - KHR mode: Khmer Riel primary, US Dollar secondary
+ * - BOTH mode: Combined USD primary, Combined Khmer Riel secondary
+ * - USD mode: US Dollar primary, (optional KHR secondary only if explicitly requested or native KHR)
+ */
+export function resolveModeReadout(
+  usdTotal: number,
+  khrTotal: number,
+  mode: CurrencyDisplayMode,
+  options?: { sourceCurrency?: string; showSecondaryInUsd?: boolean }
+): {
+  primary: string;
+  secondary: string | null;
+  usdFormatted: string;
+  khrFormatted: string;
+} {
+  const usdFormatted = formatUsd(usdTotal);
+  const khrFormatted = formatKhr(khrTotal);
+  const src = (options?.sourceCurrency || "USD").toUpperCase();
+
+  if (mode === "KHR") {
+    return {
+      primary: khrFormatted,
+      secondary: usdFormatted,
+      usdFormatted,
+      khrFormatted,
+    };
+  }
+
+  if (mode === "BOTH") {
+    return {
+      primary: usdFormatted,
+      secondary: khrFormatted,
+      usdFormatted,
+      khrFormatted,
+    };
+  }
+
+  return {
+    primary: usdFormatted,
+    secondary: options?.showSecondaryInUsd || src === "KHR" ? khrFormatted : null,
+    usdFormatted,
+    khrFormatted,
+  };
+}
+
 export function formatDualAmount(
   rawAmount: string | number,
   sourceCurrency: string = "USD",
@@ -58,39 +113,10 @@ export function formatDualAmount(
   usdFormatted: string;
   khrFormatted: string;
 } {
-  const numeric =
-    typeof rawAmount === "number"
-      ? rawAmount
-      : parseFloat(String(rawAmount || "0").replace(/,/g, "")) || 0;
+  const numeric = parseNumeric(rawAmount);
   const src = (sourceCurrency || "USD").toUpperCase();
   const { usd, khr } = convertMajorToUsdAndKhr(numeric, src, rate);
-  const usdFormatted = formatUsd(usd);
-  const khrFormatted = formatKhr(khr);
-
-  if (mode === "KHR") {
-    return {
-      primary: khrFormatted,
-      secondary: src === "USD" ? usdFormatted : null,
-      usdFormatted,
-      khrFormatted,
-    };
-  }
-
-  if (mode === "BOTH") {
-    return {
-      primary: src === "KHR" ? khrFormatted : usdFormatted,
-      secondary: src === "KHR" ? usdFormatted : khrFormatted,
-      usdFormatted,
-      khrFormatted,
-    };
-  }
-
-  return {
-    primary: usdFormatted,
-    secondary: src === "KHR" ? khrFormatted : null,
-    usdFormatted,
-    khrFormatted,
-  };
+  return resolveModeReadout(usd, khr, mode, { sourceCurrency: src });
 }
 
 export interface CurrencyContextValue {

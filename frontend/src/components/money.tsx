@@ -1,6 +1,11 @@
 import React from "react";
 import { formatAmountOnly } from "@/lib/money";
-import { formatDualAmount, useCurrency } from "@/lib/currency-context";
+import {
+  convertMajorToUsdAndKhr,
+  formatKhr,
+  formatUsd,
+  useCurrency,
+} from "@/lib/currency-context";
 
 export interface MoneyProps {
   amountMinor: number;
@@ -38,18 +43,32 @@ export const MoneyDisplay: React.FC<MoneyProps> = ({
     else if (isNegative) colorClass = "text-negative";
   }
 
-  const majorValue = amountMinor / 10 ** minorUnit;
-  const dual = formatDualAmount(majorValue, currency, mode, usdToKhrRate);
+  const majorSigned = amountMinor / 10 ** minorUnit;
+  const { usd, khr } = convertMajorToUsdAndKhr(Math.abs(majorSigned), currency, usdToKhrRate);
+  const usdStr = `${signStr}${formatUsd(usd)}`;
+  const khrStr = `${signStr}${formatKhr(khr)}`;
 
-  let secondaryBadge: string | null = null;
   if (isProviderMounted) {
+    if (mode === "KHR") {
+      return (
+        <span className={`font-tabular inline-flex flex-wrap items-center gap-1.5 ${colorClass} ${className}`}>
+          <span>{khrStr}</span>
+          <span className="text-[11px] font-mono font-normal px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
+            {usdStr}
+          </span>
+        </span>
+      );
+    }
+
     if (mode === "BOTH") {
-      secondaryBadge =
-        currency.toUpperCase() === "KHR" ? dual.usdFormatted : dual.khrFormatted;
-    } else if (mode === "KHR" && currency.toUpperCase() !== "KHR") {
-      secondaryBadge = dual.khrFormatted;
-    } else if (mode === "USD" && currency.toUpperCase() === "KHR") {
-      secondaryBadge = dual.usdFormatted;
+      return (
+        <span className={`font-tabular inline-flex flex-wrap items-center gap-1.5 ${colorClass} ${className}`}>
+          <span>{usdStr}</span>
+          <span className="text-[11px] font-mono font-normal px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
+            {khrStr}
+          </span>
+        </span>
+      );
     }
   }
 
@@ -62,9 +81,9 @@ export const MoneyDisplay: React.FC<MoneyProps> = ({
         </span>
         <span className="text-muted text-xs tracking-wider font-normal">{currency}</span>
       </span>
-      {secondaryBadge && (
+      {isProviderMounted && mode === "USD" && currency.toUpperCase() === "KHR" && (
         <span className="text-[11px] font-mono font-normal px-1.5 py-0.5 rounded bg-[var(--surface-raised)] border border-[var(--border)] text-[var(--text-muted)]">
-          ≈ {secondaryBadge}
+          ≈ {usdStr}
         </span>
       )}
     </span>

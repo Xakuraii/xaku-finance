@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { LineChart, Table as TableIcon, ShieldAlert, TrendingUp, TrendingDown } from "lucide-react";
 import { fetchNetWorthHistory } from "../api/analytics-api";
 import { NetWorthHistoryResponse } from "../types";
+import { formatDualAmount, useCurrency } from "@/lib/currency-context";
 
 interface NetWorthChartProps {
   initialData?: NetWorthHistoryResponse;
@@ -46,6 +47,7 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
   initialData,
   currency,
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [granularity, setGranularity] = useState<"month" | "week" | "day">("month");
   const [viewMode, setViewMode] = useState<"chart" | "table">("chart");
   const [showAssets, setShowAssets] = useState(true);
@@ -251,10 +253,33 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
               <div className="text-[10px] text-faint font-medium">
                 {activePoint ? `Selected (${activePoint.date})` : "Latest Net Worth"}
               </div>
-              <div className="font-mono text-sm font-bold text-main mt-0.5">
-                {activePoint ? activePoint.net_worth : series[series.length - 1].net_worth}{" "}
-                <span className="text-[10px] font-normal text-muted">{displayCurrency}</span>
-              </div>
+              {(() => {
+                const rawLatest = activePoint
+                  ? activePoint.net_worth
+                  : series[series.length - 1].net_worth;
+                const dualLatest = formatDualAmount(rawLatest, displayCurrency, mode, usdToKhrRate);
+                return (
+                  <>
+                    <div className="font-mono text-sm font-bold text-main mt-0.5">
+                      {isProviderMounted ? (
+                        dualLatest.primary
+                      ) : (
+                        <>
+                          {rawLatest}{" "}
+                          <span className="text-[10px] font-normal text-muted">
+                            {displayCurrency}
+                          </span>
+                        </>
+                      )}
+                    </div>
+                    {isProviderMounted && dualLatest.secondary && (
+                      <div className="text-[10px] font-mono text-muted">
+                        {dualLatest.secondary}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2">
@@ -294,18 +319,50 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
 
             <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2">
               <div className="text-[10px] text-faint font-medium">Period High</div>
-              <div className="font-mono text-sm font-bold text-main mt-0.5">
-                {chartStats.high.toFixed(2)}{" "}
-                <span className="text-[10px] font-normal text-muted">{displayCurrency}</span>
-              </div>
+              {(() => {
+                const dualHigh = formatDualAmount(chartStats.high, displayCurrency, mode, usdToKhrRate);
+                return (
+                  <>
+                    <div className="font-mono text-sm font-bold text-main mt-0.5">
+                      {isProviderMounted ? (
+                        dualHigh.primary
+                      ) : (
+                        <>
+                          {chartStats.high.toFixed(2)}{" "}
+                          <span className="text-[10px] font-normal text-muted">{displayCurrency}</span>
+                        </>
+                      )}
+                    </div>
+                    {isProviderMounted && dualHigh.secondary && (
+                      <div className="text-[10px] font-mono text-muted">{dualHigh.secondary}</div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
 
             <div className="rounded-lg border border-[var(--border)] bg-[var(--surface-raised)] px-3 py-2">
               <div className="text-[10px] text-faint font-medium">Period Low</div>
-              <div className="font-mono text-sm font-bold text-main mt-0.5">
-                {chartStats.low.toFixed(2)}{" "}
-                <span className="text-[10px] font-normal text-muted">{displayCurrency}</span>
-              </div>
+              {(() => {
+                const dualLow = formatDualAmount(chartStats.low, displayCurrency, mode, usdToKhrRate);
+                return (
+                  <>
+                    <div className="font-mono text-sm font-bold text-main mt-0.5">
+                      {isProviderMounted ? (
+                        dualLow.primary
+                      ) : (
+                        <>
+                          {chartStats.low.toFixed(2)}{" "}
+                          <span className="text-[10px] font-normal text-muted">{displayCurrency}</span>
+                        </>
+                      )}
+                    </div>
+                    {isProviderMounted && dualLow.secondary && (
+                      <div className="text-[10px] font-mono text-muted">{dualLow.secondary}</div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -319,9 +376,12 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
             >
               <defs>
                 <linearGradient id="nwGoldGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.28" />
+                  <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.32" />
                   <stop offset="100%" stopColor="var(--accent)" stopOpacity="0.01" />
                 </linearGradient>
+                <filter id="nwGlow" x="-10%" y="-20%" width="120%" height="140%">
+                  <feDropShadow dx="0" dy="2" stdDeviation="3" floodColor="var(--accent)" floodOpacity="0.35" />
+                </filter>
               </defs>
 
               {/* Horizontal Gridlines & Y Labels */}
@@ -362,7 +422,7 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
               )}
 
               {/* Area Fill */}
-              <path d={netArea} fill="url(#nwGoldGradient)" />
+              <path d={netArea} fill="url(#nwGoldGradient)" className="animate-xaku-fade-up" />
 
               {/* Overlay: Liabilities */}
               {showLiabilities && (
@@ -373,6 +433,7 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
                   strokeWidth="1.75"
                   strokeDasharray="4 3"
                   opacity="0.8"
+                  className="animate-xaku-fade-up"
                 />
               )}
 
@@ -385,6 +446,7 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
                   strokeWidth="1.75"
                   strokeDasharray="4 3"
                   opacity="0.85"
+                  className="animate-xaku-fade-up"
                 />
               )}
 
@@ -396,6 +458,8 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
                 strokeWidth="2.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
+                filter="url(#nwGlow)"
+                className="animate-xaku-line"
               />
 
               {/* Hover Crosshair */}
@@ -440,6 +504,15 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
                         fill="var(--negative)"
                       />
                     )}
+                    {isHovered && (
+                      <circle
+                        cx={np.x}
+                        cy={np.y}
+                        r={10}
+                        fill="var(--accent)"
+                        opacity="0.16"
+                      />
+                    )}
                     <circle
                       cx={np.x}
                       cy={np.y}
@@ -447,6 +520,7 @@ export const NetWorthChart: React.FC<NetWorthChartProps> = ({
                       fill="var(--surface)"
                       stroke="var(--accent)"
                       strokeWidth={isHovered ? 2.5 : 2}
+                      className="transition-all duration-150"
                     />
 
                     {showLabel && (

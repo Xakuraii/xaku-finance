@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { fetchDailyAllowance } from "../api/analytics-api";
 import { DailyAllowanceResponse } from "../types";
+import { formatDualAmount, useCurrency } from "@/lib/currency-context";
 
 interface DailyAllowanceCardProps {
   initialData?: DailyAllowanceResponse;
@@ -22,6 +23,7 @@ export const DailyAllowanceCard: React.FC<DailyAllowanceCardProps> = ({
   initialData,
   currency,
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [showBudgets, setShowBudgets] = useState(false);
 
   const { data, isLoading, isError } = useQuery<DailyAllowanceResponse>({
@@ -55,6 +57,8 @@ export const DailyAllowanceCard: React.FC<DailyAllowanceCardProps> = ({
   const isPeriodEnded = data.state === "period_ended";
   const flexibleBudgets = data.budgets || [];
   const excludedBudgets = data.excluded || [];
+  const allowanceDual = formatDualAmount(data.allowance, data.currency, mode, usdToKhrRate);
+  const flexibleDual = formatDualAmount(data.flexible_remaining, data.currency, mode, usdToKhrRate);
 
   return (
     <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-6 shadow-sm">
@@ -97,12 +101,15 @@ export const DailyAllowanceCard: React.FC<DailyAllowanceCardProps> = ({
               isOverBudget ? "text-[var(--negative)]" : "text-main"
             }`}
           >
-            {data.allowance}
+            {isProviderMounted ? allowanceDual.primary : data.allowance}
           </span>
           <span className="text-sm font-semibold text-muted">
-            {data.currency} / day
+            {isProviderMounted ? "/ day" : `${data.currency} / day`}
           </span>
         </div>
+        {isProviderMounted && allowanceDual.secondary && (
+          <div className="text-xs font-mono text-muted mt-1">{allowanceDual.secondary} / day</div>
+        )}
         <div className="flex items-center gap-1.5 mt-2 text-xs text-muted">
           <Clock className="w-3.5 h-3.5 text-gold" />
           <span>
@@ -118,8 +125,18 @@ export const DailyAllowanceCard: React.FC<DailyAllowanceCardProps> = ({
             Total Flexible Remaining
           </div>
           <div className="font-mono text-lg font-bold text-main mt-0.5">
-            {data.flexible_remaining} <span className="text-xs font-normal text-muted">{data.currency}</span>
+            {isProviderMounted ? (
+              flexibleDual.primary
+            ) : (
+              <>
+                {data.flexible_remaining}{" "}
+                <span className="text-xs font-normal text-muted">{data.currency}</span>
+              </>
+            )}
           </div>
+          {isProviderMounted && flexibleDual.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">{flexibleDual.secondary}</div>
+          )}
           <div className="text-[10px] text-faint mt-0.5">
             {flexibleBudgets.length} flexible budget{flexibleBudgets.length === 1 ? "" : "s"}
           </div>

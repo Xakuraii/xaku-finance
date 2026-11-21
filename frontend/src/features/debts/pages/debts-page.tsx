@@ -8,8 +8,14 @@ import { RepaymentDialog } from "../components/repayment-dialog";
 import { DebtProjectionModal } from "../components/debt-projection-card";
 import { getAccounts } from "@/features/accounts/api";
 import { queryKeys } from "@/lib/query-keys";
+import {
+  convertMajorToUsdAndKhr,
+  resolveModeReadout,
+  useCurrency,
+} from "@/lib/currency-context";
 
 export const DebtsPage: React.FC = () => {
+  const { mode, usdToKhrRate } = useCurrency();
   const [includeArchived, setIncludeArchived] = useState(false);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedLiability, setSelectedLiability] = useState<Liability | null>(null);
@@ -27,19 +33,29 @@ export const DebtsPage: React.FC = () => {
     queryFn: () => getAccounts(false),
   });
 
-  // Metrics
-  const totalOutstandingMinor = liabilities.reduce(
-    (sum, l) => sum + l.outstanding_principal_minor,
-    0
-  );
-  const totalOriginalMinor = liabilities.reduce(
-    (sum, l) => sum + l.original_principal_minor,
-    0
-  );
-  const totalPaidMinor = liabilities.reduce(
-    (sum, l) => sum + l.paid_principal_minor,
-    0
-  );
+  // Metrics (dual-currency aware)
+  let outstandingUsd = 0;
+  let outstandingKhr = 0;
+  let originalUsd = 0;
+  let originalKhr = 0;
+  let paidUsd = 0;
+  let paidKhr = 0;
+
+  for (const l of liabilities) {
+    const outConv = convertMajorToUsdAndKhr(l.outstanding_principal_minor / 100, l.currency, usdToKhrRate);
+    const origConv = convertMajorToUsdAndKhr(l.original_principal_minor / 100, l.currency, usdToKhrRate);
+    const paidConv = convertMajorToUsdAndKhr(l.paid_principal_minor / 100, l.currency, usdToKhrRate);
+    outstandingUsd += outConv.usd;
+    outstandingKhr += outConv.khr;
+    originalUsd += origConv.usd;
+    originalKhr += origConv.khr;
+    paidUsd += paidConv.usd;
+    paidKhr += paidConv.khr;
+  }
+
+  const outstandingReadout = resolveModeReadout(outstandingUsd, outstandingKhr, mode);
+  const originalReadout = resolveModeReadout(originalUsd, originalKhr, mode);
+  const paidReadout = resolveModeReadout(paidUsd, paidKhr, mode);
   const activeCount = liabilities.filter(
     (l) => l.status === "active" && l.outstanding_principal_minor > 0
   ).length;
@@ -93,20 +109,35 @@ export const DebtsPage: React.FC = () => {
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-muted font-medium mb-1">Total Outstanding</div>
           <div className="text-2xl font-bold text-[var(--negative)] font-mono">
-            ${(totalOutstandingMinor / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {outstandingReadout.primary}
           </div>
+          {outstandingReadout.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {outstandingReadout.secondary}
+            </div>
+          )}
         </div>
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-muted font-medium mb-1">Total Principal Borrowed</div>
           <div className="text-2xl font-bold text-main font-mono">
-            ${(totalOriginalMinor / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {originalReadout.primary}
           </div>
+          {originalReadout.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {originalReadout.secondary}
+            </div>
+          )}
         </div>
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-muted font-medium mb-1">Total Repaid</div>
           <div className="text-2xl font-bold text-[var(--positive)] font-mono">
-            ${(totalPaidMinor / 100).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+            {paidReadout.primary}
           </div>
+          {paidReadout.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {paidReadout.secondary}
+            </div>
+          )}
         </div>
         <div className="p-4 rounded-xl border border-[var(--border)] bg-[var(--surface)]">
           <div className="text-xs text-muted font-medium mb-1">Active Loans</div>

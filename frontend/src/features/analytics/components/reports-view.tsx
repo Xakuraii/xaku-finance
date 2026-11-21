@@ -19,6 +19,7 @@ import {
   fetchCategoryReport,
 } from "../api/analytics-api";
 import { ReportResponse } from "../types";
+import { formatDualAmount, useCurrency } from "@/lib/currency-context";
 
 interface ReportsViewProps {
   initialData?: ReportResponse;
@@ -46,6 +47,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   initialData,
   currency,
 }) => {
+  const { mode, usdToKhrRate, isProviderMounted } = useCurrency();
   const [reportType, setReportType] = useState<"income_expense" | "cashflow" | "category">(
     "income_expense"
   );
@@ -80,6 +82,16 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
   const recon = data?.reconciliation;
   const isReconciled = recon?.difference === "0.00";
   const displayCurrency = data?.currency || currency || "USD";
+
+  const kpiDuals = {
+    income: formatDualAmount(String(totals.income || "0.00"), displayCurrency, mode, usdToKhrRate),
+    expense: formatDualAmount(String(totals.expense || "0.00"), displayCurrency, mode, usdToKhrRate),
+    net: formatDualAmount(String(totals.net || "0.00"), displayCurrency, mode, usdToKhrRate),
+    inflows: formatDualAmount(String(totals.inflows || "0.00"), displayCurrency, mode, usdToKhrRate),
+    outflows: formatDualAmount(String(totals.outflows || "0.00"), displayCurrency, mode, usdToKhrRate),
+    netCashFlow: formatDualAmount(String(totals.net_cash_flow || "0.00"), displayCurrency, mode, usdToKhrRate),
+    totalSpending: formatDualAmount(String(totals.total_spending || "0.00"), displayCurrency, mode, usdToKhrRate),
+  };
 
   const handleExportCsv = () => {
     if (tableData.length === 0) return;
@@ -262,9 +274,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <ArrowUpRight className="w-4 h-4 text-[var(--positive)]" />
               </div>
               <div className="font-mono text-2xl font-bold text-[var(--positive)]">
-                {totals.income || "0.00"}{" "}
-                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                {isProviderMounted ? (
+                  kpiDuals.income.primary
+                ) : (
+                  <>
+                    {totals.income || "0.00"}{" "}
+                    <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                  </>
+                )}
               </div>
+              {isProviderMounted && kpiDuals.income.secondary && (
+                <div className="text-[11px] font-mono text-muted mt-0.5">
+                  {kpiDuals.income.secondary}
+                </div>
+              )}
             </div>
             <div className="rounded-xl border border-[var(--negative-border)] bg-[var(--negative-bg)] p-4">
               <div className="flex items-center justify-between text-xs text-muted mb-1">
@@ -272,9 +295,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <ArrowDownRight className="w-4 h-4 text-[var(--negative)]" />
               </div>
               <div className="font-mono text-2xl font-bold text-[var(--negative)]">
-                {totals.expense || "0.00"}{" "}
-                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                {isProviderMounted ? (
+                  kpiDuals.expense.primary
+                ) : (
+                  <>
+                    {totals.expense || "0.00"}{" "}
+                    <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                  </>
+                )}
               </div>
+              {isProviderMounted && kpiDuals.expense.secondary && (
+                <div className="text-[11px] font-mono text-muted mt-0.5">
+                  {kpiDuals.expense.secondary}
+                </div>
+              )}
             </div>
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
               <div className="flex items-center justify-between text-xs text-muted mb-1">
@@ -282,9 +316,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                 <DollarSign className="w-4 h-4 text-gold" />
               </div>
               <div className="font-mono text-2xl font-bold text-main">
-                {totals.net || "0.00"}{" "}
-                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                {isProviderMounted ? (
+                  kpiDuals.net.primary
+                ) : (
+                  <>
+                    {totals.net || "0.00"}{" "}
+                    <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                  </>
+                )}
               </div>
+              {isProviderMounted && kpiDuals.net.secondary && (
+                <div className="text-[11px] font-mono text-muted mt-0.5">
+                  {kpiDuals.net.secondary}
+                </div>
+              )}
             </div>
           </>
         )}
@@ -294,23 +339,56 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
             <div className="rounded-xl border border-[var(--positive-border)] bg-[var(--positive-bg)] p-4">
               <div className="text-xs text-muted mb-1">Operating Inflows</div>
               <div className="font-mono text-2xl font-bold text-[var(--positive)]">
-                {totals.inflows || "0.00"}{" "}
-                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                {isProviderMounted ? (
+                  kpiDuals.inflows.primary
+                ) : (
+                  <>
+                    {totals.inflows || "0.00"}{" "}
+                    <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                  </>
+                )}
               </div>
+              {isProviderMounted && kpiDuals.inflows.secondary && (
+                <div className="text-[11px] font-mono text-muted mt-0.5">
+                  {kpiDuals.inflows.secondary}
+                </div>
+              )}
             </div>
             <div className="rounded-xl border border-[var(--negative-border)] bg-[var(--negative-bg)] p-4">
               <div className="text-xs text-muted mb-1">Operating Outflows</div>
               <div className="font-mono text-2xl font-bold text-[var(--negative)]">
-                {totals.outflows || "0.00"}{" "}
-                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                {isProviderMounted ? (
+                  kpiDuals.outflows.primary
+                ) : (
+                  <>
+                    {totals.outflows || "0.00"}{" "}
+                    <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                  </>
+                )}
               </div>
+              {isProviderMounted && kpiDuals.outflows.secondary && (
+                <div className="text-[11px] font-mono text-muted mt-0.5">
+                  {kpiDuals.outflows.secondary}
+                </div>
+              )}
             </div>
             <div className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
               <div className="text-xs text-muted mb-1">Net Cash Movement</div>
               <div className="font-mono text-2xl font-bold text-main">
-                {totals.net_cash_flow || "0.00"}{" "}
-                <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                {isProviderMounted ? (
+                  kpiDuals.netCashFlow.primary
+                ) : (
+                  <>
+                    {totals.net_cash_flow || "0.00"}{" "}
+                    <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                  </>
+                )}
               </div>
+              {isProviderMounted && kpiDuals.netCashFlow.secondary && (
+                <div className="text-[11px] font-mono text-muted mt-0.5">
+                  {kpiDuals.netCashFlow.secondary}
+                </div>
+              )}
             </div>
           </>
         )}
@@ -319,9 +397,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
           <div className="sm:col-span-3 rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4">
             <div className="text-xs text-muted mb-1">Total Category Spending</div>
             <div className="font-mono text-2xl font-bold text-main">
-              {totals.total_spending || "0.00"}{" "}
-              <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+              {isProviderMounted ? (
+                kpiDuals.totalSpending.primary
+              ) : (
+                <>
+                  {totals.total_spending || "0.00"}{" "}
+                  <span className="text-xs text-muted font-sans">{displayCurrency}</span>
+                </>
+              )}
             </div>
+            {isProviderMounted && kpiDuals.totalSpending.secondary && (
+              <div className="text-[11px] font-mono text-muted mt-0.5">
+                {kpiDuals.totalSpending.secondary}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -452,18 +541,20 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                           y={PAD_T + PLOT_H - incH}
                           width={barW}
                           height={Math.max(2, incH)}
-                          rx="3"
+                          rx="4"
                           fill="var(--positive)"
                           opacity={isHov ? 1 : 0.85}
+                          className="animate-xaku-bar transition-all duration-300"
                         />
                         <rect
                           x={center + 2}
                           y={PAD_T + PLOT_H - expH}
                           width={barW}
                           height={Math.max(2, expH)}
-                          rx="3"
+                          rx="4"
                           fill="var(--negative)"
                           opacity={isHov ? 1 : 0.85}
+                          className="animate-xaku-bar transition-all duration-300"
                         />
                         <text
                           x={center}
@@ -484,9 +575,10 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       points={netLinePts}
                       fill="none"
                       stroke="var(--accent)"
-                      strokeWidth="2.25"
+                      strokeWidth="2.5"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      className="animate-xaku-line"
                     />
                   )}
 
@@ -544,7 +636,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                         strokeWidth={hoveredCategoryIdx === seg.idx ? 28 : 24}
                         strokeDasharray={seg.dashArray}
                         strokeDashoffset={seg.dashOffset}
-                        className="transition-all duration-200 cursor-pointer"
+                        className="animate-xaku-ring transition-all duration-300 cursor-pointer"
                         onMouseEnter={() => setHoveredCategoryIdx(seg.idx)}
                         onMouseLeave={() => setHoveredCategoryIdx(null)}
                       />
@@ -589,7 +681,7 @@ export const ReportsView: React.FC<ReportsViewProps> = ({
                       </div>
                       <div className="h-1.5 w-full rounded-full bg-[var(--surface-raised)] overflow-hidden">
                         <div
-                          className="h-full rounded-full transition-all"
+                          className="h-full rounded-full transition-all animate-xaku-bar"
                           style={{ width: `${seg.pct}%`, backgroundColor: seg.color }}
                         />
                       </div>

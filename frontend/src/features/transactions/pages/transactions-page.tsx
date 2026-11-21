@@ -10,7 +10,11 @@ import { TransactionAuditDrawer } from "../components/transaction-audit-drawer";
 import { getAccounts } from "@/features/accounts/api";
 import { fetchCategories } from "@/features/categories/api";
 import { queryKeys } from "@/lib/query-keys";
-import { formatMoney } from "@/lib/money";
+import {
+  convertMajorToUsdAndKhr,
+  resolveModeReadout,
+  useCurrency,
+} from "@/lib/currency-context";
 
 function escapeCsvCell(val: unknown): string {
   const s = String(val ?? "");
@@ -19,6 +23,7 @@ function escapeCsvCell(val: unknown): string {
 }
 
 export const TransactionsPage: React.FC = () => {
+  const { mode, usdToKhrRate } = useCurrency();
   const [searchParams, setSearchParams] = useSearchParams();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
@@ -74,33 +79,38 @@ export const TransactionsPage: React.FC = () => {
   const transactions = data?.results || [];
 
   const summary = useMemo(() => {
-    let inflowsMinor = 0;
-    let outflowsMinor = 0;
-    const currencies = new Set<string>();
+    let inflowsUsd = 0;
+    let inflowsKhr = 0;
+    let outflowsUsd = 0;
+    let outflowsKhr = 0;
 
     for (const tx of transactions) {
       if (tx.is_archived) continue;
-      currencies.add(tx.currency);
+      const conv = convertMajorToUsdAndKhr(
+        Math.abs(tx.amount_minor) / 100,
+        tx.currency,
+        usdToKhrRate
+      );
       if (tx.type === "income") {
-        inflowsMinor += Math.abs(tx.amount_minor);
+        inflowsUsd += conv.usd;
+        inflowsKhr += conv.khr;
       } else if (tx.type === "expense") {
-        outflowsMinor += Math.abs(tx.amount_minor);
+        outflowsUsd += conv.usd;
+        outflowsKhr += conv.khr;
       }
     }
 
-    const primaryCurrency = currencies.size === 1 ? Array.from(currencies)[0] : "USD";
-    const isMultiCurrency = currencies.size > 1;
-    const netMinor = inflowsMinor - outflowsMinor;
+    const netUsd = inflowsUsd - outflowsUsd;
+    const netKhr = inflowsKhr - outflowsKhr;
 
     return {
       count: transactions.length,
-      inflowsMinor,
-      outflowsMinor,
-      netMinor,
-      currency: primaryCurrency,
-      isMultiCurrency,
+      netUsd,
+      inflows: resolveModeReadout(inflowsUsd, inflowsKhr, mode),
+      outflows: resolveModeReadout(outflowsUsd, outflowsKhr, mode),
+      net: resolveModeReadout(netUsd, netKhr, mode),
     };
-  }, [transactions]);
+  }, [transactions, mode, usdToKhrRate]);
 
   const handleExportCsv = () => {
     if (transactions.length === 0) return;
@@ -195,10 +205,12 @@ export const TransactionsPage: React.FC = () => {
             <ArrowDownRight className="w-3.5 h-3.5 text-[var(--positive)]" />
           </div>
           <div className="font-mono text-xl font-bold text-[var(--positive)]">
-            {formatMoney(summary.inflowsMinor, summary.currency)}
+            {summary.inflows.primary}
           </div>
-          {summary.isMultiCurrency && (
-            <div className="text-[10px] text-faint mt-0.5">Mixed currencies</div>
+          {summary.inflows.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {summary.inflows.secondary}
+            </div>
           )}
         </div>
 
@@ -208,10 +220,12 @@ export const TransactionsPage: React.FC = () => {
             <ArrowUpRight className="w-3.5 h-3.5 text-[var(--negative)]" />
           </div>
           <div className="font-mono text-xl font-bold text-[var(--negative)]">
-            {formatMoney(summary.outflowsMinor, summary.currency)}
+            {summary.outflows.primary}
           </div>
-          {summary.isMultiCurrency && (
-            <div className="text-[10px] text-faint mt-0.5">Mixed currencies</div>
+          {summary.outflows.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {summary.outflows.secondary}
+            </div>
           )}
         </div>
 
@@ -219,12 +233,16 @@ export const TransactionsPage: React.FC = () => {
           <div className="text-xs text-muted mb-1">Net Register Flow</div>
           <div
             className={`font-mono text-xl font-bold ${
-              summary.netMinor >= 0 ? "text-[var(--positive)]" : "text-[var(--negative)]"
+              summary.netUsd >= 0 ? "text-[var(--positive)]" : "text-[var(--negative)]"
             }`}
           >
-            {summary.netMinor >= 0 ? "+" : ""}
-            {formatMoney(summary.netMinor, summary.currency)}
+            {summary.net.primary}
           </div>
+          {summary.net.secondary && (
+            <div className="text-[11px] font-mono text-muted mt-0.5">
+              {summary.net.secondary}
+            </div>
+          )}
         </div>
       </div>
 
