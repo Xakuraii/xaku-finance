@@ -3,7 +3,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../auth-context";
 import {
   AlertCircle,
-  Lock,
   ArrowLeft,
   Sparkles,
   Check,
@@ -11,9 +10,6 @@ import {
   KeyRound,
   Eye,
   EyeOff,
-  CheckCircle2,
-  Coins,
-  Shield,
 } from "lucide-react";
 import { ApiError } from "@/lib/api/client";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
@@ -132,139 +128,48 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex bg-[var(--bg)] text-[var(--text)] transition-colors">
-      {/* Left Institutional Showcase Panel */}
-      <aside className="hidden lg:flex lg:w-[46%] xl:w-[48%] flex-col justify-between p-10 xl:p-14 border-r border-[var(--border)] bg-[var(--surface)] relative overflow-hidden">
-        <div className="absolute -top-24 -left-24 w-96 h-96 rounded-full bg-[var(--accent)]/8 blur-[120px] pointer-events-none" />
-        <div className="absolute -bottom-24 -right-24 w-96 h-96 rounded-full bg-[var(--positive)]/6 blur-[120px] pointer-events-none" />
+    <div className="min-h-screen flex flex-col justify-between p-5 sm:p-8 bg-[var(--bg)] text-[var(--text)] relative overflow-hidden transition-colors">
+      {/* Subtle Ambient Institutional Glow */}
+      <div className="pointer-events-none fixed inset-0 overflow-hidden">
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[520px] h-[320px] rounded-full bg-[var(--accent)]/8 blur-[130px]" />
+        <div className="absolute -bottom-32 right-1/4 w-[380px] h-[260px] rounded-full bg-[var(--positive)]/6 blur-[130px]" />
+      </div>
 
-        {/* Brand Header */}
-        <div className="relative z-10 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-sm group-hover:scale-105 transition-transform">
-              <span className="font-display text-base">X</span>
-            </div>
-            <div>
-              <span className="font-display font-bold tracking-tight text-lg text-main block leading-tight">
-                XakuFinance
-              </span>
-              <span className="text-[10px] tracking-wider uppercase text-faint font-medium">
-                Double-Entry Ledger Architecture
-              </span>
-            </div>
-          </Link>
-        </div>
+      {/* Minimal Top Bar */}
+      <div className="relative z-10 flex items-center justify-between max-w-5xl w-full mx-auto">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-main px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-sm hover:bg-[var(--surface-raised)] transition-all"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          <span>Back to Home</span>
+        </Link>
 
-        {/* Center Showcase Content */}
-        <div className="relative z-10 space-y-8 my-auto py-8">
-          <div className="space-y-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[var(--accent)]/30 bg-[var(--accent)]/8 text-gold text-xs font-medium">
-              <span className="w-1.5 h-1.5 rounded-full bg-[var(--accent)]" />
-              Institutional Financial Control
-            </div>
-            <h2 className="font-display text-3xl xl:text-4xl font-bold tracking-tight text-main leading-[1.15]">
-              Sovereign financial clarity with zero drift.
-            </h2>
-            <p className="text-sm text-muted leading-relaxed max-w-md">
-              Monitor US Dollar ($) and Cambodian Riel (៛) accounts simultaneously in one reconciled double-entry journal.
-            </p>
-          </div>
+        <AnimatedThemeToggler variant="circle" />
+      </div>
 
-          {/* Dual-Currency Live Preview Card */}
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--bg)] p-5 shadow-lg space-y-4 max-w-md">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-muted">Combined Liquid Balance</span>
-              <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-[var(--positive-bg)] border border-[var(--positive-border)] text-[var(--positive)]">
-                <CheckCircle2 className="w-3 h-3" />
-                0 Drift
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-3">
-                <div className="text-[10px] text-faint font-medium">US Dollar ($)</div>
-                <div className="font-mono text-lg font-bold text-gold mt-0.5">$13,700.00</div>
-              </div>
-              <div className="rounded-xl bg-[var(--surface)] border border-[var(--border)] p-3">
-                <div className="text-[10px] text-faint font-medium">Khmer Riel (៛)</div>
-                <div className="font-mono text-lg font-bold text-[var(--positive)] mt-0.5">56,170,000 ៛</div>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between text-[11px] font-mono text-faint pt-2 border-t border-[var(--border)]">
-              <span>Live Dual-Currency View</span>
-              <span>$1 = 4,100 ៛</span>
-            </div>
-          </div>
-
-          {/* 3 Security Pillars */}
-          <div className="space-y-3 pt-1">
-            {[
-              {
-                icon: <Shield className="w-4 h-4 text-gold" />,
-                title: "Double-Entry Zero-Drift Core",
-                desc: "Every transaction posts immutable balanced debit & credit lines.",
-              },
-              {
-                icon: <Coins className="w-4 h-4 text-[var(--positive)]" />,
-                title: "USD & Khmer Riel Dual-Currency",
-                desc: "Switch between $, ៛, or combined dual view in one click.",
-              },
-              {
-                icon: <ShieldCheck className="w-4 h-4 text-[var(--info)]" />,
-                title: "Google OAuth 2.0 & RFC 6238 TOTP",
-                desc: "Verified Gmail identity plus optional authenticator two-factor security.",
-              },
-            ].map((item) => (
-              <div key={item.title} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-lg bg-[var(--surface-raised)] border border-[var(--border)] flex items-center justify-center shrink-0 mt-0.5">
-                  {item.icon}
-                </div>
-                <div>
-                  <div className="text-xs font-semibold text-main">{item.title}</div>
-                  <div className="text-[11px] text-muted">{item.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="relative z-10 text-[11px] text-faint font-mono">
-          XakuFinance · Verified Workspace Access
-        </div>
-      </aside>
-
-      {/* Right Authentication Area */}
-      <div className="flex-1 flex flex-col justify-between p-5 sm:p-8 relative">
-        {/* Top Controls */}
-        <div className="flex items-center justify-between">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-1.5 text-xs text-muted hover:text-main px-3 py-1.5 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-raised)] transition-all"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Home</span>
-          </Link>
-
-          <AnimatedThemeToggler variant="circle" />
-        </div>
-
-        {/* Center Auth Card */}
-        <div className="w-full max-w-md mx-auto my-auto py-8">
-          <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-7 sm:p-8 shadow-xl space-y-6 transition-colors">
-            {!mfaChallenge ? (
-              <>
-                <div className="text-center space-y-2">
-                  <div className="inline-flex items-center justify-center w-11 h-11 rounded-xl bg-[var(--accent)]/12 border border-[var(--accent)]/30 text-gold mb-1 shadow-xs">
-                    <Lock className="w-5 h-5" />
+      {/* Centered Auth Card */}
+      <div className="relative z-10 w-full max-w-[430px] mx-auto my-auto py-6 animate-xaku-fade-up">
+        <div className="rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-7 sm:p-8 shadow-2xl shadow-black/10 dark:shadow-black/45 space-y-6 relative overflow-hidden transition-colors">
+          <div className="absolute top-0 left-0 right-0 h-0.5 bg-gradient-to-r from-transparent via-[var(--accent)] to-transparent opacity-80" />
+          {!mfaChallenge ? (
+            <>
+              <div className="text-center space-y-2.5">
+                <Link to="/" className="inline-flex items-center gap-2 group mb-0.5">
+                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-sm group-hover:scale-105 transition-transform">
+                    <span className="font-display text-base">X</span>
                   </div>
-                  <h1 className="font-display text-2xl font-bold tracking-tight text-main">
-                    Welcome Back
-                  </h1>
-                  <p className="text-xs text-muted">
-                    Sign in to XakuFinance to inspect your dual-currency ledger.
-                  </p>
-                </div>
+                  <span className="font-display font-bold tracking-tight text-lg text-main">
+                    XakuFinance
+                  </span>
+                </Link>
+                <h1 className="font-display text-2xl font-bold tracking-tight text-main">
+                  Welcome Back
+                </h1>
+                <p className="text-xs text-muted">
+                  Sign in to inspect your USD &amp; Khmer Riel double-entry ledger.
+                </p>
+              </div>
 
                 {/* Real Google Gmail OAuth Sign-In */}
                 <GoogleAuthButton
@@ -438,12 +343,15 @@ export const LoginPage: React.FC = () => {
                 </div>
               </>
             )}
-          </div>
         </div>
 
-        <div className="text-center text-[11px] text-faint lg:hidden">
-          XakuFinance · Double-Entry Ledger Architecture
-        </div>
+        <p className="text-center text-[11px] font-mono text-faint mt-4">
+          Zero-Drift Double-Entry · USD &amp; KHR
+        </p>
+      </div>
+
+      <div className="relative z-10 text-center text-[11px] text-faint">
+        XakuFinance · Private Financial Ledger
       </div>
     </div>
   );
