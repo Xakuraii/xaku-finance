@@ -10,7 +10,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-.font-tabular {
+.font-tabular,
+.font-mono {
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
