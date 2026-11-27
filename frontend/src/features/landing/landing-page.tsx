@@ -15,6 +15,7 @@ import {
   Layers,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { BrandLogo } from "@/components/brand-logo";
 import { useAuth } from "@/features/auth/auth-context";
 
 export const LandingPage: React.FC = () => {
@@ -44,18 +45,11 @@ export const LandingPage: React.FC = () => {
       {/* Top Navbar */}
       <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--surface)]/90 border-b border-[var(--border)] transition-colors">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-md shadow-[#F0B90B]/20 group-hover:scale-105 transition-transform">
-              <span className="font-display text-base">X</span>
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display font-bold tracking-tight text-lg leading-tight text-[var(--text)]">
-                XakuFinance
-              </span>
-              <span className="text-[10px] tracking-wider uppercase text-[var(--text-faint)] font-medium">
-                Double-Entry Ledger
-              </span>
-            </div>
+          <Link to="/" className="flex items-center group">
+            <BrandLogo
+              iconClassName="w-10 h-10 sm:w-12 sm:h-12 group-hover:scale-105 transition-transform"
+              textClassName="text-xl sm:text-2xl"
+            />
           </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-xs font-medium text-[var(--text-muted)]">
@@ -537,14 +531,10 @@ export const LandingPage: React.FC = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 space-y-10">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold text-xs">
-                  <span className="font-display">X</span>
-                </div>
-                <span className="font-display font-bold text-sm text-[var(--text)]">
-                  XakuFinance
-                </span>
-              </div>
+              <BrandLogo
+                iconClassName="w-10 h-10 sm:w-12 sm:h-12"
+                textClassName="text-lg sm:text-xl"
+              />
               <p className="text-[11px] text-[var(--text-faint)] leading-relaxed">
                 Sovereign personal financial management built on an immutable double-entry ledger core with strict balance invariants.
               </p>
