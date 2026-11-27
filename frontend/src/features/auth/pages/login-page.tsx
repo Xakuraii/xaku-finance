@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { ApiError } from "@/lib/api/client";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { BrandLogo } from "@/components/brand-logo";
 import { GoogleAuthButton } from "../components/google-auth-button";
 
 export const LoginPage: React.FC = () => {
@@ -155,13 +156,11 @@ export const LoginPage: React.FC = () => {
           {!mfaChallenge ? (
             <>
               <div className="text-center space-y-2.5">
-                <Link to="/" className="inline-flex items-center gap-2 group mb-0.5">
-                  <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-sm group-hover:scale-105 transition-transform">
-                    <span className="font-display text-base">X</span>
-                  </div>
-                  <span className="font-display font-bold tracking-tight text-lg text-main">
-                    XakuFinance
-                  </span>
+                <Link to="/" className="inline-flex items-center group mb-0.5">
+                  <BrandLogo
+                    iconClassName="w-10 h-10 sm:w-12 sm:h-12 group-hover:scale-105 transition-transform"
+                    textClassName="text-xl sm:text-2xl"
+                  />
                 </Link>
                 <h1 className="font-display text-2xl font-bold tracking-tight text-main">
                   Welcome Back

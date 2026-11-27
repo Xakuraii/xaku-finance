@@ -24,6 +24,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { AnimatedThemeToggler } from "@/components/ui/animated-theme-toggler";
+import { BrandLogo } from "@/components/brand-logo";
 import { NotificationBell } from "@/features/notifications/components/notification-bell";
 import { ImportWizardDialog } from "@/features/imports/components/import-wizard-dialog";
 import { useQuery } from "@tanstack/react-query";
@@ -243,28 +244,24 @@ export const AuthenticatedLayout: React.FC = () => {
     <div className="flex flex-col h-full">
       {/* Logo */}
       <div
-        className={`flex items-center justify-between border-b border-[var(--border)] px-4 py-4 ${
+        className={`flex items-center justify-between border-b border-[var(--border)] h-16 px-4 ${
           collapsed ? "justify-center px-2" : ""
         }`}
       >
         <Link
           to="/app/dashboard"
-          className="flex items-center gap-2.5 group shrink-0"
+          className="flex items-center group shrink-0"
           onClick={() => setMobileSidebarOpen(false)}
         >
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-sm group-hover:scale-105 transition-transform shrink-0">
-            <span className="font-display text-sm">X</span>
-          </div>
-          {!collapsed && (
-            <div className="flex flex-col">
-              <span className="font-display font-bold tracking-tight text-[var(--text)] text-base leading-tight">
-                XakuFinance
-              </span>
-              <span className="text-[10px] text-[var(--text-faint)] font-medium">
-                Ledger Control
-              </span>
-            </div>
-          )}
+          <BrandLogo
+            iconOnly={collapsed}
+            iconClassName={
+              collapsed
+                ? "w-10 h-10 sm:w-10 sm:h-10 group-hover:scale-105 transition-transform"
+                : "w-10 h-10 sm:w-12 sm:h-12 group-hover:scale-105 transition-transform"
+            }
+            textClassName="text-lg"
+          />
         </Link>
         {isMobile && (
           <button
@@ -419,7 +416,7 @@ export const AuthenticatedLayout: React.FC = () => {
       >
         {/* Institutional Top Bar */}
         <header className="sticky top-0 z-20 border-b border-[var(--border)] bg-[var(--surface)]/92 backdrop-blur-md">
-          <div className="h-14 px-4 sm:px-6 flex items-center justify-between gap-3">
+          <div className="h-16 px-4 sm:px-6 flex items-center justify-between gap-3">
             {/* Mobile hamburger & logo */}
             <div className="flex items-center gap-3">
               <button
@@ -431,13 +428,11 @@ export const AuthenticatedLayout: React.FC = () => {
                 <Menu className="w-4 h-4" />
               </button>
 
-              <Link to="/app/dashboard" className="md:hidden flex items-center gap-2 group">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#F0B90B] to-[#D9A600] flex items-center justify-center text-black font-bold shadow-xs">
-                  <span className="font-display text-xs">X</span>
-                </div>
-                <span className="font-display font-bold tracking-tight text-[var(--text)] text-base">
-                  XakuFinance
-                </span>
+              <Link to="/app/dashboard" className="md:hidden flex items-center group">
+                <BrandLogo
+                  iconClassName="w-10 h-10 sm:w-12 sm:h-12"
+                  textClassName="text-lg sm:text-xl"
+                />
               </Link>
 
               {/* Desktop Dynamic Breadcrumb */}
